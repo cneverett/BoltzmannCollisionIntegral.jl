@@ -1,0 +1,38 @@
+
+# ================ Struct for Particle Data ================= #
+
+    struct PD
+        name::String        # three letter abbreviation
+
+        # Momentum data
+        pl::Float32         # lowest momentum value (log10 space)
+        pu::Float32         # highest momentum value (log10 space)
+        nump::Int64         # number of mometum divisions/grid cells
+        
+        # Angle Data
+        tl::Float32         # lower angular bound (pi space)
+        tu::Float32         # upper angular bound (pi space)
+        numt::Int64         # number of angular divisions/grid cells
+
+        # Physical Data
+        m::Float32          # particle mass in kg
+        mu::Float32         # reduced particle mass (wrt electron mass)
+    end
+
+# =========================================================== #
+
+# ====================== Assign Data ======================== # 
+
+    # Hard Sphere
+    pl = -5f0; pu = 4f0; nump = 36;
+    tl = 0f0; tu = 1f0; numt = 8;
+    SphData = PD("Sph",-5f0,4f0,36,0f0,1f0,8,1.672622f-27,1836.1528f0)
+
+    #Ele = PD("Ele",-5f0,4f0,36,[range(-5f0,4f0,36+1);],0f0,1f0,8,[0f0,1f0,8+1],9.109383f-31,1f0)
+
+    #Pos = PD("Pos",-5f0,4f0,36,[range(-5f0,4f0,36+1);],0f0,1f0,8,[0f0,1f0,8+1],9.109383f-31,1f0)
+
+    #Pro = PD("Pro",-5f0,4f0,36,[range(-5f0,4f0,36+1);],0f0,1f0,8,[0f0,1f0,8+1],1.672622f-27,1836.1528f0)
+
+# =========================================================== # 
+
