@@ -1,8 +1,7 @@
 module BinaryInteractionSpectra
 
-# Write your package code here.
-
-export SpectraEvaluate
-include("STIntegration.jl")
+export SpectraEvaluateSerial, SpectraEvaluateMultiThread
+include("Serial\\STIntegration_Serial.jl")
+include("MultiThread\\STIntegration_MultiThread.jl")
 
 end

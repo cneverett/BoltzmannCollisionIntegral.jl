@@ -1,10 +1,10 @@
 #= Script for running the ST integration and returning data arrays =#
 
-    include("ParticleData.jl")
-    include("Init.jl")
-    include("STMonteCarlo.jl")
-    include("UsefulGridValueFunctions.jl")
-    include("PhaseSpaceFactors.jl")
+    include("..\\Common\\ParticleData.jl")
+    include("Init_Serial.jl")
+    include("STMonteCarlo_Serial.jl")
+    include("..\\Common\\UsefulGridValueFunctions.jl")
+    include("..\\PhaseSpaceFactors.jl")
     using JLD2
 
     # ===== Set Properties from Init.jl ==== #
@@ -44,7 +44,7 @@
     # ====================================== #
 
 
-function SpectraEvaluate()
+function SpectraEvaluateSerial()
 
     # ========= Load/Create Files ========== #
 
@@ -83,7 +83,7 @@ function SpectraEvaluate()
 
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi!(SAtot,TAtot,AStal,ATtal,p3v,p1v,p2v,ST)
+        STMonteCarloAxi_Serial!(SAtot,TAtot,AStal,ATtal,p3v,p1v,p2v,ST)
 
     # ===================================== #
 

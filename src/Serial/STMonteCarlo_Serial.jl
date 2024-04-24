@@ -55,13 +55,13 @@ Output:
 # -------------
 
 # Dependancies
-include("RandomPointMomentum.jl")
-include("RandomPointSphere.jl")
-include("STValue.jl")
-include("DifferentialCrossSectionFunctions.jl")
-include("Momentum3Values.jl")
+include("..\\Common\\RandomPointMomentum.jl")
+include("..\\Common\\RandomPointSphere.jl")
+include("..\\Common\\STValue.jl")
+include("..\\Common\\DifferentialCrossSectionFunctions.jl")
+include("..\\Common\\Momentum3Values.jl")
 
-function STMonteCarloAxi!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},AStally::Array{UInt32,6},ATtally::Array{UInt32,4},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},ST::Vector{Float32})
+function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},AStally::Array{UInt32,6},ATtally::Array{UInt32,4},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},ST::Vector{Float32})
 
     # check arrays are correct size 
     #size(AStally) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
