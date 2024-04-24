@@ -11,8 +11,8 @@
 
 # integration time approx 250ns per itteration 
 
-    const numTiter::Int64 = 10;    # number of T matrix itterations i.e. random p1 p2 points
-    const numSiter::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point  
+    const numTiterPerThread::Int64 = 10;    # number of T matrix itterations i.e. random p1 p2 points
+    const numSiterPerThread::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point  
     const nThreads::Int64 = 1;   
 
 # ---------------------------------------------- #

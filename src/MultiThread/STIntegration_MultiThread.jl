@@ -72,18 +72,18 @@ function SpectraEvaluateSerial()
     # ========= Pre-Allocate Arrays ======== #
 
         # pre-allocate arrays for momentum
-        p3v = zeros(Float32,3,2); # two three array vector ((p3,t3,h1),(p3',t3',h1')) second corresponds to mirrored point in angle space
-        p1v = zeros(Float32,3);
-        p2v = zeros(Float32,3);
+        p3v = zeros(Float32,3,2,nThreads); # two three array vector ((p3,t3,h1),(p3',t3',h1')) second corresponds to mirrored point in angle space
+        p1v = zeros(Float32,3,nThreads);
+        p2v = zeros(Float32,3,nThreads);
 
         # pre-allocate arrays for ST values
-        ST = zeros(Float32,3); # [S,Sp,T]
+        ST = zeros(Float32,3,nThreads); # [S,Sp,T]
 
     # ===================================== #
 
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi!(SAtot,TAtot,AStal,ATtal,p3v,p1v,p2v,ST)
+        STMonteCarloAxi_MultiThread!(SAtot,TAtot,AStal,ATtal,p3v,p1v,p2v,ST)
 
     # ===================================== #
 
