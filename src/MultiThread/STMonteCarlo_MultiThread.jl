@@ -68,6 +68,9 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     #size(ATtally) != (nump1,numt1,nump2,numt2) && error("ATally Array improperly sized")
     #size(SAtotal) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("S Total Array improperly sized")
     #size(TAtotal) != (nump1,numt1,nump2,numt2) && error("tally Array improperly sized")
+
+    # lock for data access
+    lk = ReentrantLock()
     
     Threads.@threads :static for iThread in nThreads
 
@@ -149,37 +152,41 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
             #println(string(p3loc)*"#"*string(p1loc)*"#"*string(p2loc))
 
+            lock(lk) do
             # Update Stotal and Atally arrays for p3
-            if testp3
-                if (1 <= p3loc <= nump3)
-                    SAtotal[p3loc+2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
-                elseif (p3loc > nump3) # overflow momentum
-                    SAtotal[2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
-                elseif (p3loc < 1) #underflow momentum 
-                    SAtotal[1,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
-                else
-                    error("p3 value not accounted for: p3="*string(p3vThread[1,1]))
+                if testp3
+                    if (1 <= p3loc <= nump3)
+                        SAtotal[p3loc+2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
+                    elseif (p3loc > nump3) # overflow momentum
+                        SAtotal[2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
+                    elseif (p3loc < 1) #underflow momentum 
+                        SAtotal[1,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
+                    else
+                        error("p3 value not accounted for: p3="*string(p3vThread[1,1]))
+                    end
+                    @view(AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)  # max tally is 4,294,967,295 with UInt32 - this tally can be used for both S and T as for T just sum over p3 t3 locations (may lead to overflow??)
+                else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
+                    (@view AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
                 end
-                @view(AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)  # max tally is 4,294,967,295 with UInt32 - this tally can be used for both S and T as for T just sum over p3 t3 locations (may lead to overflow??)
-            else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
-                (@view AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
             end
-
-            # Update Stotal and Atally arrays for p3p
-            if testp3p
-                if (1 <= p3ploc <= nump3)
-                    SAtotal[p3ploc+2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                elseif (p3ploc > nump3) # overflow momentum
-                    SAtotal[2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                elseif (p3ploc < 1) #underflow momentum 
-                    SAtotal[1,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                else
-                    error("p3p value not accounted for: p3="*string(p3vThread[1,2]))
-                end
-                @view(AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
-            else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
-                if t3ploc != t3loc # if equal then we are double counting tallies
-                (@view AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+            
+            lock(lk) do 
+                # Update Stotal and Atally arrays for p3p
+                if testp3p
+                    if (1 <= p3ploc <= nump3)
+                        SAtotal[p3ploc+2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
+                    elseif (p3ploc > nump3) # overflow momentum
+                        SAtotal[2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
+                    elseif (p3ploc < 1) #underflow momentum 
+                        SAtotal[1,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
+                    else
+                        error("p3p value not accounted for: p3="*string(p3vThread[1,2]))
+                    end
+                    @view(AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+                else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
+                    if t3ploc != t3loc # if equal then we are double counting tallies
+                    (@view AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+                    end
                 end
             end
 

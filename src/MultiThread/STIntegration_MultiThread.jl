@@ -89,6 +89,8 @@ function SpectraEvaluateSerial()
 
     # ===== Calculate S and T Matricies === #
 
+        #= these operations are run in serial =#
+
         # preallocate
         SMatrix = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2);
         TMatrix = zeros(Float32,nump1,numt1,nump2,numt2);
