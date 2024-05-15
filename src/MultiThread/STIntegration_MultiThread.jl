@@ -44,7 +44,7 @@
     # ====================================== #
 
 
-function SpectraEvaluateSerial()
+function SpectraEvaluateMultiThread()
 
     # ========= Load/Create Files ========== #
 

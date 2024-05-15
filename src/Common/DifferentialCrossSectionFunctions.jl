@@ -4,7 +4,6 @@ This module defines the differential/total cross section function and its normal
 
 =#
 
-
 #= if (name1 == name2 == name3 == name4) # all particles identical (1S 1T)
     export dsigmadt, dsigmadtn, sigma, sigman
 elseif ((name1 == name2) && (name3 == name4))   # input particles are identical and final particles are identical (2T 2S)
@@ -50,8 +49,8 @@ if (name1 == "Sph" && name2 == "Sph" && name3 == "Sph" && name4 == "Sph")
 
     end
 
-    const dsigmadtn = Float32(pi)*RSph^2
-    const sigman = Float32(pi)*RSph^2
+    const dsigmadtn = Float32(pi)*(2f0*RSph)^2
+    const sigman = Float32(pi)*(2f0*RSph)^2
 
     return nothing
 
@@ -63,7 +62,7 @@ end
 
 if (name1 == "Ele" && name2 == "Pos" && name3 == "Pho" && name4 == "Pho")
     # Hard sphere collisions
-    function dsigmadt(s::Float32,t::Float32)
+    function dsigmadt(s::Float32,t::Float32) # Berestetskii (88.4)
         
         -(1/(s(s-4)))*((1/(t-1)+1/(1-s-t))^2+(1/(t-1)+1/(1-s-t))-(1/4)*((t-1)/(1-s-t)+(1-s-t)/(t-1)))
 
@@ -78,7 +77,7 @@ if (name1 == "Ele" && name2 == "Pos" && name3 == "Pho" && name4 == "Pho")
 
     end
 
-    function sigma(s::Float32)
+    function sigma(s::Float32) # Berestetskii (88.6)
         
         (1/(4*s^2*(s-4)))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
 
