@@ -134,7 +134,7 @@ function SValueWithTests!(ST::Vector{Float32},p3v::Array{Float32},p1v::Vector{Fl
         # u = uBig + uSmol
         uBig::Float32 = (m2-m3)^2
         uSmol::Float32 = -2*(m3*Es2 + m2*Es3 + Es2*Es3 - p2*p3*(ct2*ct3+ch3h2*st2*st3))
-        deltacorrect::Float32 = -2*((Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2)))
+        deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
 
         ST[1] = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
         if (ST[1]==Inf || ST[1] == -Inf)
@@ -159,7 +159,7 @@ function SValueWithTests!(ST::Vector{Float32},p3v::Array{Float32},p1v::Vector{Fl
         tSmolp::Float32 = -2*(m1*Es3p + m3*Es1 + Es3p*Es1 - p3p*p1*(ct3p*ct1+ch3h1p*st3p*st1))
         uBigp::Float32 = (m2-m3)^2
         uSmolp::Float32 = -2*(m3*Es2 + m2*Es3p + Es2*Es3p - p2*p3p*(ct2*ct3p+ch3h2p*st2*st3p))
-        deltacorrectp::Float32 = -2*((Es1*p3p - Es3p*p1*(ct3p*ct1+ch3h1p*st3p*st1) + Es2*p3p - Es3p*p2*(ct3p*ct2+ch3h2p*st3p*st2)) + (m1*p3p - m3*p1*(ct3p*ct1+ch3h1p*st3p*st1) + m2*p3p - m3*p2*(ct3p*ct2+ch3h2p*st3p*st2)))
+        deltacorrectp::Float32 = (Es1*p3p - Es3p*p1*(ct3p*ct1+ch3h1p*st3p*st1) + Es2*p3p - Es3p*p2*(ct3p*ct2+ch3h2p*st3p*st2)) + (m1*p3p - m3*p1*(ct3p*ct1+ch3h1p*st3p*st1) + m2*p3p - m3*p2*(ct3p*ct2+ch3h2p*st3p*st2))
 
         ST[2] = dsigmadt(sSmol,sBig,tSmolp,tBigp,uSmolp,uBigp)*val*(p3p^2/(deltacorrectp*sign(deltacorrectp)))
         if (ST[2]==Inf || ST[2] == -Inf)
