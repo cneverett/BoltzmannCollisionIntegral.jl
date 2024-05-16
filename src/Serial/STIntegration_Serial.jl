@@ -1,48 +1,9 @@
 #= Script for running the ST integration and returning data arrays =#
 
-    include("..\\Common\\ParticleData.jl")
-    include("Init_Serial.jl")
     include("STMonteCarlo_Serial.jl")
-    include("..\\Common\\UsefulGridValueFunctions.jl")
-    include("..\\PhaseSpaceFactors.jl")
+    #include("..\\Common\\UsefulGridValueFunctions.jl")
+    #include("..\\Common\\PhaseSpaceFactors.jl")
     using JLD2
-
-    # ===== Set Properties from Init.jl ==== #
-
-        # Set Masses
-        const mu1::Float32 = eval(Symbol(name1*"Data")).mu
-        const mu2::Float32 = eval(Symbol(name2*"Data")).mu
-        const mu3::Float32 = eval(Symbol(name3*"Data")).mu
-        const mu4::Float32 = eval(Symbol(name4*"Data")).mu
-
-        # Set Momentum Space Grids (log10 space)
-        const p3l::Float32 = eval(Symbol(name3*"Data")).pl
-        const p3u::Float32 = eval(Symbol(name3*"Data")).pu
-        const nump3::Int64 = eval(Symbol(name3*"Data")).nump
-
-        const p1l::Float32 = eval(Symbol(name1*"Data")).pl
-        const p1u::Float32 = eval(Symbol(name1*"Data")).pu
-        const nump1::Int64 = eval(Symbol(name1*"Data")).nump
-
-        const p2l::Float32 = eval(Symbol(name2*"Data")).pl
-        const p2u::Float32 = eval(Symbol(name2*"Data")).pu
-        const nump2::Int64 = eval(Symbol(name2*"Data")).nump
-
-        # Angles (normalised by pi)
-        const t3l::Float32 = eval(Symbol(name3*"Data")).tl
-        const t3u::Float32 = eval(Symbol(name3*"Data")).tu
-        const numt3::Int64 = eval(Symbol(name3*"Data")).numt
-
-        const t1l::Float32 = eval(Symbol(name1*"Data")).tl
-        const t1u::Float32 = eval(Symbol(name1*"Data")).tu
-        const numt1::Int64 = eval(Symbol(name1*"Data")).numt
-        
-        const t2l::Float32 = eval(Symbol(name2*"Data")).tl
-        const t2u::Float32 = eval(Symbol(name2*"Data")).tu
-        const numt2::Int64 = eval(Symbol(name2*"Data")).numt
-
-    # ====================================== #
-
 
 function SpectraEvaluateSerial()
 
@@ -117,14 +78,12 @@ function SpectraEvaluateSerial()
         =#
 
         # Momentum space volume elements
-        PhaseSpaceFactors2!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
-        #PhaseSpaceFactors2Momentum!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)
+        PhaseSpaceFactors!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
         
         # initial states are symmetric -> apply symmetry of interaction to improve MC values
         STSymmetry!(SMatrix,TMatrix,mu1,mu2)                                    
         # correction to better conserve particle number and account for statistical noise of MC method
-        SCorrection2!(SMatrix,TMatrix) 
-
+        #SCorrection2!(SMatrix,TMatrix) 
 
     # ===================================== # 
 
@@ -193,7 +152,7 @@ STMonteCarloAxi!(SAtot,TAtot,Atal,p3v,p1v,p2v,ST) =#
 
 #=====================#
 
-
+#= 
 function PhaseSpaceFactorstest!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vector{Float32},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32},p2val::Vector{Float32},t2val::Vector{Float32})
 
     # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays
@@ -300,3 +259,4 @@ function STCheck!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vec
     end
 
 end
+ =#

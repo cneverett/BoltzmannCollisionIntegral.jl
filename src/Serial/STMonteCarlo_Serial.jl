@@ -55,11 +55,11 @@ Output:
 # -------------
 
 # Dependancies
-include("..\\Common\\RandomPointMomentum.jl")
-include("..\\Common\\RandomPointSphere.jl")
-include("..\\Common\\STValue.jl")
-include("..\\Common\\DifferentialCrossSectionFunctions.jl")
-include("..\\Common\\Momentum3Values.jl")
+#include("..\\Common\\RandomPointMomentum.jl")
+#include("..\\Common\\RandomPointSphere.jl")
+#include("..\\Common\\STValue.jl")
+#include("..\\Common\\DifferentialCrossSectionFunctions.jl")
+#include("..\\Common\\Momentum3Values.jl")
 
 function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},AStally::Array{UInt32,6},ATtally::Array{UInt32,4},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},ST::Vector{Float32})
 
@@ -188,10 +188,4 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
 
     return nothing
 
-end
-
-
-function location(u::Float32,l::Float32,num::Int64,val::Float32)
-    # function for generating poisition in array
-    return val != l ? ceil(Int64,Float32(num)*(val-l)/(u-l)) : Int64(1) 
 end

@@ -2,14 +2,14 @@
 user defined constant parameters for STIntegration
 =#
 
-include("ParticleData.jl")
+#include("ParticleData.jl")
 
 # ----------- Particle selection ---------------- # 
 
-    const name1::String = "Sph";
-    const name2::String = "Sph";
-    const name3::String = "Sph";
-    const name4::String = "Sph";
+    const name1::String = "Ele";
+    const name2::String = "Pos";
+    const name3::String = "Pho";
+    const name4::String = "Pho";
 
 # ---------------------------------------------- #
 
@@ -17,25 +17,33 @@ include("ParticleData.jl")
 
     # integration time approx 250ns per itteration 
 
-    const numTiter::Int64 = 10;    # number of T matrix itterations i.e. random p1 p2 points
-    const numSiter::Int64 = 10;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point     
+    # For Serial 
+    const numTiter::Int64 = 100;    # number of T matrix itterations i.e. random p1 p2 points
+    const numSiter::Int64 = 100000;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
+    
+    #For MultiThread
+    const numTiterPerThread::Int64 = 10;    # number of T matrix itterations i.e. random p1 p2 points
+    const numSiterPerThread::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point  
+    const nThreads::Int64 = 1;   
 
 # ---------------------------------------------- #
 
 # --------------- File Location ---------------- #
 
     fileLocation = pwd()*"\\Data"
-    fileName = filename = "test.jld2"
+    fileName = filename = "test2.jld2"
 
 # ---------------------------------------------- #
+
+##################################################
 
 # ----- DO NOT EDIT THIS SECTION --------------- #
 
     # Set Masses
-    mu1::Float32 = eval(Symbol(name1*"Data")).mu
-    mu2::Float32 = eval(Symbol(name2*"Data")).mu
-    mu3::Float32 = eval(Symbol(name3*"Data")).mu
-    mu4::Float32 = eval(Symbol(name4*"Data")).mu
+    const mu1::Float32 = eval(Symbol(name1*"Data")).mu
+    const mu2::Float32 = eval(Symbol(name2*"Data")).mu
+    const mu3::Float32 = eval(Symbol(name3*"Data")).mu
+    const mu4::Float32 = eval(Symbol(name4*"Data")).mu
 
 
     # Set Momentum Space Grids
