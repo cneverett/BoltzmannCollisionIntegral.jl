@@ -6,10 +6,10 @@ user defined constant parameters for STIntegration
 
 # ----------- Particle selection ---------------- # 
 
-    const name1::String = "Ele";
-    const name2::String = "Pos";
-    const name3::String = "Pho";
-    const name4::String = "Pho";
+    const name1::String = "Pho";
+    const name2::String = "Pho";
+    const name3::String = "Ele";
+    const name4::String = "Pos";
 
 # ---------------------------------------------- #
 
@@ -18,20 +18,20 @@ user defined constant parameters for STIntegration
     # integration time approx 250ns per itteration 
 
     # For Serial 
-    const numTiter::Int64 = 100;    # number of T matrix itterations i.e. random p1 p2 points
-    const numSiter::Int64 = 100000;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
+    numTiter::Int64 = 10;    # number of T matrix itterations i.e. random p1 p2 points
+    numSiter::Int64 = 4;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
     
     #For MultiThread
-    const numTiterPerThread::Int64 = 10;    # number of T matrix itterations i.e. random p1 p2 points
-    const numSiterPerThread::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point  
-    const nThreads::Int64 = 1;   
+    numTiterPerThread::Int64 = 10;    # number of T matrix itterations i.e. random p1 p2 points
+    numSiterPerThread::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point  
+    nThreads::Int64 = 1;   
 
 # ---------------------------------------------- #
 
 # --------------- File Location ---------------- #
 
-    fileLocation = pwd()*"\\Data"
-    fileName = filename = "test2.jld2"
+    const fileLocation = pwd()*"\\Data"
+    const fileName = filename = "test3.jld2"
 
 # ---------------------------------------------- #
 

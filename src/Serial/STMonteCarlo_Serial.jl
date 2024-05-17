@@ -87,6 +87,9 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         error("Log10pspace not defined")
         end =#
 
+        # Tval
+        TValuewithTest!(ST,p1v,p2v,mu1,mu2)
+
         # Calculate T Array Location
         #if (log10pspace == true)
             p1loc = location(p1u,p1l,nump1,log10(p1v[1]))
@@ -101,86 +104,86 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         t1loc = location(t1u,t1l,numt1,p1v[2])
         t2loc = location(t2u,t2l,numt2,p2v[2])
 
-        # Tval
-        TValue!(ST,p1v,p2v,mu1,mu2)
-
         TAtotal[p1loc,t1loc,p2loc,t2loc] += ST[3] # ST[3] doesn't change with S loop
         ATtally[p1loc,t1loc,p2loc,t2loc] += UInt32(1)
         
-        iS = 1
+        if ST[3] != 0f0 # valid initial state for interaction
+            iS = 1
 
-        while iS <= numSiter # loop over a number of p3 orientations for a given p1 p2 state
+            while iS <= numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
-            #generate random p3 direction 
-            R2PointSphereThetaPhi!(p3v)
+                #generate random p3 direction 
+                R2PointSphereThetaPhi!(p3v)
 
-            # Calculate p3 value
-            Momentum3Value!(p3v,p1v,p2v,mu1,mu2,mu3,mu4)
+                # Calculate p3 value
+                Momentum3Value!(p3v,p1v,p2v,mu1,mu2,mu3,mu4)
 
-            # check if non-zero
-            testp3 = (p3v[1,1] != 0f0)
-            testp3p = (p3v[1,2] != 0f0)
+                # check if non-zero
+                testp3 = (p3v[1,1] != 0f0)
+                testp3p = (p3v[1,2] != 0f0)
 
-            #println((p3v[1,1],p3v[1,2],p1v[1],p2v[1]))
+                #println((p3v[1,1],p3v[1,2],p1v[1],p2v[1]))
 
-            # Calculate S values
-            SValueWithTests!(ST,p3v,p1v,p2v,mu1,mu2,mu3,testp3,testp3p)
+                # Calculate S values
+                SValueWithTests!(ST,p3v,p1v,p2v,mu1,mu2,mu3,testp3,testp3p)
 
-            # Calculate S Array Location
-            #if (log10pspace == true)
-                testp3 ? p3loc = location(p3u,p3l,nump3,log10(p3v[1,1])) : Int32(0) # maybe no comparative slow down
-                testp3p ? p3ploc = location(p3u,p3l,nump3,log10(p3v[1,2])) : Int32(0)
-            #= elseif (log10pspace == false)
-                p3loc = location(p3u,p3l,nump3,p3v[1,1])
-                p3ploc = location(p3u,p3l,nump3,p3v[1,2])
-            else
-                error("Log10pspace not defined")
-            end =#
-
-            t3loc = location(t3u,t3l,numt3,p3v[2,1])
-            t3ploc = location(t3u,t3l,numt3,p3v[2,2])
-
-            #println(string(p3loc)*"#"*string(p1loc)*"#"*string(p2loc))
-
-            # Update Stotal and Atally arrays for p3
-            if testp3
-                if (1 <= p3loc <= nump3)
-                    SAtotal[p3loc+2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
-                elseif (p3loc > nump3) # overflow momentum
-                    SAtotal[2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
-                elseif (p3loc < 1) #underflow momentum 
-                    SAtotal[1,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
+                # Calculate S Array Location
+                #if (log10pspace == true)
+                    testp3 ? p3loc = location(p3u,p3l,nump3,log10(p3v[1,1])) : Int32(0) # maybe no comparative slow down
+                    testp3p ? p3ploc = location(p3u,p3l,nump3,log10(p3v[1,2])) : Int32(0)
+                #= elseif (log10pspace == false)
+                    p3loc = location(p3u,p3l,nump3,p3v[1,1])
+                    p3ploc = location(p3u,p3l,nump3,p3v[1,2])
                 else
-                    error("p3 value not accounted for: p3="*string(p3v[1,1]))
+                    error("Log10pspace not defined")
+                end =#
+
+                t3loc = location(t3u,t3l,numt3,p3v[2,1])
+                t3ploc = location(t3u,t3l,numt3,p3v[2,2])
+
+                #println(string(p3loc)*"#"*string(p1loc)*"#"*string(p2loc))
+
+                # Update Stotal and Atally arrays for p3
+                if testp3
+                    if (1 <= p3loc <= nump3)
+                        SAtotal[p3loc+2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
+                    elseif (p3loc > nump3) # overflow momentum
+                        SAtotal[2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
+                    elseif (p3loc < 1) #underflow momentum 
+                        SAtotal[1,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
+                    else
+                        error("p3 value not accounted for: p3="*string(p3v[1,1]))
+                    end
+                    @view(AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)  # max tally is 4,294,967,295 with UInt32 - this tally can be used for both S and T as for T just sum over p3 t3 locations (may lead to overflow??)
+                else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
+                    (@view AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
                 end
-                @view(AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)  # max tally is 4,294,967,295 with UInt32 - this tally can be used for both S and T as for T just sum over p3 t3 locations (may lead to overflow??)
-            else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
-                (@view AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
-            end
 
-            # Update Stotal and Atally arrays for p3p
-            if testp3p
-                if (1 <= p3ploc <= nump3)
-                    SAtotal[p3ploc+2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                elseif (p3ploc > nump3) # overflow momentum
-                    SAtotal[2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                elseif (p3ploc < 1) #underflow momentum 
-                    SAtotal[1,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                else
-                    error("p3p value not accounted for: p3="*string(p3v[1,2]))
+                # Update Stotal and Atally arrays for p3p
+                if testp3p
+                    if (1 <= p3ploc <= nump3)
+                        SAtotal[p3ploc+2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
+                    elseif (p3ploc > nump3) # overflow momentum
+                        SAtotal[2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
+                    elseif (p3ploc < 1) #underflow momentum 
+                        SAtotal[1,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
+                    else
+                        error("p3p value not accounted for: p3="*string(p3v[1,2]))
+                    end
+                    @view(AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+                else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
+                    if t3ploc != t3loc # if equal then we are double counting tallies
+                    (@view AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+                    end
                 end
-                @view(AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
-            else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
-                if t3ploc != t3loc # if equal then we are double counting tallies
-                (@view AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
-                end
-            end
 
-            #println(testp3 && testp3p)
+                #println(testp3 && testp3p)
 
-            iS += 1
+                iS += 1
 
-        end # Sloop
+            end # Sloop
+
+        end
 
         iT += 1
 

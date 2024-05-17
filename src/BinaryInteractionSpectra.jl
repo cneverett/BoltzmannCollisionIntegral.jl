@@ -12,6 +12,7 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread
         include("Common\\Momentum3Values.jl")
         include("Common\\RandomPointMomentum.jl")
         include("Common\\RandomPointSphere.jl")
+        include("Common/MandelstramChecks.jl")
         include("Common\\STValue.jl")
         include("Common/UsefulGridValueFunctions.jl")
         include("Common/PhaseSpaceFactors.jl")

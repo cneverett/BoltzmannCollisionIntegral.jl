@@ -98,3 +98,46 @@ if (name1 == "Ele" && name2 == "Pos" && name3 == "Pho" && name4 == "Pho")
 end
 
 # ==================================================================== # 
+
+
+#======== Electron Positron Pair Production from Two Photons ==========#
+
+if (name1 == "Pho" && name2 == "Pho" && name3 == "Ele" && name4 == "Pos")
+    # Hard sphere collisions
+    function dsigmadt(s::Float32,t::Float32)
+        
+        -(1/(s^2))*((1/(t-1)+1/(1-s-t))^2+(1/(t-1)+1/(1-s-t))-(1/4)*((t-1)/(1-s-t)+(1-s-t)/(t-1)))
+
+    end
+
+    function dsigmadt(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
+        
+        s = sSmol # sBig = (m1+m2)^2 = 0 (normalised units) -> s = sSmol
+        #t = tSmol+tBig # tBig = (m3-m1)^2 = 1 (normalised units) -> t = tSmol + 1
+        #u = uSmol+uBig # uBig = (m2-m3)^2 = 1 (normalised units) -> u = uSmol + 1
+        -(1/(sSmol^2))*((1/(tSmol)+1/(uSmol))^2+(1/(tSmol)+1/(uSmol))-(1/4)*((tSmol)/(uSmol)+(uSmol)/(tSmol)))
+
+    end
+
+    function sigma(s::Float32) 
+        
+        (1/(2*s^3))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
+
+    end
+
+    function sigma(sSmol::Float32,sBig::Float32)
+
+        # For photon-photon annihilation, sBig=0 and sSmol=s but still want to avoid float issues with s-4
+        s = sSmol+sBig
+        (1/(2*s^3))*((s^2+4*s-8)*log((2*s-4+2*sqrt(s*(s-4)))/(4))-(s+4)*sqrt(s*(s-4)))
+
+    end
+
+    const dsigmadtn = 3*σT;
+    const sigman = 3*σT;
+
+    return nothing
+
+end
+
+# ==================================================================== # 
