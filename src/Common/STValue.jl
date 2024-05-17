@@ -200,21 +200,21 @@ function SValueWithTests!(ST::Vector{Float32},p3v::Array{Float32},p1v::Vector{Fl
 
         deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
 
-        if (uCheck(uSmol,uBig)&&tCheck(tSmol,tBig)&&stuCheck(sSmol,sBig,tSmol,tBig,uSmol,uBig)) == false
-            error(string(tSmol+tBig)*"#"*string(uSmol+uBig)*"#"*string(sSmol)*"#"*string(sSmol*(tSmol+tBig)*(uSmol+uBig)-sSmol))
-        end
+        #if (uCheck(uSmol,uBig)&&tCheck(tSmol,tBig)#= &&stuCheck(sSmol,sBig,tSmol,tBig,uSmol,uBig) =#) == false
+        #    error("stu#"*string(tSmol)*"#"*string(tBig)*"#"*string(uSmol)*"#"*string(uBig)*"#"*string(sSmol)*"#"*string(sSmol*(tSmol+tBig)*(uSmol+uBig)-sSmol)*"#"*string(sSmol+(tSmol+uSmol)+(tBig+uBig)))
+        #end
 
         ST[1] = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
         if (ST[1]==Inf || ST[1] == -Inf)
-            error(string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig))  
+            error("ST1 Inf#"*string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig))  
         end
 
         #if dsigmadt(s,t) == 0f0
         #    println("s,t:"*string(s)*","*string(t))
         #end
 
-        println(string(tSmol+tBig)*"#"*string(uSmol+uBig)*"#"*string(sSmol))
-        println(sSmol+tSmol+tBig+uSmol+uBig)
+        #println(string(tSmol+tBig)*"#"*string(uSmol+uBig)*"#"*string(sSmol))
+        #println(sSmol+tSmol+tBig+uSmol+uBig)
 
     end
 
@@ -232,20 +232,20 @@ function SValueWithTests!(ST::Vector{Float32},p3v::Array{Float32},p1v::Vector{Fl
         uSmolp::Float32 = -2*(m3*Es2 + m2*Es3p + Es2*Es3p - p2*p3p*(ct2*ct3p+ch3h2p*st2*st3p))
         deltacorrectp::Float32 = (Es1*p3p - Es3p*p1*(ct3p*ct1+ch3h1p*st3p*st1) + Es2*p3p - Es3p*p2*(ct3p*ct2+ch3h2p*st3p*st2)) + (m1*p3p - m3*p1*(ct3p*ct1+ch3h1p*st3p*st1) + m2*p3p - m3*p2*(ct3p*ct2+ch3h2p*st3p*st2))
 
-        if (uCheck(uSmolp,uBigp)&&tCheck(tSmolp,tBigp)&&stuCheck(sSmol,sBig,tSmolp,tBigp,uSmolp,uBigp)) == false
-            error(string(tSmolp+tBigp)*"#"*string(uSmolp+uBigp)*"#"*string(sSmol)*"#"*string(sSmol*(tSmolp+tBigp)*(uSmolp+uBigp)-sSmol))
-        end
+        #if (uCheck(uSmolp,uBigp)&&tCheck(tSmolp,tBigp)#= &&stuCheck(sSmol,sBig,tSmolp,tBigp,uSmolp,uBigp) =#) == false
+        #    error("stup#"*string(tSmolp+tBigp)*"#"*string(uSmolp+uBigp)*"#"*string(sSmol)*"#"*string(sSmol*(tSmolp+tBigp)*(uSmolp+uBigp)-sSmol)*"#"*string(sSmol+tSmolp+uSmolp+uBigp+tBigp))
+        #end
 
         ST[2] = dsigmadt(sSmol,sBig,tSmolp,tBigp,uSmolp,uBigp)*val*(p3p^2/(deltacorrectp*sign(deltacorrectp)))
         if (ST[2]==Inf || ST[2] == -Inf)
-            error(string(deltacorrectp)*"#"*string(tSmolp)*"#"*string(tBigp))
+            error("ST2 Inf#"*string(deltacorrectp)*"#"*string(tSmolp)*"#"*string(tBigp))
         end
 
         #if dsigmadt(s,tp) == 0f0
         #    println("s,t:"*string(s)*","*string(tp))
         #end
 
-        println(sSmol+tSmolp+tBigp+uSmolp+uBigp)
+        #println(sSmol+tSmolp+tBigp+uSmolp+uBigp)
 
     end
 

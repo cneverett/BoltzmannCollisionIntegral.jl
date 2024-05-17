@@ -108,6 +108,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         ATtally[p1loc,t1loc,p2loc,t2loc] += UInt32(1)
         
         if ST[3] != 0f0 # valid initial state for interaction
+
             iS = 1
 
             while iS <= numSiter # loop over a number of p3 orientations for a given p1 p2 state
@@ -183,6 +184,9 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
 
             end # Sloop
 
+        else # no valid interaction state
+            # add one to tally of all relavant S tallies i.e. all momenta and all angles as no emission states are possible
+            (@view AStally[:,:,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
         end
 
         iT += 1
