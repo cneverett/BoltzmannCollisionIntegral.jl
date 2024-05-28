@@ -84,8 +84,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     while iT <= numTiterPerThread
 
         # generate p1 and p2 vectors initially as to not have to re-caculate, but not p2 magnitude as we need one free parameter to vary
-        RPointSphereThetaPhi!(p1vThread)
-        RPointSphereThetaPhi!(p2vThread)
+        RPointSphereCosThetaPhi!(p1vThread)
+        RPointSphereCosThetaPhi!(p2vThread)
 
         #if (log10pspace == true)
         RPointLogMomentum!(p1u,p1l,p1vThread)
