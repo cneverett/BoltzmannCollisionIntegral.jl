@@ -3,6 +3,7 @@ module BinaryInteractionSpectra
 export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload
 
     using JLD2
+    using Base.Threads
 
     # include common files
         include("Common/MyPhysicalConstants.jl")

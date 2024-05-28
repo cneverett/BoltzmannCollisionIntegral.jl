@@ -106,7 +106,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
             while iS <= numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
                 #generate random p3 direction 
-                R2PointSphereThetaPhi!(p3v)
+                R2PointSphereCosThetaPhi!(p3v)
 
                 # Calculate p3 value
                 Momentum3Value!(p3v,p1v,p2v,mu1,mu2,mu3,mu4)
@@ -149,7 +149,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                     end
                     @view(AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)  # max tally is 4,294,967,295 with UInt32 - this tally can be used for both S and T as for T just sum over p3 t3 locations (may lead to overflow??)
                 else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
-                    (@view AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+                    @view(AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
                 end
 
                 # Update Stotal and Atally arrays for p3p
@@ -166,7 +166,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                     @view(AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
                 else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
                     if t3ploc != t3loc # if equal then we are double counting tallies
-                    (@view AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+                    @view(AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
                     end
                 end
 
@@ -178,7 +178,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
 
         else # no valid interaction state
             # add one to tally of all relavant S tallies i.e. all momenta and all angles as no emission states are possible
-            (@view AStally[:,:,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+            @view(AStally[:,:,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
         end
 
         iT += 1

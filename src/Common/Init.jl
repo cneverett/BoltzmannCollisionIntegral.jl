@@ -18,13 +18,13 @@ user defined constant parameters for STIntegration
     # integration time approx 250ns per itteration 
 
     # For Serial 
-    numTiter::Int64 = 1000000;    # number of T matrix itterations i.e. random p1 p2 points
+    numTiter::Int64 = 400000;    # number of T matrix itterations i.e. random p1 p2 points
     numSiter::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
     
     #For MultiThread
-    numTiterPerThread::Int64 = 10;    # number of T matrix itterations i.e. random p1 p2 points
+    numTiterPerThread::Int64 = 100000;    # number of T matrix itterations i.e. random p1 p2 points
     numSiterPerThread::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point  
-    nThreads::Int64 = 1;   
+    nThreads::Int64 = 4;   
 
 # ---------------------------------------------- #
 

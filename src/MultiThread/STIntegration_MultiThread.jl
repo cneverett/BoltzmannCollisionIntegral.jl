@@ -33,18 +33,18 @@ function SpectraEvaluateMultiThread()
     # ========= Pre-Allocate Arrays ======== #
 
         # pre-allocate arrays for momentum
-        p3v = zeros(Float32,3,2,nThreads); # two three array vector ((p3,t3,h1),(p3',t3',h1')) second corresponds to mirrored point in angle space
-        p1v = zeros(Float32,3,nThreads);
-        p2v = zeros(Float32,3,nThreads);
+        #p3v = zeros(Float32,3,2,nThreads); # two three array vector ((p3,t3,h1),(p3',t3',h1')) second corresponds to mirrored point in angle space
+        #p1v = zeros(Float32,3,nThreads);
+        #p2v = zeros(Float32,3,nThreads);
 
         # pre-allocate arrays for ST values
-        ST = zeros(Float32,3,nThreads); # [S,Sp,T]
+        #ST = zeros(Float32,3,nThreads); # [S,Sp,T]
 
     # ===================================== #
 
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi_MultiThread!(SAtot,TAtot,AStal,ATtal,p3v,p1v,p2v,ST)
+        STMonteCarloAxi_MultiThread!(SAtot,TAtot,AStal,ATtal#= ,p3v,p1v,p2v,ST =#)
 
     # ===================================== #
 
@@ -82,7 +82,7 @@ function SpectraEvaluateMultiThread()
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
         STSymmetry!(SMatrix,TMatrix,mu1,mu2)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
-        PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #corrects phase space factors for application in kinetic models
+        #PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #corrects phase space factors for application in kinetic models
                                             
         # correction to better conserve particle number and account for statistical noise of MC method
         #SCorrection2!(SMatrix,TMatrix) 

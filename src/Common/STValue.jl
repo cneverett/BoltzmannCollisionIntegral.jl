@@ -71,11 +71,11 @@ function TValuewithTest!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Fl
     p1::Float32 = p1v[1]
     p2::Float32 = p2v[1]
 
-    ct1::Float32 = cospi(p1v[2])
-    ct2::Float32 = cospi(p2v[2]) 
+    ct1::Float32 = p1v[2] #cospi(p1v[2])
+    ct2::Float32 = p2v[2] #cospi(p2v[2]) 
 
-    st1::Float32 = sinpi(p1v[2])
-    st2::Float32 = sinpi(p2v[2])
+    st1::Float32 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float32 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
 
     ch1h2::Float32 = cospi(p1v[3]-p2v[3])
 
@@ -126,7 +126,7 @@ function TValuewithTest!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Fl
 
 end
 
-function SValueWithTests!(ST::Vector{Float32},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},m1::Float32,m2::Float32,m3::Float32,testp3::Bool,testp3p::Bool)
+function SValueWithTests!(ST::Array{Float32},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},m1::Float32,m2::Float32,m3::Float32,testp3::Bool,testp3p::Bool)
 
     # returns two s values
 
@@ -134,11 +134,11 @@ function SValueWithTests!(ST::Vector{Float32},p3v::Array{Float32},p1v::Vector{Fl
     p1::Float32 = p1v[1]
     p2::Float32 = p2v[1]
 
-    ct1::Float32 = cospi(p1v[2])
-    ct2::Float32 = cospi(p2v[2]) 
+    ct1::Float32 = p1v[2] #cospi(p1v[2])
+    ct2::Float32 = p2v[2] #cospi(p2v[2]) 
 
-    st1::Float32 = sinpi(p1v[2])
-    st2::Float32 = sinpi(p2v[2])
+    st1::Float32 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float32 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
 
     ch1h2::Float32 = cospi(p1v[3]-p2v[3])
 
@@ -185,8 +185,8 @@ function SValueWithTests!(ST::Vector{Float32},p3v::Array{Float32},p1v::Vector{Fl
 
     if testp3   # t value for p3
         p3::Float32 = p3v[1,1]
-        ct3::Float32 = cospi(p3v[2,1]) # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
-        st3::Float32 = sinpi(p3v[2,1])
+        ct3::Float32 = p3v[2,1] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
+        st3::Float32 = sqrt(1f0-p3v[2,1]^2)
         ch3h1::Float32 = cospi(p3v[3,1]-p1v[3])
         ch3h2::Float32 = cospi(p3v[3,1]-p2v[3])
         Es3::Float32 = (p3^2)/(sqrt(m32+p3^2)+m3)
@@ -220,8 +220,8 @@ function SValueWithTests!(ST::Vector{Float32},p3v::Array{Float32},p1v::Vector{Fl
 
     if testp3p # t value of p3p
         p3p::Float32 = p3v[1,2]
-        ct3p::Float32 = cospi(p3v[2,2]) # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
-        st3p::Float32 = sinpi(p3v[2,2])
+        ct3p::Float32 = p3v[2,2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
+        st3p::Float32 = sqrt(1f0-p3v[2,2]^2)
         ch3h1p::Float32 = cospi(p3v[3,2]-p1v[3])
         ch3h2p::Float32 = cospi(p3v[3,2]-p2v[3])
         Es3p::Float32 = (p3p^2)/(sqrt(m32+p3p^2)+m3)
