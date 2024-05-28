@@ -9,14 +9,14 @@ function PhaseSpaceFactors1!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
                 for ll in 1:nump1
                     for mm in 1:numt3
                         for nn in 1:nump3
-                            SMatrix[nn+2,mm,ll,kk,jj,ii] *= t3val[mm]-t3val[mm+1]  #(cospi(t3val[mm])-cospi(t3val[mm+1]))                           # dmu3
+                            SMatrix[nn+2,mm,ll,kk,jj,ii] *= t3val[mm+1]-t3val[mm]  #(cospi(t3val[mm])-cospi(t3val[mm+1]))                           # dmu3
                             SMatrix[nn+2,mm,ll,kk,jj,ii] *= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll]) #(cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])   # dp1dmu1
                             SMatrix[nn+2,mm,ll,kk,jj,ii] *= (t2val[ii]-t2val[ii+1])*(p2val[jj+1]-p2val[jj]) #(cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj])   # dp2dmu2
                             SMatrix[nn+2,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
                         end
                     end
-                    TMatrix[ll,kk,jj,ii] *= (t2val[ii]-t2val[ii+1])*(p2val[jj+1]-p2val[jj])  # (cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj])  # dp2dmu2
-                    TMatrix[ll,kk,jj,ii] *= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll])# (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])  # dp1dmu1
+                    TMatrix[ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj])  # (cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj])  # dp2dmu2
+                    TMatrix[ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll])# (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])  # dp1dmu1
                     #TMatrix[ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
                 end
             end
@@ -29,9 +29,9 @@ function PhaseSpaceFactors1!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
             for kk in 1:numt1
                 for ll in 1:nump1
                     for mm in 1:numt3
-                        SMatrix[1,mm,ll,kk,jj,ii] *= (t3val[mm]-t3val[mm+1]) #(cospi(t3val[mm])-cospi(t3val[mm+1]))                              # dmu3
-                        SMatrix[1,mm,ll,kk,jj,ii] *= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll]) #(cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])      # dp1dmu1
-                        SMatrix[1,mm,ll,kk,jj,ii] *= (t2val[ii]-t2val[ii+1])*(p2val[jj+1]-p2val[jj]) #(cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj])      # dp2dmu2
+                        SMatrix[1,mm,ll,kk,jj,ii] *= (t3val[mm+1]-t3val[mm]) #(cospi(t3val[mm])-cospi(t3val[mm+1]))                              # dmu3
+                        SMatrix[1,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) #(cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])      # dp1dmu1
+                        SMatrix[1,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) #(cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj])      # dp2dmu2
                         SMatrix[1,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
                     end
                 end
@@ -45,9 +45,9 @@ function PhaseSpaceFactors1!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
             for kk in 1:numt1
                 for ll in 1:nump1
                     for mm in 1:numt3
-                        SMatrix[2,mm,ll,kk,jj,ii] *= (t3val[mm]-t3val[mm+1])  #(cospi(t3val[mm])-cospi(t3val[mm+1]))                              # dmu3
-                        SMatrix[2,mm,ll,kk,jj,ii] *= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll]) #(cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])      # dp1dmu1
-                        SMatrix[2,mm,ll,kk,jj,ii] *= (t2val[ii]-t2val[ii+1])*(p2val[jj+1]-p2val[jj]) #(cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj])      # dp2dmu2
+                        SMatrix[2,mm,ll,kk,jj,ii] *= (t3val[mm+1]-t3val[mm])  #(cospi(t3val[mm])-cospi(t3val[mm+1]))                              # dmu3
+                        SMatrix[2,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) #(cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])      # dp1dmu1
+                        SMatrix[2,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) #(cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj])      # dp2dmu2
                         SMatrix[2,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
                     end
                 end
@@ -68,10 +68,10 @@ function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
                 for ll in 1:nump1
                     for mm in 1:numt3
                         for nn in 1:nump3
-                            SMatrix[nn+2,mm,ll,kk,jj,ii] /= (t3val[mm]-t3val[mm+1])*(p3val[nn+1]-p3val[nn]) #(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nn+1]-p3val[nn]) # dp3dmu3 
+                            SMatrix[nn+2,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn]) #(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nn+1]-p3val[nn]) # dp3dmu3 
                         end
                     end
-                    TMatrix[ll,kk,jj,ii] /= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll]) #(cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll]) # dp1dmu1      
+                    TMatrix[ll,kk,jj,ii] /= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) #(cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll]) # dp1dmu1      
                 end
             end
         end
@@ -83,7 +83,7 @@ function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
             for kk in 1:numt1
                 for ll in 1:nump1
                     for mm in 1:numt3
-                        SMatrix[1,mm,ll,kk,jj,ii] /= (t3val[mm]-t3val[mm+1])*(p3val[1]) #(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[1]) # dp3dmu3
+                        SMatrix[1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[1]) #(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[1]) # dp3dmu3
                     end
                 end
             end
@@ -96,7 +96,7 @@ function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
             for kk in 1:numt1
                 for ll in 1:nump1
                     for mm in 1:numt3
-                        SMatrix[2,mm,ll,kk,jj,ii] /= (t3val[mm]-t3val[mm+1])*(p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1]) #(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1]) # dp3dmu3
+                        SMatrix[2,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1]) #(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1]) # dp3dmu3
                     end
                 end
             end

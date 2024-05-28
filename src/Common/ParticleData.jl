@@ -26,7 +26,7 @@
     # Hard Sphere
     pl = -5f0; pu = 4f0; nump = 36;
     tl = -1f0; tu = 1f0; numt = 8;
-    SphData = PD("Sph",-5f0,4f0,36,0f0,1f0,8,1.672622f-27,1836.1528f0)
+    SphData = PD("Sph",pl,pu,nump,tl,tu,numt,1.672622f-27,1836.1528f0)
 
     EleData = PD("Ele",pl,pu,nump,tl,tu,numt,9.109383f-31,1f0)
 

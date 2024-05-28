@@ -91,16 +91,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         TValuewithTest!(ST,p1v,p2v,mu1,mu2)
 
         # Calculate T Array Location
-        #if (log10pspace == true)
-            p1loc = location(p1u,p1l,nump1,log10(p1v[1]))
-            p2loc = location(p2u,p2l,nump2,log10(p2v[1]))
-        #= elseif (log10pspace == false)
-            p1loc = location(p1u,p1l,nump1,p1v[1])
-            p2loc = location(p2u,p2l,nump2,p2v[1])
-        else
-            error("Log10pspace not defined")
-        end =#
-
+        p1loc = location(p1u,p1l,nump1,log10(p1v[1]))
+        p2loc = location(p2u,p2l,nump2,log10(p2v[1]))
         t1loc = location(t1u,t1l,numt1,p1v[2])
         t2loc = location(t2u,t2l,numt2,p2v[2])
 

@@ -39,13 +39,13 @@ if (name1 == "Sph" && name2 == "Sph" && name3 == "Sph" && name4 == "Sph")
 
     function sigma(s::Float32)
         
-        1f0
+        1f0/2f0 # factor of 2 accounts for identical final states
 
     end
 
     function sigma(sSmol::Float32,sBig::Float32)
         
-        1f0
+        1f0/2f0 # factor of 2 accounts for identical final states
 
     end
 
