@@ -6,13 +6,13 @@ function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Fl
     p1::Float32 = p1v[1]
     p2::Float32 = p2v[1]
 
-    ct3::Float32 = cospi(p3v[2,1]) # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
-    ct1::Float32 = cospi(p1v[2])
-    ct2::Float32 = cospi(p2v[2]) 
+    ct3::Float32 = p3v[2,1] #cospi(p3v[2,1]) # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
+    ct1::Float32 = p1v[2] #cospi(p1v[2])
+    ct2::Float32 = p2v[2] #cospi(p2v[2]) 
 
-    st3::Float32 = sinpi(p3v[2,1])
-    st1::Float32 = sinpi(p1v[2])
-    st2::Float32 = sinpi(p2v[2])
+    st3::Float32 = sqrt(1f0-p3v[2,1]^2) #sinpi(p3v[2,1])
+    st1::Float32 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float32 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
 
     ch1h3::Float32 = cospi(p3v[3,1]-p1v[3])
     ch1h4::Float32 = cospi(p3v[3,1]-p2v[3])
@@ -68,7 +68,7 @@ function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Fl
                 p3v[1,1] = val 
             else #if valp < 0f0  # anti-parallel 
                 p3v[1,1] = -val 
-                p3v[2,1] = mod(1f0-p3v[2,1],1f0)     # theta bound by [0,1]
+                p3v[2,1] *= -1 # mirrored in cos(theta) space is *-1. mod(1f0-p3v[2,1],1f0)     # theta bound by [0,1]
                 p3v[3,1] = mod(p3v[3,1]+1f0,2f0)     # phi bound by [0,2) 
             #else
                 #error("p3 state not accounted for"*string(val))
@@ -83,7 +83,7 @@ function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Fl
                 p3v[1,2] = valp 
             else #if valp < 0f0  # anti-parallel 
                 p3v[1,2] = -valp 
-                p3v[2,2] = mod(1f0-p3v[2,2],1f0)     # theta bound by [0,1]
+                p3v[2,2] *= -1 # mod(1f0-p3v[2,2],1f0)     # theta bound by [0,1]
                 p3v[3,2] = mod(p3v[3,2]+1f0,2f0)     # phi bound by [0,2) 
             #else
             # error("p3p state not accounted for:"*string(valp))

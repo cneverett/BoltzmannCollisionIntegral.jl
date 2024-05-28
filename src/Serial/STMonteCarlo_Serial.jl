@@ -74,8 +74,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
     while iT <= numTiter
 
         # generate p1 and p2 vectors initially as to not have to re-caculate, but not p2 magnitude as we need one free parameter to vary
-        RPointSphereThetaPhi!(p1v)
-        RPointSphereThetaPhi!(p2v)
+        RPointSphereCosThetaPhi!(p1v)
+        RPointSphereCosThetaPhi!(p2v)
 
         #if (log10pspace == true)
         RPointLogMomentum!(p1u,p1l,p1v)

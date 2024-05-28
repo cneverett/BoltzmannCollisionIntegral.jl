@@ -67,6 +67,37 @@ function R2PointSphereThetaPhi!(a::Array{Float32})
     
 end
 
+function RPointSphereCosThetaPhi!(a::Vector{Float32}) 
+    # Inputs a 3 element vector [p, cos(theta), phi] and mutates said vector with new random values using form given in https://mathworld.wolfram.com/SpherePointPicking.html (with theta and phi changed places)
+    # phi points are normalised by pi
+
+    u::Float32 = rand(Float32)
+    v::Float32 = rand(Float32)
+
+    a[2] = 2*v-1     # cos(theta) bound by [1,-1]
+    a[3] = 2*u       # phi bound by [0,2) 
+
+    return nothing
+    
+end
+
+function R2PointSphereCosThetaPhi!(a::Array{Float32}) 
+    # Inputs a 6 element vector ([p, theta, phi],[p', theta', phi']) and mutates said vector with new random values using form given in https://mathworld.wolfram.com/SpherePointPicking.html (with theta and phi changed places)
+    # phi values are normalised by pi
+
+    u::Float32 = rand(Float32)
+    v::Float32 = rand(Float32)
+
+    a[2,1]= 2*v-1    # cos(theta) bound by [1,-1]
+    a[3,1] = 2*u     # phi bound by [0,2) 
+    # primed angles
+    a[2,2] = a[2,1]
+    a[3,1] = a[3,2]
+
+    return nothing
+    
+end
+
 function RPointHalfSphere!(v::Vector{Float32}) 
     # Inputs a vector and mutates said vector, where the y value is always positive
 
