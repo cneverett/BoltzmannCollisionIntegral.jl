@@ -6,10 +6,10 @@ user defined constant parameters for STIntegration
 
 # ----------- Particle selection ---------------- # 
 
-    const name1::String = "Pho";
-    const name2::String = "Pho";
-    const name3::String = "Ele";
-    const name4::String = "Pos";
+    const name1::String = "Ele";
+    const name2::String = "Pos";
+    const name3::String = "Pho";
+    const name4::String = "Pho";
 
 # ---------------------------------------------- #
 
@@ -18,7 +18,7 @@ user defined constant parameters for STIntegration
     # integration time approx 250ns per itteration 
 
     # For Serial 
-    numTiter::Int64 = 1000000;    # number of T matrix itterations i.e. random p1 p2 points
+    numTiter::Int64 = 10000000;    # number of T matrix itterations i.e. random p1 p2 points
     numSiter::Int64 = 1000;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
     
     #For MultiThread
@@ -31,7 +31,7 @@ user defined constant parameters for STIntegration
 # --------------- File Location ---------------- #
 
     const fileLocation = pwd()*"\\Data"
-    const fileName = filename = "test3.jld2"
+    const fileName = filename = "test4.jld2"
 
 # ---------------------------------------------- #
 

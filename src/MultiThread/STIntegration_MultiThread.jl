@@ -79,14 +79,13 @@ function SpectraEvaluateMultiThread()
         end;
         =#
 
-        # Momentum space volume elements
-        PhaseSpaceFactors2!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
-        #PhaseSpaceFactors2Momentum!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)
-        
-        # initial states are symmetric -> apply symmetry of interaction to improve MC values
-        STSymmetry!(SMatrix,TMatrix,mu1,mu2)                                    
+        # Momentum space volume elements and symmetries
+        PhaseSpaceFactors1!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
+        STSymmetry!(SMatrix,TMatrix,mu1,mu2)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
+        PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #corrects phase space factors for application in kinetic models
+                                            
         # correction to better conserve particle number and account for statistical noise of MC method
-        SCorrection2!(SMatrix,TMatrix) 
+        #SCorrection2!(SMatrix,TMatrix) 
 
 
     # ===================================== # 
@@ -135,132 +134,4 @@ function SpectraEvaluateMultiThread()
     # ===================================== #
 
 
-end #function
-
-#====== Testing only =#
-#SAtot = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2); 
-#TAtot = zeros(Float32,nump1,numt1,nump2,numt2);
-#AStal = zeros(UInt32,(nump3+2),numt3,nump1,numt1,nump2,numt2);
-#ATtal = zeros(UInt32,nump1,numt1,nump2,numt2);
-
-#=using BenchmarkTools
-
-@benchmark STMonteCarloAxi!(SAtot,TAtot,Atal,p3v,p1v,p2v,ST)
-@benchmark STMonteCarloAxi!(SAtot,TAtot,Atal,p3v,p1v,p2v,ST)
-
-@btime STMonteCarloAxi!($SAtot,$TAtot,$AStal,$ATtal,$p3v,$p1v,$p2v,$ST)
-
-@time STMonteCarloAxi!(SAtot,TAtot,Atal,p3v,p1v,p2v,ST)
-
-STMonteCarloAxi!(SAtot,TAtot,Atal,p3v,p1v,p2v,ST) =#
-
-#=====================#
-
-
-#= function PhaseSpaceFactorstest!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vector{Float32},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32},p2val::Vector{Float32},t2val::Vector{Float32})
-
-    # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays
-
-    # Momentum space volume elements
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        for nn in 1:nump3
-                            SMatrix[nn+2,mm,ll,kk,jj,ii] *= (cospi(t3val[mm])-cospi(t3val[mm+1])) # 1/(p3val[nn+1]-p3val[nn]) # d^2pvec3
-                            SMatrix[nn+2,mm,ll,kk,jj,ii] *= (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])# d^3pvec3
-                            SMatrix[nn+2,mm,ll,kk,jj,ii] *= (cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj]) # d^3pvec4
-                            SMatrix[nn+2,mm,ll,kk,jj,ii] *= (1f0+Float32(name3==name4))/(1f0+Float32(name1==name2))
-                        end
-                    end
-                    TMatrix[ll,kk,jj,ii] *= (cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj]) # d^3pvec4
-                    TMatrix[ll,kk,jj,ii] *= (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])
-                    TMatrix[ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
-                end
-            end
-        end
-    end
-
-    # underflow bin size 
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        SMatrix[1,mm,ll,kk,jj,ii] *= (cospi(t3val[mm])-cospi(t3val[mm+1])) # 1/(p3val[1]) # d^3pvec3
-                        SMatrix[1,mm,ll,kk,jj,ii] *= (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll]) # d^3pvec3
-                        SMatrix[1,mm,ll,kk,jj,ii] *= (cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj]) # d^3pvec4
-                        SMatrix[1,mm,ll,kk,jj,ii] *= (1f0+Float32(name3==name4))/(1f0+Float32(name1==name2))
-                    end
-                end
-            end
-        end
-    end
-
-    # overflow bin size assumed to be up to 2*maximum p3val 
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        SMatrix[2,mm,ll,kk,jj,ii] *= (cospi(t3val[mm])-cospi(t3val[mm+1])) # 1/(2*p3val[nump3+1]-p3val[nump3+1])  # d^3pvec3
-                        SMatrix[2,mm,ll,kk,jj,ii] *= (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])# d^3pvec3
-                        SMatrix[2,mm,ll,kk,jj,ii] *= (cospi(t2val[ii])-cospi(t2val[ii+1]))*(p2val[jj+1]-p2val[jj]) # d^3pvec4
-                        SMatrix[2,mm,ll,kk,jj,ii] *= (1f0+Float32(name3==name4))/(1f0+Float32(name1==name2))
-                    end
-                end
-            end
-        end
-    end
-
-end
-
-function STCheck!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vector{Float32},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32},p2val::Vector{Float32},t2val::Vector{Float32})
-
-    # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays
-
-    # Momentum space volume elements
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        for nn in 1:nump3
-                            SMatrix[nn+2,mm,ll,kk,jj,ii] *= (cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nn+1]-p3val[nn]) # d^2pvec3
-                        end
-                    end
-                    TMatrix[ll,kk,jj,ii] *= (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])
-                end
-            end
-        end
-    end
-
-    # underflow bin size 
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        SMatrix[1,mm,ll,kk,jj,ii] *= (cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[1]) # d^3pvec3
-                    end
-                end
-            end
-        end
-    end
-
-    # overflow bin size assumed to be up to 2*maximum p3val 
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        SMatrix[2,mm,ll,kk,jj,ii] *= (cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1])  # d^3pvec3
-                    end
-                end
-            end
-        end
-    end
-
-end
- =#
+end 
