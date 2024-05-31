@@ -1,5 +1,5 @@
     
-function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},m1::Float32,m2::Float32,m3::Float32,m4::Float32)
+function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},m1::Float32,m2::Float32,m3::Float32,m4::Float32,identicalStates::Bool)
 
     # pv should be [p,t,h]
 
@@ -77,7 +77,9 @@ function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Fl
             p3v[1,1] = 0f0
         end
 
-        if (( valp != val) && (m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-valp^2/(sqrt(m32+valp^2)+m3))>0) # avoids counting same state twice
+        if (valp == val) # identical states C3 = 0 i.e. not to be counted
+            identicalStates = true
+        elseif ((m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-valp^2/(sqrt(m32+valp^2)+m3))>0) # non-identical but physical i.e. to be counted
             #assign primed for aligned case as valp +ve
             if valp >= 0f0 # parallel
                 p3v[1,2] = valp 
@@ -88,7 +90,7 @@ function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Fl
             #else
             # error("p3p state not accounted for:"*string(valp))
             end
-        else
+        else # non-identical state but unphysical i.e. to be counted
             p3v[1,2] = 0f0
         end
 

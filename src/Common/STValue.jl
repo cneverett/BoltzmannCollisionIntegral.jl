@@ -215,7 +215,8 @@ function SValueWithTests!(ST::Array{Float32},p3v::Array{Float32},p1v::Vector{Flo
 
         #println(string(tSmol+tBig)*"#"*string(uSmol+uBig)*"#"*string(sSmol))
         #println(sSmol+tSmol+tBig+uSmol+uBig)
-
+    else 
+        ST[1] = 0f0
     end
 
     if testp3p # t value of p3p
@@ -247,6 +248,8 @@ function SValueWithTests!(ST::Array{Float32},p3v::Array{Float32},p1v::Vector{Flo
 
         #println(sSmol+tSmolp+tBigp+uSmolp+uBigp)
 
+    else
+        ST[2] = 0f0 
     end
 
     #println(string(ST[1],ST[2]))

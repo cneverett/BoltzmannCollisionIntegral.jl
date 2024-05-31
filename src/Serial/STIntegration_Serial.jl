@@ -14,18 +14,18 @@ function SpectraEvaluateSerial()
 
         if fileExist
             f = jldopen(filePath,"r+");
-            SAtot = f["STotal"];
-            TAtot = f["TTotal"];
-            AStal = f["STally"];
-            ATtal = f["TTally"];
+            SAtotal = f["STotal"];
+            TAtotal = f["TTotal"];
+            SAtally = f["STally"];
+            TAtally = f["TTally"];
             #SMatrix = f["SMatrix"];
             #TMatrix = f["TMatrix"];
             close(f)
         else
-            SAtot = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2); 
-            TAtot = zeros(Float32,nump1,numt1,nump2,numt2);
-            AStal = zeros(UInt32,(nump3+2),numt3,nump1,numt1,nump2,numt2);
-            ATtal = zeros(UInt32,nump1,numt1,nump2,numt2);
+            SAtotal = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2); 
+            TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
+            SAtally = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
+            TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
         end
 
     # ====================================== #
@@ -44,7 +44,7 @@ function SpectraEvaluateSerial()
 
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi_Serial!(SAtot,TAtot,AStal,ATtal,p3v,p1v,p2v,ST)
+        STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p1v,p2v,ST)
 
     # ===================================== #
 
@@ -55,27 +55,21 @@ function SpectraEvaluateSerial()
         TMatrix = zeros(Float32,nump1,numt1,nump2,numt2);
 
         # divide element wise by tallys
-        SMatrix = SAtot ./ AStal;
-        replace!(SMatrix,NaN=>0f0); # remove NaN caused by /0f0
-        TMatrix = TAtot ./ ATtal;
-        replace!(TMatrix,NaN=>0f0);
+        @inbounds for i in axes(SMatrix,1)
+            @. @view(SMatrix[i,:,:,:,:,:]) = @view(SAtotal[i,:,:,:,:,:]) / SAtally
+        end
+        replace!(SMatrix,NaN=>0f0) # remove NaN caused by /0f0
+        TMatrix = TAtotal ./ TAtally
+        replace!(TMatrix,NaN=>0f0)
 
         # Angle / Momentum Ranges
-        t3val = trange(t3l,t3u,numt3); # bounds of numt3 blocks
-        t1val = trange(t1l,t1u,numt1);
-        t2val = trange(t2l,t2u,numt2);
-        #if (log10pspace == true)
-            p3val = prange(p3l,p3u,nump3);
-            p1val = prange(p1l,p1u,nump1);
-            p2val = prange(p2l,p2u,nump2);
-        #= elseif (log10pspace == false)
-            p3val = range(p3l,p3u,nump3);
-            p1val = range(p1l,p1u,nump1);
-            p2val = range(p2l,p2u,nump2);
-        else
-            error("Log10pspace not defined")
-        end;
-        =#
+        t3val = trange(t3l,t3u,numt3) # bounds of numt3 blocks
+        t1val = trange(t1l,t1u,numt1)
+        t2val = trange(t2l,t2u,numt2)
+        p3val = prange(p3l,p3u,nump3)
+        p1val = prange(p1l,p1u,nump1)
+        p2val = prange(p2l,p2u,nump2)
+
 
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
@@ -98,18 +92,18 @@ function SpectraEvaluateSerial()
             Base.delete!(f,"TTally")
             Base.delete!(f,"SMatrix")
             Base.delete!(f,"TMatrix")
-            write(f,"STotal",SAtot)
-            write(f,"TTotal",TAtot)
-            write(f,"STally",AStal)
-            write(f,"TTally",ATtal)
+            write(f,"STotal",SAtotal)
+            write(f,"TTotal",TAtotal)
+            write(f,"STally",SAtally)
+            write(f,"TTally",TAtally)
             write(f,"SMatrix",SMatrix)
             write(f,"TMatrix",TMatrix)
         else    # create file
             f = jldopen(filePath,"w") # creates file
-            write(f,"STotal",SAtot)
-            write(f,"TTotal",TAtot)
-            write(f,"STally",AStal)
-            write(f,"TTally",ATtal)
+            write(f,"STotal",SAtotal)
+            write(f,"TTotal",TAtotal)
+            write(f,"STally",SAtally)
+            write(f,"TTally",TAtally)
             write(f,"SMatrix",SMatrix)
             write(f,"TMatrix",TMatrix)
         end
@@ -130,6 +124,7 @@ function SpectraEvaluateSerial()
 
     # ===================================== #
 
+        return nothing
 
 end #function
 

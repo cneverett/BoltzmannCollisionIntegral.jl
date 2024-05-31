@@ -61,17 +61,15 @@ Output:
 #include("..\\Common\\DifferentialCrossSectionFunctions.jl")
 #include("..\\Common\\Momentum3Values.jl")
 
-function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},AStally::Array{UInt32,6},ATtally::Array{UInt32,4},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},ST::Vector{Float32})
+function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},ST::Vector{Float32})
 
     # check arrays are correct size 
     #size(AStally) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
     #size(ATtally) != (nump1,numt1,nump2,numt2) && error("ATally Array improperly sized")
     #size(SAtotal) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("S Total Array improperly sized")
     #size(TAtotal) != (nump1,numt1,nump2,numt2) && error("tally Array improperly sized")
-    
-    iT = 1
 
-    while iT <= numTiter
+    @inbounds for _ in 1:numTiter
 
         # generate p1 and p2 vectors initially as to not have to re-caculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
@@ -95,93 +93,57 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         p2loc = location(p2u,p2l,nump2,log10(p2v[1]))
         t1loc = location(t1u,t1l,numt1,p1v[2])
         t2loc = location(t2u,t2l,numt2,p2v[2])
+        loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
 
-        TAtotal[p1loc,t1loc,p2loc,t2loc] += ST[3] # ST[3] doesn't change with S loop
-        ATtally[p1loc,t1loc,p2loc,t2loc] += UInt32(1)
+        SAtotalView = @view SAtotal[:,:,loc12]
+        SAtallyView = @view SAtally[:,loc12]
         
         if ST[3] != 0f0 # valid initial state for interaction
 
-            iS = 1
-
-            while iS <= numSiter # loop over a number of p3 orientations for a given p1 p2 state
+            @inbounds for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
                 #generate random p3 direction 
                 R2PointSphereCosThetaPhi!(p3v)
 
                 # Calculate p3 value
-                Momentum3Value!(p3v,p1v,p2v,mu1,mu2,mu3,mu4)
+                identicalStates = false
+                Momentum3Value!(p3v,p1v,p2v,mu1,mu2,mu3,mu4,identicalStates)
 
                 # check if non-zero
                 testp3 = (p3v[1,1] != 0f0)
                 testp3p = (p3v[1,2] != 0f0)
 
-                #println((p3v[1,1],p3v[1,2],p1v[1],p2v[1]))
-
                 # Calculate S values
                 SValueWithTests!(ST,p3v,p1v,p2v,mu1,mu2,mu3,testp3,testp3p)
 
                 # Calculate S Array Location
-                #if (log10pspace == true)
-                    testp3 ? p3loc = location(p3u,p3l,nump3,log10(p3v[1,1])) : Int32(0) # maybe no comparative slow down
-                    testp3p ? p3ploc = location(p3u,p3l,nump3,log10(p3v[1,2])) : Int32(0)
-                #= elseif (log10pspace == false)
-                    p3loc = location(p3u,p3l,nump3,p3v[1,1])
-                    p3ploc = location(p3u,p3l,nump3,p3v[1,2])
-                else
-                    error("Log10pspace not defined")
-                end =#
-
+  
                 t3loc = location(t3u,t3l,numt3,p3v[2,1])
-                t3ploc = location(t3u,t3l,numt3,p3v[2,2])
-
-                #println(string(p3loc)*"#"*string(p1loc)*"#"*string(p2loc))
-
-                # Update Stotal and Atally arrays for p3
-                if testp3
-                    if (1 <= p3loc <= nump3)
-                        SAtotal[p3loc+2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
-                    elseif (p3loc > nump3) # overflow momentum
-                        SAtotal[2,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
-                    elseif (p3loc < 1) #underflow momentum 
-                        SAtotal[1,t3loc,p1loc,t1loc,p2loc,t2loc] += ST[1]
-                    else
-                        error("p3 value not accounted for: p3="*string(p3v[1,1]))
-                    end
-                    @view(AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)  # max tally is 4,294,967,295 with UInt32 - this tally can be used for both S and T as for T just sum over p3 t3 locations (may lead to overflow??)
-                else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
-                    @view(AStally[:,t3loc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+                if testp3 # valid p3 state so add ST[1]
+                    p3loc = locationp3(p3u,p3l,nump3,log10(p3v[1,1]))
+                    SAtotalView[p3loc,t3loc] += ST[1]
                 end
+                SAtallyView[t3loc] += UInt32(1)
 
-                # Update Stotal and Atally arrays for p3p
-                if testp3p
-                    if (1 <= p3ploc <= nump3)
-                        SAtotal[p3ploc+2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                    elseif (p3ploc > nump3) # overflow momentum
-                        SAtotal[2,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                    elseif (p3ploc < 1) #underflow momentum 
-                        SAtotal[1,t3ploc,p1loc,t1loc,p2loc,t2loc] += ST[2]
-                    else
-                        error("p3p value not accounted for: p3="*string(p3v[1,2]))
+                if identicalStates == false # two unique but not nessessarlity physical states
+                    t3ploc = location(t3u,t3l,numt3,p3v[2,2])
+                    if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
+                        p3ploc = locationp3(p3u,p3l,nump3,log10(p3v[1,2]))
+                        SAtotalView[p3ploc,t3ploc] += ST[2]
                     end
-                    @view(AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
-                else #add 1 to tally of all points at all p3 values in t3 and do normal for TAtotal
-                    if t3ploc != t3loc # if equal then we are double counting tallies
-                    @view(AStally[:,t3ploc,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
-                    end
+                    SAtallyView[t3ploc] += UInt32(1)
                 end
-
-                #println(testp3 && testp3p)
-
-                iS += 1
 
             end # Sloop
 
         else # no valid interaction state
             # add one to tally of all relavant S tallies i.e. all momenta and all angles as no emission states are possible
-            @view(AStally[:,:,p1loc,t1loc,p2loc,t2loc]) .+= UInt32(1)
+            SAtallyView .+= UInt32(1)
         end
 
-        iT += 1
+        # asign to T arrays
+        TAtotal[loc12] += ST[3] # ST[3] doesn't change with S loop
+        TAtally[loc12] += UInt32(1)
 
     end # Tloop
 

@@ -1,6 +1,6 @@
 module BinaryInteractionSpectra
 
-export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload
+export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
 
     using JLD2
     using Base.Threads
@@ -44,8 +44,20 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload
         end
 
         return (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix);
-        #run (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix) = fload();
+        #run (Stot, Ttot, Stal, Ttal, SMatrix, TMatrix) = fload();
 
+    end
+
+    function fread()
+        filePath = fileLocation*"\\"*fileName
+        fileExist = isfile(filePath)
+
+        if fileExist
+            f = jldopen(filePath,"r");
+            return f
+        else
+            error("no file")
+        end
     end
 
 end

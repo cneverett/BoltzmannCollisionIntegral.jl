@@ -1,11 +1,28 @@
 #= Script for running the ST integration and returning data arrays =#
 
+    #= include("../Common/MyPhysicalConstants.jl")
+        include("../Common/ParticleData.jl")
+        include("../Common\\Init.jl")
+        include("../Common\\DifferentialCrossSectionFunctions.jl")
+        include("../Common\\Momentum3Values.jl")
+        include("../Common\\RandomPointMomentum.jl")
+        include("../Common\\RandomPointSphere.jl")
+        include("../Common/MandelstramChecks.jl")
+        include("../Common\\STValue.jl")
+        include("../Common/UsefulGridValueFunctions.jl")
+        include("../Common/PhaseSpaceFactors.jl")
+        include("../Common/Location.jl")
+    using Base.Threads
+    using JLD2 =#
     include("STMonteCarlo_MultiThread.jl")
-    #include("..\\Common\\UsefulGridValueFunctions.jl")
-    #include("..\\Common\\PhaseSpaceFactors.jl")
-    using JLD2
+
+#=
+Optimisation of the multi-threaded version would not have been possible without the kind guidence of those on the Julia Forums: https://discourse.julialang.org/t/fast-multi-threaded-array-editing-without-data-races/114863/41
+In particular the assistance of users: mbauman, adienes, Oscar_Smith, Satvik, Salmon, sgaure and foobar_lv2
+=#
 
 function SpectraEvaluateMultiThread()
+
 
     # ========= Load/Create Files ========== #
 
@@ -14,21 +31,22 @@ function SpectraEvaluateMultiThread()
 
         if fileExist
             f = jldopen(filePath,"r+");
-            SAtot = f["STotal"];
-            TAtot = f["TTotal"];
-            AStal = f["STally"];
-            ATtal = f["TTally"];
+            SAtotal = f["STotal"];
+            TAtotal = f["TTotal"];
+            SAtally = f["STally"];
+            TAtally = f["TTally"];
             #SMatrix = f["SMatrix"];
             #TMatrix = f["TMatrix"];
             close(f)
         else
-            SAtot = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2); 
-            TAtot = zeros(Float32,nump1,numt1,nump2,numt2);
-            AStal = zeros(UInt32,(nump3+2),numt3,nump1,numt1,nump2,numt2);
-            ATtal = zeros(UInt32,nump1,numt1,nump2,numt2);
+            SAtotal = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2); 
+            TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
+            SAtally = zeros(UInt32#= ,(nump3+2) =#,numt3,nump1,numt1,nump2,numt2);
+            TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
         end
 
     # ====================================== #
+
 
     # ========= Pre-Allocate Arrays ======== #
 
@@ -39,13 +57,23 @@ function SpectraEvaluateMultiThread()
 
         # pre-allocate arrays for ST values
         #ST = zeros(Float32,3,nThreads); # [S,Sp,T]
+        #SAtallySmall = zeros(UInt32,Base.tail(size(SAtally))) # tallys are always allocated with a : in the first index, hence to speed up remove the first collum and re-add after intergration.
+
+    # ===================================== #
+
+    # ======== Set up Array of Locks ====== #
+
+        ArrayOfLocks = [Threads.SpinLock() for _ in 1:numt2]    
 
     # ===================================== #
 
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi_MultiThread!(SAtot,TAtot,AStal,ATtal#= ,p3v,p1v,p2v,ST =#)
-
+        # Set up workers
+        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks) for i in 1:nThreads]
+        
+        wait.(workers) # Allow all workers to finish
+   
     # ===================================== #
 
     # ===== Calculate S and T Matricies === #
@@ -57,27 +85,21 @@ function SpectraEvaluateMultiThread()
         TMatrix = zeros(Float32,nump1,numt1,nump2,numt2);
 
         # divide element wise by tallys
-        SMatrix = SAtot ./ AStal;
+        for i in axes(SMatrix,1)
+            @. @view(SMatrix[i,:,:,:,:,:]) = @view(SAtotal[i,:,:,:,:,:]) / SAtally
+        end
         replace!(SMatrix,NaN=>0f0); # remove NaN caused by /0f0
-        TMatrix = TAtot ./ ATtal;
-        replace!(TMatrix,NaN=>0f0);
+        TMatrix = TAtotal ./ TAtally
+        replace!(TMatrix,NaN=>0f0)
 
         # Angle / Momentum Ranges
-        t3val = trange(t3l,t3u,numt3); # bounds of numt3 blocks
-        t1val = trange(t1l,t1u,numt1);
-        t2val = trange(t2l,t2u,numt2);
-        #if (log10pspace == true)
-            p3val = prange(p3l,p3u,nump3);
-            p1val = prange(p1l,p1u,nump1);
-            p2val = prange(p2l,p2u,nump2);
-        #= elseif (log10pspace == false)
-            p3val = range(p3l,p3u,nump3);
-            p1val = range(p1l,p1u,nump1);
-            p2val = range(p2l,p2u,nump2);
-        else
-            error("Log10pspace not defined")
-        end;
-        =#
+        t3val = trange(t3l,t3u,numt3)
+        t1val = trange(t1l,t1u,numt1)
+        t2val = trange(t2l,t2u,numt2)
+        p3val = prange(p3l,p3u,nump3)
+        p1val = prange(p1l,p1u,nump1)
+        p2val = prange(p2l,p2u,nump2)
+
 
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
@@ -101,18 +123,18 @@ function SpectraEvaluateMultiThread()
             Base.delete!(f,"TTally")
             Base.delete!(f,"SMatrix")
             Base.delete!(f,"TMatrix")
-            write(f,"STotal",SAtot)
-            write(f,"TTotal",TAtot)
-            write(f,"STally",AStal)
-            write(f,"TTally",ATtal)
+            write(f,"STotal",SAtotal)
+            write(f,"TTotal",TAtotal)
+            write(f,"STally",SAtally)
+            write(f,"TTally",TAtally)
             write(f,"SMatrix",SMatrix)
             write(f,"TMatrix",TMatrix)
         else    # create file
             f = jldopen(filePath,"w") # creates file
-            write(f,"STotal",SAtot)
-            write(f,"TTotal",TAtot)
-            write(f,"STally",AStal)
-            write(f,"TTally",ATtal)
+            write(f,"STotal",SAtotal)
+            write(f,"TTotal",TAtotal)
+            write(f,"STally",SAtally)
+            write(f,"TTally",TAtally)
             write(f,"SMatrix",SMatrix)
             write(f,"TMatrix",TMatrix)
         end
@@ -133,5 +155,6 @@ function SpectraEvaluateMultiThread()
 
     # ===================================== #
 
+    return nothing
 
 end 
