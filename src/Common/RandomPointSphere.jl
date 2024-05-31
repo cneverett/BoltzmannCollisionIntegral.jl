@@ -88,11 +88,11 @@ function R2PointSphereCosThetaPhi!(a::Array{Float32})
     u::Float32 = rand(Float32)
     v::Float32 = rand(Float32)
 
-    a[2,1]= 2*v-1    # cos(theta) bound by [1,-1]
+    a[2,1] = 2*v-1    # cos(theta) bound by [1,-1]
     a[3,1] = 2*u     # phi bound by [0,2) 
     # primed angles
     a[2,2] = a[2,1]
-    a[3,1] = a[3,2]
+    a[3,2] = a[3,1]
 
     return nothing
     
