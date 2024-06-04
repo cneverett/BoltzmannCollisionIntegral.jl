@@ -1,8 +1,37 @@
     
-function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},m1::Float32,m2::Float32,m3::Float32,m4::Float32,identicalStates::Bool)
+"""
+    Momentum3Value!(p3v,p1v,p2v,identicalStates)
+
+Takes set of random initial particle states 'p1v' and 'p2v' and random output states angles 'p3v[2:3,2:3]' and modifies output 'p3v[1,:]' values with calculated output momentum. Function also returns a bool 'identicalStates' as to whether the two output states are identical.
+
+Requrires normalised masses (mu1,mu2,mu3,mu4) to be defined in advance in Init.jl.
+
+# Examples
+```julia-repl
+julia> p1v = [1f0, 0.5f0, 1.8f0,]
+julia> p2v = [2f0, 0.2f0, 0.7f0]
+julia> p3v = [0f0 0f0; 0.3f0 0.3f0; 0.7f0 0.7f0]
+julia> Momentum3Value!(p3v,p1v,p2v)
+false
+julia> p3v
+3×2 Matrix{Float32}:
+ 2.04505   0.691423
+ 0.3      -0.3
+ 0.7       1.7
+```
+"""
+function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
+
+    # set normalised masses (defined in Init.jl)
+    m1 = mu1
+    m2 = mu2
+    m3 = mu3
+    m4 = mu4 
+
+    # define identical states
+    identicalStates::Bool = false
 
     # pv should be [p,t,h]
-
     p1::Float32 = p1v[1]
     p2::Float32 = p2v[1]
 
@@ -80,6 +109,7 @@ function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Fl
         if (valp == val) # identical states C3 = 0 i.e. not to be counted
             identicalStates = true
         elseif ((m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-valp^2/(sqrt(m32+valp^2)+m3))>0) # non-identical but physical i.e. to be counted
+            identicalStates = false
             #assign primed for aligned case as valp +ve
             if valp >= 0f0 # parallel
                 p3v[1,2] = valp 
@@ -91,6 +121,7 @@ function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Fl
             # error("p3p state not accounted for:"*string(valp))
             end
         else # non-identical state but unphysical i.e. to be counted
+            identicalStates = false
             p3v[1,2] = 0f0
         end
 
@@ -99,9 +130,17 @@ function Momentum3Value!(p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Fl
         p3v[1,2] = 0f0
     end
 
-    return nothing
+    return identicalStates
 
 end
 
 
 
+#= Testing
+p1v = [1f0, 0.5f0, 1.8f0,]
+p2v = [2f0, 0.2f0, 0.7f0]
+p3v = [0f0 0f0; 0.3f0 0.3f0; 0.7f0 0.7f0]
+
+Momentum3Value!(p3v,p1v,p2v)
+p3v
+=#
