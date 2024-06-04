@@ -6,7 +6,7 @@
 
 Assigns 'ST[3]' with its Tval from MC integration based on initial momentum states 'p1v' and 'p2v'. If initial state fails 'sCheck', i.e. cannot generate a physical output state, ST[3] is set to 0f0.
 """
-function TValuewithTest!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
+function TValue!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
 
     # returns one t value
 

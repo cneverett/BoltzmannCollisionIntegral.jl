@@ -106,15 +106,14 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                 R2PointSphereCosThetaPhi!(p3v)
 
                 # Calculate p3 value
-                identicalStates = false
-                Momentum3Value!(p3v,p1v,p2v,mu1,mu2,mu3,mu4,identicalStates)
+                identicalStates = Momentum3Value!(p3v,p1v,p2v)
 
                 # check if non-zero
                 testp3 = (p3v[1,1] != 0f0)
                 testp3p = (p3v[1,2] != 0f0)
 
                 # Calculate S values
-                SValueWithTests!(ST,p3v,p1v,p2v,mu1,mu2,mu3,testp3,testp3p)
+                SValueWithTests!(ST,p3v,p1v,p2v,testp3,testp3p)
 
                 # Calculate S Array Location
   

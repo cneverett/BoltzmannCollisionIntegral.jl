@@ -17,8 +17,8 @@
     include("STMonteCarlo_MultiThread.jl")
 
 #=
-Optimisation of the multi-threaded version would not have been possible without the kind guidence of those on the Julia Forums: https://discourse.julialang.org/t/fast-multi-threaded-array-editing-without-data-races/114863/41
-In particular the assistance of users: mbauman, adienes, Oscar_Smith, Satvik, Salmon, sgaure and foobar_lv2
+    Optimisation of the multi-threaded version would not have been possible without the kind guidence of those on the Julia Forums: https://discourse.julialang.org/t/fast-multi-threaded-array-editing-without-data-races/114863/41
+    In particular the assistance of users: mbauman, adienes, Oscar_Smith, Satvik, Salmon, sgaure and foobar_lv2
 =#
 
 function SpectraEvaluateMultiThread()
@@ -39,27 +39,13 @@ function SpectraEvaluateMultiThread()
             #TMatrix = f["TMatrix"];
             close(f)
         else
-            SAtotal = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2); 
+            SAtotal = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
             TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
-            SAtally = zeros(UInt32#= ,(nump3+2) =#,numt3,nump1,numt1,nump2,numt2);
+            SAtally = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
         end
 
     # ====================================== #
-
-
-    # ========= Pre-Allocate Arrays ======== #
-
-        # pre-allocate arrays for momentum
-        #p3v = zeros(Float32,3,2,nThreads); # two three array vector ((p3,t3,h1),(p3',t3',h1')) second corresponds to mirrored point in angle space
-        #p1v = zeros(Float32,3,nThreads);
-        #p2v = zeros(Float32,3,nThreads);
-
-        # pre-allocate arrays for ST values
-        #ST = zeros(Float32,3,nThreads); # [S,Sp,T]
-        #SAtallySmall = zeros(UInt32,Base.tail(size(SAtally))) # tallys are always allocated with a : in the first index, hence to speed up remove the first collum and re-add after intergration.
-
-    # ===================================== #
 
     # ======== Set up Array of Locks ====== #
 
@@ -81,7 +67,7 @@ function SpectraEvaluateMultiThread()
         #= these operations are run in serial =#
 
         # preallocate
-        SMatrix = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2);
+        SMatrix = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2);
         TMatrix = zeros(Float32,nump1,numt1,nump2,numt2);
 
         # divide element wise by tallys
@@ -104,7 +90,7 @@ function SpectraEvaluateMultiThread()
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
         STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
-        #PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
+        PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
                                             
         # correction to better conserve particle number and account for statistical noise of MC method
         #SCorrection2!(SMatrix,TMatrix) 

@@ -22,7 +22,7 @@ function SpectraEvaluateSerial()
             #TMatrix = f["TMatrix"];
             close(f)
         else
-            SAtotal = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2); 
+            SAtotal = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
             TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
             SAtally = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
@@ -51,7 +51,7 @@ function SpectraEvaluateSerial()
     # ===== Calculate S and T Matricies === #
 
         # preallocate
-        SMatrix = zeros(Float32,(nump3+2),numt3,nump1,numt1,nump2,numt2);
+        SMatrix = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2);
         TMatrix = zeros(Float32,nump1,numt1,nump2,numt2);
 
         # divide element wise by tallys
@@ -72,9 +72,9 @@ function SpectraEvaluateSerial()
 
 
         # Momentum space volume elements and symmetries
-        PhaseSpaceFactors1!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
-        STSymmetry!(SMatrix,TMatrix,mu1,mu2)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
-        #PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val,p2val,t2val)    #corrects phase space factors for application in kinetic models
+        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
+        STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
+        PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
                                  
         # correction to better conserve particle number and account for statistical noise of MC method
         #SCorrection2!(SMatrix,TMatrix) 
