@@ -92,7 +92,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
         RPointLogMomentum!(p2u,p2l,p2v)
 
         # Tval
-        TValuewithTest!(ST,p1v,p2v,mu1,mu2)
+        TValue!(ST,p1v,p2v)
 
         # Calculate T Array Location
         p1loc = location(p1u,p1l,nump1,log10(p1v[1]))
@@ -117,10 +117,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 testp3 = (p3v[1,1] != 0f0)
                 testp3p = (p3v[1,2] != 0f0)
 
-                #println((p3v[1,1],p3v[1,2],p1v[1],p2v[1]))
-
                 # Calculate S values
-                SValueWithTests!(ST,p3v,p1v,p2v,mu1,mu2,mu3,testp3,testp3p)
+                SValueWithTests!(ST,p3v,p1v,p2v,testp3,testp3p)
                 # Calculate S Array Location
 
                 t3loc = location(t3u,t3l,numt3,p3v[2,1])
@@ -158,4 +156,4 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
     end # Thread spwan
 
-end # function =#
+end # function

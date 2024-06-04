@@ -22,7 +22,7 @@ user defined constant parameters for STIntegration
     numSiter::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
     
     #For MultiThread
-    numTiterPerThread::Int64 = 100000;    # number of T matrix itterations i.e. random p1 p2 points
+    numTiterPerThread::Int64 = 1000000;    # number of T matrix itterations i.e. random p1 p2 points
     numSiterPerThread::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point  
     nThreads::Int64 = 8;    # number of threads
 
@@ -32,47 +32,25 @@ user defined constant parameters for STIntegration
 
 # ----- DO NOT EDIT THIS SECTION --------------- #
 
-    # Set Masses
-    const mu1::Float32 = eval(Symbol(name1*"Data")).mu
-    const mu2::Float32 = eval(Symbol(name2*"Data")).mu
-    const mu3::Float32 = eval(Symbol(name3*"Data")).mu
-    const mu4::Float32 = eval(Symbol(name4*"Data")).mu
+    # Set (Normalised) Masses
+    const mu1::Float32 = eval(Symbol(name1*"Data")).normmass
+    const mu2::Float32 = eval(Symbol(name2*"Data")).normmass
+    const mu3::Float32 = eval(Symbol(name3*"Data")).normmass
+    const mu4::Float32 = eval(Symbol(name4*"Data")).normmass
 
 
-    # Set Momentum Space Grids
-    
-    #const log10pspace::Bool = true;
+    # Set Momentum Space Grids defined in log10 space
+    const p3l::Float32 = eval(Symbol(name3*"Data")).pl
+    const p3u::Float32 = eval(Symbol(name3*"Data")).pu
+    const nump3::Int64 = eval(Symbol(name3*"Data")).nump
 
-    #if (log10pspace == true)
-        # momentum space grids are defined in log10 space
-        const p3l::Float32 = eval(Symbol(name3*"Data")).pl
-        const p3u::Float32 = eval(Symbol(name3*"Data")).pu
-        const nump3::Int64 = eval(Symbol(name3*"Data")).nump
+    const p1l::Float32 = eval(Symbol(name1*"Data")).pl
+    const p1u::Float32 = eval(Symbol(name1*"Data")).pu
+    const nump1::Int64 = eval(Symbol(name1*"Data")).nump
 
-        const p1l::Float32 = eval(Symbol(name1*"Data")).pl
-        const p1u::Float32 = eval(Symbol(name1*"Data")).pu
-        const nump1::Int64 = eval(Symbol(name1*"Data")).nump
-
-        const p2l::Float32 = eval(Symbol(name2*"Data")).pl
-        const p2u::Float32 = eval(Symbol(name2*"Data")).pu
-        const nump2::Int64 = eval(Symbol(name2*"Data")).nump
-
-    #elseif (log10pspace == false)
-        # momentum space grids are defined in normal space
-    #    const p3u::Float32 = 1f4;
-    #    const p3l::Float32 = 1f-2;
-    #    const nump3::UInt32 = UInt32(6);
-
-    #    const p1u::Float32 = 1f4;
-    #    const p1l::Flaot32 = 1f-2;
-    #    const nump1::UInt32 = UInt32(6);
-
-    #    const p2u::Flaot32 = 1f4;
-    #    const p2l::Float32 = 1f-2;
-    #    const nump2::UInt32 = UInt32(6);
-    #else 
-    #    error("log10pspace not defined")
-    #end
+    const p2l::Float32 = eval(Symbol(name2*"Data")).pl
+    const p2u::Float32 = eval(Symbol(name2*"Data")).pu
+    const nump2::Int64 = eval(Symbol(name2*"Data")).nump
 
     # cos(theta) 
     const t3l::Float32 = eval(Symbol(name3*"Data")).tl

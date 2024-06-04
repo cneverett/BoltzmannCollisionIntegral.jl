@@ -1,3 +1,8 @@
+"""
+    sCheck(sSmol,sBig)
+
+Returns 'true' if 's' mandelstram generated from inital system state can generate a physical output state. 
+"""
 function sCheck(sSmol::Float32,sBig::Float32)
     #returns true/false depending on if s is above minimum value
     # s >= (m1+m2)^2 && s >= (m3+m4)^2

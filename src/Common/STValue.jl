@@ -1,71 +1,18 @@
 #= Functions for the S and T integation functions =#
 
-function TValue!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},m1::Float32,m2::Float32)
+
+"""
+    TValue!(ST,p1v,p2v)
+
+Assigns 'ST[3]' with its Tval from MC integration based on initial momentum states 'p1v' and 'p2v'. If initial state fails 'sCheck', i.e. cannot generate a physical output state, ST[3] is set to 0f0.
+"""
+function TValuewithTest!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
 
     # returns one t value
 
-    # pre-defining terms for efficiency 
-    p1::Float32 = p1v[1]
-    p2::Float32 = p2v[1]
-
-    ct1::Float32 = cospi(p1v[2])
-    ct2::Float32 = cospi(p2v[2]) 
-
-    st1::Float32 = sinpi(p1v[2])
-    st2::Float32 = sinpi(p2v[2])
-
-    ch1h2::Float32 = cospi(p1v[3]-p2v[3])
-
-    m12 = m1^2
-    m22 = m2^2
-    
-    #= This method leads to errors when p/m < 10^-6 due to floating point precision, causing s<(m+m)^2 and InvFlux to retun a complex number error 
-    E1 = sqrt(p1^2+m12)
-    E2 = sqrt(p2^2+m22) 
-    s = m12+m22 + 2*E1*E2 - 2*p1*p2*(ct1*ct2-ch1h2*st1*st2)
-    =#
-
-    #= will attempt to use the algebraic relation sqrt(1+x)-1 = x/(sqrt(1+x)+1) to split E up into a large and small part i.e. sqrt(p^2+m^2) = m + (p^2)/(sqrt(m^2+p^2)+m) = E 
-    then label Es = (p^2)/(sqrt(m^2+p^2)+m) and rewrite 
-    s = (m3+m4)^2 + 2(m3*Es4+m4*Es3+Es3*Es4 - p3p4(...)) =#
-
-    Es1::Float32 = (p1^2)/(sqrt(m12+p1^2)+m1)
-    Es2::Float32 = (p2^2)/(sqrt(m22+p2^2)+m2)
-
-    sBig::Float32 = (m1+m2)^2
-    sSmol::Float32 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2-ch1h2*st1*st2))
-
-    #s = sBig + sSmol
-    
-    E1::Float32 = Es1 + m1
-    E2::Float32 = Es2 + m2
-    
-    #println(s)
-    #println(t)
-
-    #= if InvFlux2(s,m32,m42)==0f0
-        println("s:"*string(s)*"ss:"*string(sSmol)*"#sb:"*string(sBig)*"#if2s:"*string(InvFlux2Small(sSmol,m3,m4)))
-    end =#
-
-    # TSspe anisotropic absorption spectrum (to be integrated over d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
-    ST[3] = (1/E1)*(1/E2)*(InvFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
-    #println(sBig)
-    #println(sSmol)
-    #println(sigma(sSmol,sBig))
-    if (ST[3]==Inf32)
-        println(string)
-        ST[3] = 0f0
-    end
-
-    #println(string(ST[1],ST[2]))
-
-    return nothing
-
-end
-
-function TValuewithTest!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},m1::Float32,m2::Float32)
-
-    # returns one t value
+    # define normalised masses
+    m1 = mu1
+    m2 = mu2
 
     # pre-defining terms for efficiency 
     p1::Float32 = p1v[1]
@@ -102,18 +49,8 @@ function TValuewithTest!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Fl
         E1::Float32 = Es1 + m1
         E2::Float32 = Es2 + m2
         
-        #println(s)
-        #println(t)
-
-        #= if InvFlux2(s,m32,m42)==0f0
-            println("s:"*string(s)*"ss:"*string(sSmol)*"#sb:"*string(sBig)*"#if2s:"*string(InvFlux2Small(sSmol,m3,m4)))
-        end =#
-
         # TSspe anisotropic absorption spectrum (to be integrated over d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
-        ST[3] = (1/E1)*(1/E2)*(InvFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
-        #println(sBig)
-        #println(sSmol)
-        #println(sigma(sSmol,sBig))
+        ST[3] = (1/E1)*(1/E2)*(InvarientFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
         if (ST[3]==Inf32)
             println(sSmol,sBig)
             ST[3] = 0f0
@@ -126,9 +63,19 @@ function TValuewithTest!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Fl
 
 end
 
-function SValueWithTests!(ST::Array{Float32},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},m1::Float32,m2::Float32,m3::Float32,testp3::Bool,testp3p::Bool)
+"""
+    SValueWithTests!(ST,p3v,p1v,p2v,testp3,testp3p)
+
+Assigns 'ST[1:2]' with its Sval's from MC integration based on initial momentum states 'p1v' and 'p2v' and final state 'p3v'. If a final state 'p3v' is unphyscal 'testp3' and/or 'testp3p' will be set to true, in which case ST[1] or ST[2] respecticly will be set to 0f0.
+"""
+function SValueWithTests!(ST::Array{Float32},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},testp3::Bool,testp3p::Bool)
 
     # returns two s values
+
+    # define normalise masses
+    m1 = mu1
+    m2 = mu2 
+    m3 = mu3 
 
     # pre-defining terms for efficiency 
     p1::Float32 = p1v[1]
@@ -178,7 +125,7 @@ function SValueWithTests!(ST::Array{Float32},p3v::Array{Float32},p1v::Vector{Flo
     end =#
 
     # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
-    val::Float32 = (1/E1)*(1/E2)*(2*InvFlux2Small(sSmol,m1,m2))
+    val::Float32 = (1/E1)*(1/E2)*(2*InvarientFlux2Small(sSmol,m1,m2))
     #println(sBig)
     #println(sSmol)
     #println(sigma(sSmol,sBig))
@@ -258,15 +205,24 @@ function SValueWithTests!(ST::Array{Float32},p3v::Array{Float32},p1v::Vector{Flo
 
 end
 
-function InvFlux(s::Float32,mass12::Float32,mass22::Float32)
+"""
+    InvarientFlux(s,mass12,mass22)
+
+returns the value of the invarient flux with 's' mandelstram variable and masses 'mass1' and 'mass2'
+"""
+function InvarientFlux(s::Float32,mass12::Float32,mass22::Float32)
 
     # sqrt(lambda(s,m1^2,m2^2))/2 = sqrt(s)|p*|
     return sqrt(s^2-2*s*(mass12+mass22)+(mass12-mass22)^2)/2
 
-
 end
 
-function InvFluxSmall(sSmol::Float32,mass1::Float32,mass2::Float32)
+"""
+    InvarientFluxSmall(sSmol,mass12,mass22)
+
+returns the value of the invarient flux with smalled 's' mandelstram variable (sSmol = s - (m1+m2)^2)
+"""
+function InvarientFluxSmall(sSmol::Float32,mass1::Float32,mass2::Float32)
     # Better accuracy for small s
 
     # sqrt(lambda(s,m1^2,m2^2))/2 = sqrt(s)|p*|
@@ -274,14 +230,24 @@ function InvFluxSmall(sSmol::Float32,mass1::Float32,mass2::Float32)
 
 end
 
-function InvFlux2(s::Float32,mass12::Float32,mass22::Float32)
+"""
+    InvarientFlux2(s,mass12,mass22)
+
+returns the value of the squared invarient flux with 's' mandelstram variable and masses 'mass1' and 'mass2'
+"""
+function InvarientFlux2(s::Float32,mass12::Float32,mass22::Float32)
 
     # lambda(s,m1^2,m2^2)/4 = s|p*|^2
     return (s^2-2*s*(mass12+mass22)+(mass12-mass22)^2)/4
 
 end
 
-function InvFlux2Small(sSmol::Float32,mass1::Float32,mass2::Float32)
+"""
+    InvarientFluxSmall(sSmol,mass12,mass22)
+
+returns the value of the squared invarient flux with smalled 's' mandelstram variable (sSmol = s - (m1+m2)^2)
+"""
+function InvarientFlux2Small(sSmol::Float32,mass1::Float32,mass2::Float32)
     # Better accuracy for small s
 
     # lambda(s,m1^2,m2^2)/4 = s|p*|^2
