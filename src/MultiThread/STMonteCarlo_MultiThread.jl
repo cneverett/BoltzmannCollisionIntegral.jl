@@ -16,13 +16,13 @@ Intput:
     - Array of stored integration totals and tallys
         - total is cumulative sum of reaction rate in that domain
         - tally is cumalitive total of points that have landed in that doimain
-        - S Array will have dimensions (3px3t) for axisymmetric and (3px3tx3h) for anisotropic
+        - S Array will have dimensions ((p+1)x2px3t) for axisymmetric
         - T Array will have dimensions (2px2t) for axisymmetric
             - the x2 counts for total and tally values
             - this is likely to take up large data storage
-        - an alternative is impliment where arrays are reduced to 2D in size and S and tally arrays are generated as sparse array. The number of elements is ((3p)x(3t))
-            - T array not sparse as all entries should be non-zero
-            - there will be an extra 2 entries one for underflow and one for overflow momenta i.e. array acts like [underflow, overflow, p3 i, p3 i+1, p3 i+2 .... p3 nump3]
+        - an alternative is impliment where arrays are reduced to 2D in size and S and tally arrays are generated as sparse array. The dimensions of the S Array are ((p+1)x(2p)x(3t))
+            - there will be an extra 1 for overflow momenta i.e. array acts like [p3 i, p3 i+1, p3 i+2 .... p3 nump3, overflow]
+            - points that land under the momentum domain i.e. underflow are assigned to the lowest momentum bin. This in effect "re-boosts" them up to the lowest momentum.
     
     - n integration points
 
@@ -64,9 +64,9 @@ Output:
 function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks)
 
     # check arrays are correct size 
-    #size(AStally) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
+    #size(AStally) != ((nump3+1),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
     #size(ATtally) != (nump1,numt1,nump2,numt2) && error("ATally Array improperly sized")
-    #size(SAtotal) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("S Total Array improperly sized")
+    #size(SAtotal) != ((nump3+1),numt3,nump1,numt1,nump2,numt2) && error("S Total Array improperly sized")
     #size(TAtotal) != (nump1,numt1,nump2,numt2) && error("tally Array improperly sized")
 
     # Set up worker

@@ -11,30 +11,32 @@ function PhaseSpaceFactors1!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
     for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1
         for mm in 1:numt3
             for nn in 1:nump3
-                SMatrix[nn+2,mm,ll,kk,jj,ii] *= t3val[mm+1]-t3val[mm] # dmu3
-                SMatrix[nn+2,mm,ll,kk,jj,ii] *= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
-                SMatrix[nn+2,mm,ll,kk,jj,ii] *= (t2val[ii]-t2val[ii+1])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
-                SMatrix[nn+2,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
+                SMatrix[nn,mm,ll,kk,jj,ii] *= t3val[mm+1]-t3val[mm] # dmu3
+                SMatrix[nn,mm,ll,kk,jj,ii] *= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
+                SMatrix[nn,mm,ll,kk,jj,ii] *= (t2val[ii]-t2val[ii+1])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
+                SMatrix[nn,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
             end
         end
         TMatrix[ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
         TMatrix[ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
     end
 
-    # underflow bin size 
+    # underflow bin size
+    #= 
     for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
         SMatrix[1,mm,ll,kk,jj,ii] *= (t3val[mm+1]-t3val[mm]) # dmu3
         SMatrix[1,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
         SMatrix[1,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
         SMatrix[1,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
     end
+    =#
 
     # overflow bin size assumed to be up to 1*maximum p3val 
     for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
-        SMatrix[2,mm,ll,kk,jj,ii] *= (t3val[mm+1]-t3val[mm]) # dmu3
-        SMatrix[2,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
-        SMatrix[2,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
-        SMatrix[2,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
+        SMatrix[nump3+1,mm,ll,kk,jj,ii] *= (t3val[mm+1]-t3val[mm]) # dmu3
+        SMatrix[nump3+1,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
+        SMatrix[nump3+1,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
+        SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
     end
 
     return nothing
@@ -54,20 +56,26 @@ function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
     for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1
         for mm in 1:numt3
             for nn in 1:nump3
-                SMatrix[nn+2,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn])# dp3dmu3 
+                if nn == 1 # must account for underflow values increasing bin size
+                SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]#= -p3val[nn] =#)# dp3dmu3 
+                else
+                SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn]) # dp3dmu3 
+                end
             end
         end
         TMatrix[ll,kk,jj,ii] /= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1      
     end
 
-    # underflow bin size 
+    # underflow bin size
+    #= 
     for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
         SMatrix[1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[1]) # dp3dmu3
     end
+    =#
 
     # overflow bin size assumed to be up to 1*maximum p3val 
     for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
-        SMatrix[2,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1]) # dp3dmu3
+        SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1]) # dp3dmu3
     end
 
     return nothing
