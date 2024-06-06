@@ -45,12 +45,12 @@ function Momentum3Value!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{
     ct2::Float32 = p2v[2] #cospi(p2v[2]) 
 
     st3::Float32 = sqrt(1f0-p3v[2,1]^2) #sinpi(p3v[2,1])
-    st1::Float32 = sqrt(1f0-p1v[2,1]^2) #sinpi(p1v[2])
-    st2::Float32 = sqrt(1f0-p2v[2,1]^2) #sinpi(p2v[2])
+    st1::Float32 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float32 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
 
     ch1h3::Float32 = cospi(p3v[3,1]-p1v[3])
     ch1h4::Float32 = cospi(p3v[3,1]-p2v[3])
-    ch3h4::Float32 = cospi(p1v[3,1]-p2v[3])
+    ch3h4::Float32 = cospi(p1v[3]-p2v[3])
 
     m32::Float32 = m3^2
     m42::Float32 = m4^2
@@ -78,7 +78,8 @@ function Momentum3Value!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{
     #p1p2 = p1*p2
 
     # reset p3v values
-    @view(p3v[1,:]) .= 0f0
+    p3v[1,1] = 0f0 
+    p3v[1,2] = 0f0
 
     if ((C3sqr = ((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))^2*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))^2+(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(-m42+2*A2*(-m3+m1)+2*A1*(A2-m3+m2)+(-m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))*(-m42+2*A2*(m3+m1)+2*A1*(A2+m3+m2)+(m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))) > 0f0) # check for imaginary p3 state
 
@@ -137,10 +138,10 @@ function Momentum3Value!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{
             #p3v[1,2] = 0f0
         end
 
-    else
+    else # p3 is imagniary so unphysical but C3! = 0 so there are still two unphysical states
         testp3 = false
         testp3p = false
-        NotIdenticalStates = false
+        NotIdenticalStates = true
         #p3v[1,1] = 0f0
         #p3v[1,2] = 0f0
     end

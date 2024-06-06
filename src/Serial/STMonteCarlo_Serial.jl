@@ -88,7 +88,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
     #size(SAtotal) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("S Total Array improperly sized")
     #size(TAtotal) != (nump1,numt1,nump2,numt2) && error("tally Array improperly sized")
 
-    @inbounds for _ in 1:numTiter
+    for _ in 1:numTiter
 
         # generate p1 and p2 vectors initially as to not have to re-caculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
@@ -110,7 +110,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         
         if Tval != 0f0 # valid initial state for interaction
 
-            @inbounds for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
+            for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
                 #generate random p3 direction 
                 R2PointSphereCosThetaPhi!(p3v)
@@ -119,21 +119,25 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                 (NotIdenticalStates,testp3,testp3p) = Momentum3Value!(p3v,p1v,p2v)
 
                 # Calculate S Array Location
+                ST = zeros(Float32,2)
+                SValueWithTests!(ST,p3v,p1v,p2v,testp3,testp3p)
+                Sval = ST[1]
+                Svalp= ST[2]
   
                 t3loc = location(t3u,t3l,numt3,p3v[2,1])
                 if testp3 # valid p3 state so add ST[1]
-                    Sval = SValue(@view(p3v[:,1]),p1v,p2v)
+                    #Sval = SValue(@view(p3v[:,1]),p1v,p2v)
                     p3loc = locationp3(p3u,p3l,nump3,p3v[1,1])
                     SAtotalView[p3loc,t3loc] += Sval
                 end
                 SAtallyView[t3loc] += UInt32(1)
-
+                
                 if NotIdenticalStates # two unique but not nessessarlity physical states
                     t3ploc = location(t3u,t3l,numt3,p3v[2,2])
                     if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
-                        Sval = SValue(@view(p3v[:,2]),p1v,p2v)
+                        #Svalp = SValue(@view(p3v[:,2]),p1v,p2v)
                         p3ploc = locationp3(p3u,p3l,nump3,p3v[1,2])
-                        SAtotalView[p3ploc,t3ploc] += Sval
+                        SAtotalView[p3ploc,t3ploc] += Svalp
                     end
                     SAtallyView[t3ploc] += UInt32(1)
                 end
