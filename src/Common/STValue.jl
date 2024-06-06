@@ -64,6 +64,67 @@ function TValue!(ST::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
 end
 
 """
+    TValue!(ST,p1v,p2v)
+
+returns 'Tval' with its Tval from MC integration based on initial momentum states 'p1v' and 'p2v'. If initial state fails 'sCheck', i.e. cannot generate a physical output state, Tval is set to 0f0.
+"""
+function TValue(p1v::Vector{Float32},p2v::Vector{Float32})
+
+    # returns one t value
+
+    # define normalised masses
+    m1 = mu1
+    m2 = mu2
+
+    # pre-defining terms for efficiency 
+    p1::Float32 = p1v[1]
+    p2::Float32 = p2v[1]
+
+    ct1::Float32 = p1v[2] #cospi(p1v[2])
+    ct2::Float32 = p2v[2] #cospi(p2v[2]) 
+
+    st1::Float32 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float32 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
+
+    ch1h2::Float32 = cospi(p1v[3]-p2v[3])
+
+    m12 = m1^2
+    m22 = m2^2
+    
+    #= This method leads to errors when p/m < 10^-6 due to floating point precision, causing s<(m+m)^2 and InvFlux to retun a complex number error 
+    E1 = sqrt(p1^2+m12)
+    E2 = sqrt(p2^2+m22) 
+    s = m12+m22 + 2*E1*E2 - 2*p1*p2*(ct1*ct2-ch1h2*st1*st2)
+    =#
+
+    #= will attempt to use the algebraic relation sqrt(1+x)-1 = x/(sqrt(1+x)+1) to split E up into a large and small part i.e. sqrt(p^2+m^2) = m + (p^2)/(sqrt(m^2+p^2)+m) = E 
+    then label Es = (p^2)/(sqrt(m^2+p^2)+m) and rewrite 
+    s = (m3+m4)^2 + 2(m3*Es4+m4*Es3+Es3*Es4 - p3p4(...)) =#
+
+    Es1::Float32 = (p1^2)/(sqrt(m12+p1^2)+m1)
+    Es2::Float32 = (p2^2)/(sqrt(m22+p2^2)+m2)
+
+    sBig::Float32 = (m1+m2)^2
+    sSmol::Float32 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2+ch1h2*st1*st2))
+
+    if sCheck(sSmol,sBig) # check if s value is valid for interaction
+        E1::Float32 = Es1 + m1
+        E2::Float32 = Es2 + m2
+        
+        # TSspe anisotropic absorption spectrum (to be integrated over d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
+        Tval = (1/E1)*(1/E2)*(InvarientFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
+        if (Tval==Inf32)
+            error("ST1 Inf#"*string(sSmol)*"#"*string(sBig))
+        end
+    else # if not valid set T value to zero
+        Tval = 0f0
+    end
+
+    return Tval
+
+end
+
+"""
     SValueWithTests!(ST,p3v,p1v,p2v,testp3,testp3p)
 
 Assigns 'ST[1:2]' with its Sval's from MC integration based on initial momentum states 'p1v' and 'p2v' and final state 'p3v'. If a final state 'p3v' is unphyscal 'testp3' and/or 'testp3p' will be set to true, in which case ST[1] or ST[2] respecticly will be set to 0f0.
@@ -202,6 +263,89 @@ function SValueWithTests!(ST::Array{Float32},p3v::Array{Float32},p1v::Vector{Flo
     #println(string(ST[1],ST[2]))
 
     return nothing
+
+end
+
+"""
+    SValue(p3v,p1v,p2v)
+
+Returns 'Sval' from MC integration based on initial momentum states 'p1v' and 'p2v' and final state 'p3v'.
+"""
+function SValue(p3v::AbstractVector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
+
+    # returns two s values
+
+    # define normalise masses
+    m1 = mu1
+    m2 = mu2 
+    m3 = mu3 
+
+    # pre-defining terms for efficiency 
+    p1::Float32 = p1v[1]
+    p2::Float32 = p2v[1]
+
+    ct1::Float32 = p1v[2] #cospi(p1v[2])
+    ct2::Float32 = p2v[2] #cospi(p2v[2]) 
+
+    st1::Float32 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float32 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
+
+    ch1h2::Float32 = cospi(p1v[3]-p2v[3])
+
+    m32 = m3^2
+    m12 = m1^2
+    m22 = m2^2
+    
+    #= This method leads to errors when p/m < 10^-6 due to floating point precision, causing s<(m+m)^2 and InvFlux to retun a complex number error 
+    E1 = sqrt(p1^2+m12)
+    E3 = sqrt(p3^2+m32)
+    E4 = sqrt(p4^2+m42) 
+    s = m32+m42 + 2*E3*E4 - 2*p3*p4*(ct3*ct4-ch3h4*st3*st4)
+    t = m32+m12 - 2*E1*E3 + 2*p1*p3*(ct1*ct3+ch1h3*st1*st3)
+    =#
+
+    #= will attempt to use the algebraic relation sqrt(1+x)-1 = x/(sqrt(1+x)+1) to split E up into a large and small part i.e. sqrt(p^2+m^2) = m + (p^2)/(sqrt(m^2+p^2)+m) = E 
+    then label Es = (p^2)/(sqrt(m^2+p^2)+m) and rewrite 
+    s = (m3+m4)^2 + 2(m3*Es4+m4*Es3+Es3*Es4 - p3p4(...))
+    t = (m1-m3)^2 - 2(m3*Es1+m1*Es3+Es1*Es3 - p1p3(...)) =#
+
+    Es1::Float32 = (p1^2)/(sqrt(m12+p1^2)+m1)
+    Es2::Float32 = (p2^2)/(sqrt(m22+p2^2)+m2)
+
+    sBig::Float32 = (m1+m2)^2
+    sSmol::Float32 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2+ch1h2*st1*st2))
+
+    #s = sBig + sSmol
+    
+    E1::Float32 = Es1 + m1
+    E2::Float32 = Es2 + m2
+
+    # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
+    val::Float32 = (1/E1)*(1/E2)*(2*InvarientFlux2Small(sSmol,m1,m2))
+
+    p3::Float32 = p3v[1]
+    ct3::Float32 = p3v[2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
+    st3::Float32 = sqrt(1f0-p3v[2]^2)
+    ch3h1::Float32 = cospi(p3v[3]-p1v[3])
+    ch3h2::Float32 = cospi(p3v[3]-p2v[3])
+    Es3::Float32 = (p3^2)/(sqrt(m32+p3^2)+m3)
+
+    # t = tBig + tSmol
+    tBig::Float32 = (m3-m1)^2
+    tSmol::Float32 = -2*(m1*Es3 + m3*Es1 + Es3*Es1 - p3*p1*(ct3*ct1+ch3h1*st3*st1))
+    # u = uBig + uSmol
+    uBig::Float32 = (m2-m3)^2
+    uSmol::Float32 = -2*(m3*Es2 + m2*Es3 + Es2*Es3 - p2*p3*(ct2*ct3+ch3h2*st2*st3))
+
+    deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
+
+    Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
+
+    if (Sval==Inf || Sval == -Inf)
+        error("ST1 Inf#"*string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig))  
+    end
+
+    return Sval
 
 end
 

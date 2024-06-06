@@ -43,25 +43,44 @@ Output:
 
 =#
 
-# for testing --
-
-#SAtot = Array{Float32,6}(undef, nump3,numt3,nump1,numt1,nump2,numt2)
-#TAtot = Array{Float32,6}(undef,nump1,numt1,nump2,numt2)
-#Atal = Array{UInt32,6}(undef, nump3,numt3,nump1,numt1,nump2,numt2)
-
-#SAtot = spzeros(Float32, nump3*nump1*nump2, numt3*numt1*numt2)
-#TAtot = zeros(Float32, nump1*nump2, numt1*numt2)
-#Atal = spzeros(UInt32,nump3*nump1*nump2, numt3*numt1*numt2)
-# -------------
+#= for testing --
 
 # Dependancies
-#include("..\\Common\\RandomPointMomentum.jl")
-#include("..\\Common\\RandomPointSphere.jl")
-#include("..\\Common\\STValue.jl")
-#include("..\\Common\\DifferentialCrossSectionFunctions.jl")
-#include("..\\Common\\Momentum3Values.jl")
+include("../Common/MyPhysicalConstants.jl")
+include("../Common/ParticleData.jl")
+include("../Common\\Init.jl")
+include("../Common\\DifferentialCrossSectionFunctions.jl")
+include("../Common\\Momentum3Values.jl")
+include("../Common\\RandomPointMomentum.jl")
+include("../Common\\RandomPointSphere.jl")
+include("../Common/MandelstramChecks.jl")
+include("../Common\\STValue.jl")
+include("../Common/UsefulGridValueFunctions.jl")
+include("../Common/PhaseSpaceFactors.jl")
+include("../Common/Location.jl")
 
-function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},p3v::Array{Float32},p1v::Vector{Float32},p2v::Vector{Float32},ST::Vector{Float32})
+using BenchmarkTools
+SAtotal = Array{Float32,6}(undef, nump3+1,numt3,nump1,numt1,nump2,numt2);
+TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
+SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
+TAtally = Array{UInt32,4}(undef,nump1,numt1,nump2,numt2);
+p1v= zeros(Float32,3)
+p2v = zeros(Float32,3)
+p3v = zeros(Float32,3,2)
+p3vTest = zeros(Float32,3)
+p3vpTest= zeros(Float32,3)
+ST = zeros(Float32,3)
+# -------------
+
+@btime STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p1v,p2v,ST)
+
+@btime STMonteCarloAxi_SerialTest!(SAtotal,TAtotal,SAtally,TAtally,p3v,p1v,p2v)
+@btime STMonteCarloAxi_SerialTest!(SAtotal,TAtotal,SAtally,TAtally,p3vTest,p3vpTest,p1v,p2v)
+
+=#
+
+
+function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{Float32})
 
     # check arrays are correct size 
     #size(AStally) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
@@ -75,30 +94,21 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         RPointSphereCosThetaPhi!(p1v)
         RPointSphereCosThetaPhi!(p2v)
 
-        #if (log10pspace == true)
         RPointLogMomentum!(p1u,p1l,p1v)
         RPointLogMomentum!(p2u,p2l,p2v)
-        #= elseif (log10pspace == false)
-        RPointMomentum!(p1u,p1l,p1v)
-        RPointMomentum!(p2u,p2l,p2v)
-        else
-        error("Log10pspace not defined")
-        end =#
-
+  
         # Tval
-        TValuewithTest!(ST,p1v,p2v,mu1,mu2)
+        Tval = TValue(p1v,p2v)
 
         # Calculate T Array Location
-        p1loc = location(p1u,p1l,nump1,log10(p1v[1]))
-        p2loc = location(p2u,p2l,nump2,log10(p2v[1]))
-        t1loc = location(t1u,t1l,numt1,p1v[2])
-        t2loc = location(t2u,t2l,numt2,p2v[2])
+        (p1loc,t1loc) = vectorLocation(p1u,p1l,t1u,t1l,nump1,numt1,p1v)
+        (p2loc,t2loc) = vectorLocation(p2u,p2l,t2u,t2l,nump2,numt2,p2v)
         loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
 
         SAtotalView = @view SAtotal[:,:,loc12]
         SAtallyView = @view SAtally[:,loc12]
         
-        if ST[3] != 0f0 # valid initial state for interaction
+        if Tval != 0f0 # valid initial state for interaction
 
             @inbounds for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
@@ -106,29 +116,24 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                 R2PointSphereCosThetaPhi!(p3v)
 
                 # Calculate p3 value
-                identicalStates = Momentum3Value!(p3v,p1v,p2v)
-
-                # check if non-zero
-                testp3 = (p3v[1,1] != 0f0)
-                testp3p = (p3v[1,2] != 0f0)
-
-                # Calculate S values
-                SValueWithTests!(ST,p3v,p1v,p2v,testp3,testp3p)
+                (NotIdenticalStates,testp3,testp3p) = Momentum3Value!(p3v,p1v,p2v)
 
                 # Calculate S Array Location
   
                 t3loc = location(t3u,t3l,numt3,p3v[2,1])
                 if testp3 # valid p3 state so add ST[1]
-                    p3loc = locationp3(p3u,p3l,nump3,log10(p3v[1,1]))
-                    SAtotalView[p3loc,t3loc] += ST[1]
+                    Sval = SValue(@view(p3v[:,1]),p1v,p2v)
+                    p3loc = locationp3(p3u,p3l,nump3,p3v[1,1])
+                    SAtotalView[p3loc,t3loc] += Sval
                 end
                 SAtallyView[t3loc] += UInt32(1)
 
-                if identicalStates == false # two unique but not nessessarlity physical states
+                if NotIdenticalStates # two unique but not nessessarlity physical states
                     t3ploc = location(t3u,t3l,numt3,p3v[2,2])
                     if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
-                        p3ploc = locationp3(p3u,p3l,nump3,log10(p3v[1,2]))
-                        SAtotalView[p3ploc,t3ploc] += ST[2]
+                        Sval = SValue(@view(p3v[:,2]),p1v,p2v)
+                        p3ploc = locationp3(p3u,p3l,nump3,p3v[1,2])
+                        SAtotalView[p3ploc,t3ploc] += Sval
                     end
                     SAtallyView[t3ploc] += UInt32(1)
                 end
@@ -141,7 +146,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         end
 
         # asign to T arrays
-        TAtotal[loc12] += ST[3] # ST[3] doesn't change with S loop
+        TAtotal[loc12] += Tval # ST[3] doesn't change with S loop
         TAtally[loc12] += UInt32(1)
 
     end # Tloop
