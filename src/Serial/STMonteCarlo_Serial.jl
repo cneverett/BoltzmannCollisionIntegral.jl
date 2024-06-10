@@ -117,16 +117,10 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
 
                 # Calculate p3 value
                 (NotIdenticalStates,testp3,testp3p) = Momentum3Value!(p3v,p1v,p2v)
-
-                # Calculate S Array Location
-                ST = zeros(Float32,2)
-                SValueWithTests!(ST,p3v,p1v,p2v,testp3,testp3p)
-                Sval = ST[1]
-                Svalp= ST[2]
   
                 t3loc = location(t3u,t3l,numt3,p3v[2,1])
                 if testp3 # valid p3 state so add ST[1]
-                    #Sval = SValue(@view(p3v[:,1]),p1v,p2v)
+                    Sval = SValue(@view(p3v[:,1]),p1v,p2v)
                     p3loc = locationp3(p3u,p3l,nump3,p3v[1,1])
                     SAtotalView[p3loc,t3loc] += Sval
                 end
@@ -135,7 +129,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                 if NotIdenticalStates # two unique but not nessessarlity physical states
                     t3ploc = location(t3u,t3l,numt3,p3v[2,2])
                     if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
-                        #Svalp = SValue(@view(p3v[:,2]),p1v,p2v)
+                        Svalp = SValue(@view(p3v[:,2]),p1v,p2v)
                         p3ploc = locationp3(p3u,p3l,nump3,p3v[1,2])
                         SAtotalView[p3ploc,t3ploc] += Svalp
                     end

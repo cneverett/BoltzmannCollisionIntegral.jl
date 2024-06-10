@@ -13,21 +13,6 @@ user defined constant parameters for STIntegration
 
 # ---------------------------------------------- #
 
-# ---------- Integration Parameters ------------ #
-
-    # integration time approx 250ns per itteration 
-
-    # For Serial 
-    numTiter::Int64 = 1000000;    # number of T matrix itterations i.e. random p1 p2 points
-    numSiter::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
-    
-    #For MultiThread
-    numTiterPerThread::Int64 = 1000;    # number of T matrix itterations i.e. random p1 p2 points
-    numSiterPerThread::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point  
-    nThreads::Int64 = 8;    # number of threads
-
-# ---------------------------------------------- #
-
 ##################################################
 
 # ----- DO NOT EDIT THIS SECTION --------------- #
@@ -68,6 +53,20 @@ user defined constant parameters for STIntegration
 # ---------------------------------------------- #
 
 ##################################################
+
+# ---------- Integration Parameters ------------ #
+
+    # integration time approx 250ns per itteration 
+
+    # For Serial 
+    numTiter::Int64 = 1000000;    # number of T matrix itterations i.e. random p1 p2 points
+    numSiter::Int64 = 100;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
+    #For MultiThread
+    numTiterPerThread::Int64 = 1000000;    # number of T matrix itterations i.e. random p1 p2 points
+    numSiterPerThread::Int64 = nump3*numt3*10;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point. Should be > nump3*numt3 to ensure good sampling.
+    nThreads::Int64 = 8;    # number of threads
+
+# ---------------------------------------------- #
 
 # --------------- File Location ---------------- #
 

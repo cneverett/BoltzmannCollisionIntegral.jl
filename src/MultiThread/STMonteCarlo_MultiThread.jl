@@ -130,7 +130,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 #generate random p3 direction 
                 R2PointSphereCosThetaPhi!(p3v)
                 # Calculate p3 value with checks
-                NotIdenticalStates,testp3,testp3p = Momentum3Value!(p3v,p1v,p2v)
+                (NotIdenticalStates,testp3,testp3p) = Momentum3Value!(p3v,p1v,p2v)
 
                 # Calculate S values
                 #SValueWithTests!(ST,p3v,p1v,p2v,testp3,testp3p)
