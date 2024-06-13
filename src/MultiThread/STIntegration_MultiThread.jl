@@ -37,12 +37,14 @@ function SpectraEvaluateMultiThread()
             TAtally = f["TTally"];
             #SMatrix = f["SMatrix"];
             #TMatrix = f["TMatrix"];
+            p3Max = f["p3Max"];
             close(f)
         else
             SAtotal = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
             TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
             SAtally = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
+            p3Max = zeros(Float32,numt3,nump1,numt1,nump2,numt2);
         end
 
     # ====================================== #
@@ -56,7 +58,7 @@ function SpectraEvaluateMultiThread()
     # ===== Run MonteCarlo Integration ==== #
 
         # Set up workers
-        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks) for i in 1:nThreads]
+        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max) for i in 1:nThreads]
         
         wait.(workers) # Allow all workers to finish
    
@@ -109,12 +111,14 @@ function SpectraEvaluateMultiThread()
             Base.delete!(f,"TTally")
             Base.delete!(f,"SMatrix")
             Base.delete!(f,"TMatrix")
+            Base.delete!(f,"p3Max")
             write(f,"STotal",SAtotal)
             write(f,"TTotal",TAtotal)
             write(f,"STally",SAtally)
             write(f,"TTally",TAtally)
             write(f,"SMatrix",SMatrix)
             write(f,"TMatrix",TMatrix)
+            write(f,"p3Max",p3Max)
         else    # create file
             f = jldopen(filePath,"w") # creates file
             write(f,"STotal",SAtotal)
@@ -123,6 +127,7 @@ function SpectraEvaluateMultiThread()
             write(f,"TTally",TAtally)
             write(f,"SMatrix",SMatrix)
             write(f,"TMatrix",TMatrix)
+            write(f,"p3Max",p3Max)
         end
         close(f)
 
