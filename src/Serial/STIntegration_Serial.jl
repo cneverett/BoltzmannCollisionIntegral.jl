@@ -20,12 +20,14 @@ function SpectraEvaluateSerial()
             TAtally = f["TTally"];
             #SMatrix = f["SMatrix"];
             #TMatrix = f["TMatrix"];
+            p3Max = f["p3Max"];
             close(f)
         else
             SAtotal = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
             TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
             SAtally = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
+            p3Max = zeros(Float32,numt3,nump1,numt1,nump2,numt2);
         end
 
     # ====================================== #
@@ -44,7 +46,7 @@ function SpectraEvaluateSerial()
 
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p1v,p2v)
+        STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p1v,p2v,p3Max)
 
     # ===================================== #
 
@@ -87,17 +89,19 @@ function SpectraEvaluateSerial()
         if fileExist    # i.e. not first time
             f = jldopen(filePath,"r+")
             Base.delete!(f,"STotal")
-            Base.delete!(f,"TTotal") 
-            Base.delete!(f,"STally")
-            Base.delete!(f,"TTally")
-            Base.delete!(f,"SMatrix")
-            Base.delete!(f,"TMatrix")
             write(f,"STotal",SAtotal)
+            Base.delete!(f,"TTotal") 
             write(f,"TTotal",TAtotal)
+            Base.delete!(f,"STally")
             write(f,"STally",SAtally)
+            Base.delete!(f,"TTally")
             write(f,"TTally",TAtally)
+            Base.delete!(f,"SMatrix")
             write(f,"SMatrix",SMatrix)
+            Base.delete!(f,"TMatrix")
             write(f,"TMatrix",TMatrix)
+            Base.delete!(f,"p3Max")
+            write(f,"p3Max",p3Max)
         else    # create file
             f = jldopen(filePath,"w") # creates file
             write(f,"STotal",SAtotal)
@@ -106,6 +110,7 @@ function SpectraEvaluateSerial()
             write(f,"TTally",TAtally)
             write(f,"SMatrix",SMatrix)
             write(f,"TMatrix",TMatrix)
+            write(f,"p3Max",p3Max)
         end
         close(f)
 
