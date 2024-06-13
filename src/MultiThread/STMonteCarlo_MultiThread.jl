@@ -100,6 +100,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     localSAtotal = zeros(Float32,size(SAtotal)[1:2])
     localSAtally = zeros(UInt32,size(SAtally)[1])
     localp3Max = zeros(Float32,size(p3Max)[1])
+    localt3Min = zeros(Float32,size(t3MinMax)[2])
+    localt3Max = zeros(Float32,size(t3MinMax)[2])
 
     for _ in 1:numTiterPerThread
 
@@ -121,11 +123,13 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
         loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
 
         fill!(localSAtally,UInt32(0))
-        fill!(localp3Max,Float32(0))
 
         if Tval != 0f0 # i.e. it is a valid interaction state
 
             fill!(localSAtotal,0f0)
+            fill!(localp3Max,Float32(0))
+            fill!(localt3Min,Float32(0))
+            fill!(localt3Max,Float32(0))
             
             @inbounds for _ in 1:numSiterPerThread
 
@@ -143,6 +147,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     p3loc = locationp3(p3u,p3l,nump3,p3v[1,1])
                     localSAtotal[p3loc,t3loc] += Sval
                     localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1,1])
+                    localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2,1])
+                    localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2,1])
                 end
                 localSAtally[t3loc] += UInt32(1)
 
@@ -153,6 +159,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                         p3ploc = locationp3(p3u,p3l,nump3,p3v[1,2])
                         localSAtotal[p3ploc,t3ploc] += Svalp
                         localp3Max[t3ploc] = max(localp3Max[t3ploc],p3v[1,2])
+                        localt3Min[p3ploc] = min(localt3Min[p3ploc],p3v[2,2])
+                        localt3Max[p3ploc] = max(localt3Max[p3ploc],p3v[2,2])
                     end
                     localSAtally[t3ploc] += UInt32(1)
                 end
@@ -170,7 +178,11 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
             TAtally[loc12] += UInt32(1)
             @view(SAtotal[:,:,loc12]) .+= localSAtotal
             @view(SAtally[:,loc12]) .+= localSAtally
-            @view(p3Max[:,loc12]) .= max.(@view(p3Max[:,loc12]),localp3Max) 
+            if Tval != 0f0
+            @view(p3Max[:,loc12]) .= max.(@view(p3Max[:,loc12]),localp3Max)
+            @view(t3MinMax[1,:,loc12]) .= min.(@view(t3MinMax[1,:,loc12]),localt3Min)
+            @view(t3MinMax[2,:,loc12]) .= max.(@view(t3MinMax[2,:,loc12]),localt3Max)
+            end 
         end
 
     end # Tloop
