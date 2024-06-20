@@ -12,7 +12,7 @@ function RPointMomentum!(pu::Float32,pl::Float32,pv::Vector{Float32})
     # Inputs a momentum vector and mometum bounds and mutates firstof said vector
 
     # generates random value uniform in real space
-    pv[1] = rand(Float32)*(pu-pl)+pl  # normal distribution
+    pv[1] = rand(Float32)*(pu-pl)+pl
 
     return nothing
     
@@ -27,7 +27,7 @@ function RPointLogMomentum!(pu::Float32,pl::Float32,pv::Vector{Float32})
     # Inputs a momentum vector and mometum bounds and mutates first of said vector
 
     # generates random value uniform in log space
-    pv[1] = 1f1^(rand(Float32)*(pu-pl)+pl)  # normal distribution
+    pv[1] = 1f1^(rand(Float32)*(pu-pl)+pl)  
 
     return nothing
     

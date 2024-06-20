@@ -77,7 +77,7 @@ using BenchmarkTools
 # ------------- =#
 
 
-function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5})
+function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
     # check arrays are correct size 
     #size(AStally) != ((nump3+1),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")

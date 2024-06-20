@@ -38,6 +38,7 @@ function SpectraEvaluateMultiThread()
             #SMatrix = f["SMatrix"];
             #TMatrix = f["TMatrix"];
             p3Max = f["p3Max"];
+            t3MinMax = f["t3MinMax"];
             close(f)
         else
             SAtotal = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
@@ -45,7 +46,7 @@ function SpectraEvaluateMultiThread()
             SAtally = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
             p3Max = zeros(Float32,numt3,nump1,numt1,nump2,numt2);
-            t3MinMax = zeros(Float32,2,nump3,nump1,numt1,nump2,numt2);
+            t3MinMax = zeros(Float32,2,(nump3+1),nump1,numt1,nump2,numt2);
         end
 
     # ====================================== #
@@ -103,50 +104,20 @@ function SpectraEvaluateMultiThread()
 
     # ========== Save Arrays ============== #
         
-        # have to delete data field and recreate cannot just update
-        if fileExist    # i.e. not first time
-            f = jldopen(filePath,"r+")
-            Base.delete!(f,"STotal")
-            write(f,"STotal",SAtotal)
-            Base.delete!(f,"TTotal") 
-            write(f,"TTotal",TAtotal)
-            Base.delete!(f,"STally")
-            write(f,"STally",SAtally)
-            Base.delete!(f,"TTally")
-            write(f,"TTally",TAtally)
-            Base.delete!(f,"SMatrix")
-            write(f,"SMatrix",SMatrix)
-            Base.delete!(f,"TMatrix")
-            write(f,"TMatrix",TMatrix)
-            Base.delete!(f,"p3Max")
-            write(f,"p3Max",P3Max)
-            Base.delete!(f,"t3MinMax")
-            write(f,"t3MinMax",t3MinMax)
-        else    # create file
-            f = jldopen(filePath,"w") # creates file
-            write(f,"STotal",SAtotal)
-            write(f,"TTotal",TAtotal)
-            write(f,"STally",SAtally)
-            write(f,"TTally",TAtally)
-            write(f,"SMatrix",SMatrix)
-            write(f,"TMatrix",TMatrix)
-            write(f,"p3Max",P3Max)
-            write(f,"t3MinMax",t3MinMax)
-        end
+        f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
+        write(f,"STotal",SAtotal)
+        write(f,"TTotal",TAtotal)
+        write(f,"STally",SAtally)
+        write(f,"TTally",TAtally)
+        write(f,"SMatrix",SMatrix)
+        write(f,"TMatrix",TMatrix)
+        write(f,"p3Max",p3Max)
+        write(f,"t3MinMax",t3MinMax)
+        write(f,"name1Data",eval(Symbol(name1*"Data")))
+        write(f,"name2Data",eval(Symbol(name2*"Data")))
+        write(f,"name3Data",eval(Symbol(name3*"Data")))
+        write(f,"name4Data",eval(Symbol(name4*"Data")))
         close(f)
-
-        # --------- Saving Integration Parameters ------ #
-
-        if fileExist==false # only on first time
-            f = jldopen(filePath,"r+");
-            write(f,"name1Data",eval(Symbol(name1*"Data")))
-            write(f,"name2Data",eval(Symbol(name2*"Data")))
-            write(f,"name3Data",eval(Symbol(name3*"Data")))
-            write(f,"name4Data",eval(Symbol(name4*"Data")))
-            close(f)
-        end
-
-        # ---------------------------------------------- #
 
     # ===================================== #
 

@@ -39,13 +39,14 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
             SMatrix = f["SMatrix"];
             TMatrix = f["TMatrix"];
             p3Max = f["p3Max"];
+            t3MinMax = f["t3MinMax"];
             close(f)
         else
             error("no file")
         end
 
-        return (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix, p3Max);
-        #run (Stot, Ttot, Stal, Ttal, SMatrix, TMatrix) = fload();
+        return (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix, p3Max, t3MinMax);
+        #run (Stot, Ttot, Stal, Ttal, SMatrix, TMatrix, p3Max, t3MinMax) = fload();
 
     end
 

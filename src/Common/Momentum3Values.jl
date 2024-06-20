@@ -138,7 +138,7 @@ function Momentum3Value!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{
             #p3v[1,2] = 0f0
         end
 
-    else # p3 is imagniary so unphysical but C3! = 0 so there are still two unphysical states
+    else # p3 is imagniary so unphysical but C3 != 0 so there are still two unphysical states
         testp3 = false
         testp3p = false
         NotIdenticalStates = true
