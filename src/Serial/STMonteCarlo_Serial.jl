@@ -80,7 +80,7 @@ ST = zeros(Float32,3)
 =#
 
 
-function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{Float32},p3Max::Array{Float32,5})
+function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{Float32},p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
     # check arrays are correct size 
     #size(AStally) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
@@ -108,6 +108,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         SAtotalView = @view SAtotal[:,:,loc12]
         SAtallyView = @view SAtally[:,loc12]
         p3MaxView = @view p3Max[:,loc12]
+        t3MinView = @view p3MinMax[1,:,loc12]
+        t3MaxView = @view p3MinMax[2,:,loc12]
         
         if Tval != 0f0 # valid initial state for interaction
 
@@ -125,6 +127,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                     p3loc = locationp3(p3u,p3l,nump3,p3v[1,1])
                     SAtotalView[p3loc,t3loc] += Sval
                     p3MaxView[t3loc] = max(p3MaxView[t3loc],p3v[1,1])
+                    t3MinView[p3loc] = min(t3MinView[p3loc],p3v[2,1])
+                    t3MaxView[p3loc] = max(t3MaxView[p3loc],p3v[2,1])
                 end
                 SAtallyView[t3loc] += UInt32(1)
                 
@@ -135,6 +139,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                         p3ploc = locationp3(p3u,p3l,nump3,p3v[1,2])
                         SAtotalView[p3ploc,t3ploc] += Svalp
                         p3MaxView[t3ploc] = max(p3MaxView[t3ploc],p3v[1,2])
+                        t3MinView[p3loc] = min(t3MinView[p3loc],p3v[2,2])
+                        t3MaxView[p3loc] = max(t3MaxView[p3loc],p3v[2,2])
                     end
                     SAtallyView[t3ploc] += UInt32(1)
                 end
