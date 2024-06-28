@@ -44,9 +44,9 @@ function Momentum3Value!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{
     ct1::Float32 = p1v[2] #cospi(p1v[2])
     ct2::Float32 = p2v[2] #cospi(p2v[2]) 
 
-    st3::Float32 = sqrt(1f0-p3v[2,1]^2) #sinpi(p3v[2,1])
-    st1::Float32 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
-    st2::Float32 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
+    st3::Float32 = sqrt(1f0-ct3^2) #sinpi(p3v[2,1])
+    st1::Float32 = sqrt(1f0-ct1^2) #sinpi(p1v[2])
+    st2::Float32 = sqrt(1f0-ct2^2) #sinpi(p2v[2])
 
     ch1h3::Float32 = cospi(p3v[3,1]-p1v[3])
     ch1h4::Float32 = cospi(p3v[3,1]-p2v[3])
@@ -94,7 +94,7 @@ function Momentum3Value!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{
 
         # either val or valp could be -ve or +ve and still allowed states, the statements below check each and adjust the angles appropriatly
 
-        if (m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-val^2/(sqrt(m32+val^2)+m3))>0
+        if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-val^2/(sqrt(m32+val^2)+m3)) > m3-m2-m1
             #assign for aligned case as valp +ve
             if val == 0f0
                 testp3 = false
@@ -116,7 +116,7 @@ function Momentum3Value!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{
 
         if (valp == val) # identical states C3 = 0 i.e. not to be counted
             NotIdenticalStates = false
-        elseif ((m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-valp^2/(sqrt(m32+valp^2)+m3))>0) # non-identical but physical i.e. to be counted
+        elseif (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-valp^2/(sqrt(m32+valp^2)+m3)) > m3-m2-m1 # non-identical but physical i.e. to be counted
             NotIdenticalStates = true
             #assign primed for aligned case as valp +ve
             if valp == 0f0
@@ -144,6 +144,166 @@ function Momentum3Value!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{
         NotIdenticalStates = true
         #p3v[1,1] = 0f0
         #p3v[1,2] = 0f0
+    end
+
+    return NotIdenticalStates, testp3, testp3p
+
+end
+
+function Momentum3Value2!(p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{Float32})
+
+    # set normalised masses (defined in Init.jl)
+    m1 = mu1
+    m2 = mu2
+    m3 = mu3
+    m4 = mu4 
+
+    # define identical states
+    #identicalStates::Bool = false
+
+    # pv should be [p,t,h]
+    p1::Float32 = p1v[1]
+    p2::Float32 = p2v[1]
+
+    ct3::Float32 = p3v[2,1] #cospi(p3v[2,1]) # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
+    ct1::Float32 = p1v[2] #cospi(p1v[2])
+    ct2::Float32 = p2v[2] #cospi(p2v[2]) 
+
+    st3::Float32 = sqrt(1f0-ct3^2) #sinpi(p3v[2,1])
+    st1::Float32 = sqrt(1f0-ct1^2) #sinpi(p1v[2])
+    st2::Float32 = sqrt(1f0-ct2^2) #sinpi(p2v[2])
+
+    ch1h3::Float32 = cospi(p3v[3,1]-p1v[3])
+    ch1h4::Float32 = cospi(p3v[3,1]-p2v[3])
+    ch3h4::Float32 = cospi(p1v[3]-p2v[3])
+
+    m32::Float32 = m3^2
+    m42::Float32 = m4^2
+    m12::Float32 = m1^2
+    m22::Float32 = m2^2
+
+    p12::Float32 = p1^2
+    p22::Float32 = p2^2
+
+    sqm1p1::Float32 = sqrt(m12+p12)
+    sqm2p2::Float32 = sqrt(m22+p22)
+
+    ct3ct1::Float32 = ct3*ct1 
+    ct3ct2::Float32 = ct3*ct2
+    ct1ct2::Float32 = ct1*ct2
+    st3st1::Float32 = st3*st1
+    st3st2::Float32 = st3*st2
+    st1st2::Float32 = st1*st2
+
+    A1::Float32 = p12/(sqm1p1+m1)
+    A2::Float32 = p22/(sqm2p2+m2)
+
+    #sqm1p1sqm2p2 = sqm1p1*sqm2p2
+
+    #p1p2 = p1*p2
+
+    # reset p3v values
+    p3v[1,1] = 0f0 
+    p3v[1,2] = 0f0
+
+    C3sqr = ((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))^2*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))^2+(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(-m42+2*A2*(-m3+m1)+2*A1*(A2-m3+m2)+(-m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))*(-m42+2*A2*(m3+m1)+2*A1*(A2+m3+m2)+(m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2)) 
+
+    C2::Float32 =-4*((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1*ct2+ch3h4*st1st2))
+
+    C4::Float32 = -8*(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))
+
+    if c3sqr > 0f0 # p states are real and there are two of them
+
+        NotIdenticalStates = true
+
+        C3::Float32 = 4*sqrt(C3sqr)
+        val::Float32 = (C2-C3)/C4
+        valp::Float32 = (C2+C3)/C4
+
+        # either val or valp could be -ve or +ve and still allowed states, the statements below check each and adjust the angles appropriatly
+
+        # correct angles if val +/- and assign to p3v
+        if val == 0f0
+            testp3 = false
+        elseif val > 0f0 # parallel
+            testp3 = true
+            p3v[1,1] = val 
+        elseif valp < 0f0  # anti-parallel 
+            testp3 = true
+            p3v[1,1] = -val 
+            p3v[2,1] *= -1 # mirrored in cos(theta) space is *-1. mod(1f0-p3v[2,1],1f0)     # theta bound by [0,1]
+            p3v[3,1] = mod(p3v[3,1]+1f0,2f0)     # phi bound by [0,2) 
+        else
+            error("p3 state not accounted for"*string(val))
+        end
+
+        # check if valp is physical
+        if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-val^2/(sqrt(m32+val^2)+m3)) > m3-m2-m1 
+            testp3 = false
+        end
+        
+        # correct angles if valp +/- and assign to p3v
+        if valp == 0f0
+            testp3p = false
+        elseif valp > 0f0 # parallel
+            testp3p = true
+            p3v[1,2] = valp 
+        elseif valp < 0f0  # anti-parallel 
+            testp3p = true
+            p3v[1,2] = -valp 
+            p3v[2,2] *= -1 # mod(1f0-p3v[2,2],1f0)     # theta bound by [0,1]
+            p3v[3,2] = mod(p3v[3,2]+1f0,2f0)     # phi bound by [0,2) 
+        else
+            error("p3p state not accounted for:"*string(valp))
+        end
+        
+        # check if val physical
+        if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-valp^2/(sqrt(m32+valp^2)+m3)) > m3-m2-m1            
+            testp3p = false
+        end
+
+    elseif C3sqr == 0f0 # only one state
+
+        NotIdenticalStates = false
+
+        val::Float32 = (C2)/C4
+
+        # correct angles if val +/- and assign to p3v
+        if val == 0f0
+            testp3 = false
+        elseif val > 0f0 # parallel
+            testp3 = true
+            p3v[1,1] = val 
+        elseif valp < 0f0  # anti-parallel 
+            testp3 = true
+            p3v[1,1] = -val 
+            p3v[2,1] *= -1 # mirrored in cos(theta) space is *-1. mod(1f0-p3v[2,1],1f0)     # theta bound by [0,1]
+            p3v[3,1] = mod(p3v[3,1]+1f0,2f0)     # phi bound by [0,2) 
+        else
+            error("p3 state not accounted for"*string(val))
+        end
+
+        # check if valp is physical
+        if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-val^2/(sqrt(m32+val^2)+m3)) > m3-m2-m1 
+            testp3 = false
+        end
+        
+    else # p3 is imagniary so two unphysical states
+
+        NotIdenticalStates = true
+        testp3 = false
+        testp3p = false
+
+        # need to correctly assign t3 values depending on if real part of p3 is +/-
+        valReal::Float32 = C2/C4
+        # if valReal + then no change, if -ve then need to re-assign costheta and phi for both states
+        if valReal < 0f0
+            p3v[2,1] *= -1
+            p3v[2,2] *= -1
+            p3v[3,1] = mod(p3v[3,1]+1f0,2f0)
+            p3v[3,2] = mod(p3v[3,2]+1f0,2f0)
+        end
+        
     end
 
     return NotIdenticalStates, testp3, testp3p
