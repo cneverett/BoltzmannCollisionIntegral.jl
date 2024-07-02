@@ -98,6 +98,11 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     Svalp::Float32 = 0f0
     Tval::Float32 = 0f0
     sumTerms::Vector{Float32} = zeros(Float32,8)
+    NotIdenticalStates::Bool = true
+    testp3::Bool = true
+    testp3p::Bool = true
+    zerop3::Bool = true
+    zerop3p::Bool = true
 
     localSAtotal = zeros(Float32,size(SAtotal)[1:2])
     localSAtally = zeros(UInt32,size(SAtally)[1])
@@ -139,36 +144,40 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 RPointSphereCosThetaPhi!(p3v)
                 p3vp .= p3v
                 # Calculate p3 value with checks
-                (NotIdenticalStates,testp3,testp3p) = Momentum3Value2!(p3v,p3vp,p1v,p2v)
+                (NotIdenticalStates,testp3,testp3p,zerop3,zerop3p) = Momentum3Value2!(p3v,p3vp,p1v,p2v)
                 #println(p3v,p3vp)
                 # Calculate S Array Location
-                t3loc = location(t3u,t3l,numt3,p3v[2])
-                localSAtally[t3loc] += UInt32(1)
-                if testp3 # valid p3 state so add ST[1]
-                    Sval = SValue(p3v,p1v,p2v,sumTerms)
-                    if p3v[1] == 0f0 
-                        error(p3v,p3vp)
+                if zerop3 == false # neglect zero momentum states
+                    t3loc = location(t3u,t3l,numt3,p3v[2])
+                    localSAtally[t3loc] += UInt32(1)
+                    if testp3 # valid p3 state so add ST[1]
+                        Sval = SValue(p3v,p1v,p2v,sumTerms)
+                        if p3v[1] == 0f0 
+                            error(p3v,p3vp)
+                        end
+                        p3loc = locationp3(p3u,p3l,nump3,p3v[1])
+                        localSAtotal[p3loc,t3loc] += Sval
+                        localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
+                        localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
+                        localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
                     end
-                    p3loc = locationp3(p3u,p3l,nump3,p3v[1])
-                    localSAtotal[p3loc,t3loc] += Sval
-                    localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
-                    localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
-                    localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
                 end
 
                 if NotIdenticalStates # two unique but not nessessarlity physical states
-                    t3ploc = location(t3u,t3l,numt3,p3vp[2])
-                    localSAtally[t3ploc] += UInt32(1)
-                    if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
-                        Svalp = SValue(p3vp,p1v,p2v,sumTerms)
-                        if p3vp[1] == 0f0 
-                            error(p3v,p3vp)
+                    if zerop3p == false
+                        t3ploc = location(t3u,t3l,numt3,p3vp[2])
+                        localSAtally[t3ploc] += UInt32(1)
+                        if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
+                            Svalp = SValue(p3vp,p1v,p2v,sumTerms)
+                            if p3vp[1] == 0f0 
+                                error(p3v,p3vp)
+                            end
+                            p3ploc = locationp3(p3u,p3l,nump3,p3vp[1])
+                            localSAtotal[p3ploc,t3ploc] += Svalp
+                            localp3Max[t3ploc] = max(localp3Max[t3ploc],p3vp[1])
+                            localt3Min[p3ploc] = min(localt3Min[p3ploc],p3vp[2])
+                            localt3Max[p3ploc] = max(localt3Max[p3ploc],p3vp[2])
                         end
-                        p3ploc = locationp3(p3u,p3l,nump3,p3vp[1])
-                        localSAtotal[p3ploc,t3ploc] += Svalp
-                        localp3Max[t3ploc] = max(localp3Max[t3ploc],p3vp[1])
-                        localt3Min[p3ploc] = min(localt3Min[p3ploc],p3vp[2])
-                        localt3Max[p3ploc] = max(localt3Max[p3ploc],p3vp[2])
                     end
                 end
 

@@ -223,13 +223,13 @@ function Momentum3Value2!(p3v::Vector{Float32},p3vp::Vector{Float32},p1v::Vector
         # either val or valp could be -ve or +ve and still allowed states, the statements below check each and adjust the angles appropriatly
 
         # correct angles if val +/- and assign to p3v
-        if val == 0f0
-            testp3 = false
+        if val == 0f0      # zero momentum states are neglected
+            zerop3 = true
         elseif val > 0f0 # parallel
-            testp3 = true
+            zerop3 = false
             p3v[1] = val 
-        elseif valp < 0f0  # anti-parallel 
-            testp3 = true
+        elseif val < 0f0  # anti-parallel 
+            zerop3 = false
             p3v[1] = -val 
             p3v[2] *= -1 # mirrored in cos(theta) space is *-1. mod(1f0-p3v[2,1],1f0)     # theta bound by [0,1]
             p3v[3] = mod(p3v[3]+1f0,2f0)     # phi bound by [0,2) 
@@ -237,19 +237,21 @@ function Momentum3Value2!(p3v::Vector{Float32},p3vp::Vector{Float32},p1v::Vector
             error("p3 state not accounted for"*string(val))
         end
 
-        # check if valp is physical
+        # check if val is physical
         if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-val^2/(sqrt(m32+val^2)+m3)) > m3-m2-m1 
             testp3 = true
+        else
+            testp3 = false
         end
         
-        # correct angles if valp +/- and assign to p3v
-        if valp == 0f0
-            testp3p = false
+        # correct angles if valp +/- and assign to p3vp
+        if valp == 0f0              # zero momentum states are neglected
+            zerop3p = true
         elseif valp > 0f0 # parallel
-            testp3p = true
+            zerop3p = false
             p3vp[1] = valp 
         elseif valp < 0f0  # anti-parallel 
-            testp3p = true
+            zerop3p = false
             p3vp[1] = -valp 
             p3vp[2] *= -1 # mod(1f0-p3v[2,2],1f0)     # theta bound by [0,1]
             p3vp[3] = mod(p3vp[3]+1f0,2f0)     # phi bound by [0,2) 
@@ -257,26 +259,29 @@ function Momentum3Value2!(p3v::Vector{Float32},p3vp::Vector{Float32},p1v::Vector
             error("p3p state not accounted for:"*string(valp))
         end
         
-        # check if val physical
+        # check if valp physical
         if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-valp^2/(sqrt(m32+valp^2)+m3)) > m3-m2-m1            
             testp3p = true
+        else
+            testp3p = false
         end
 
     elseif C3sqr == 0f0 # only one state
 
         NotIdenticalStates = false
         testp3p = false
+        zerop3p = false
 
-        valIdentical::Float32 = (C2)/C4
+        valIdentical::Float32 = C2/C4
 
         # correct angles if val +/- and assign to p3v
-        if valIdentical == 0f0
-            testp3 = false
+        if valIdentical == 0f0          # zero momentum states are neglected
+            zerop3 = true
         elseif valIdentical > 0f0 # parallel
-            testp3 = true
+            zerop3 = false
             p3v[1] = valIdentical 
         elseif valIdentical < 0f0  # anti-parallel 
-            testp3 = true
+            zerop3 = false
             p3v[1] = -valIdentical 
             p3v[2] *= -1 # mirrored in cos(theta) space is *-1. mod(1f0-p3v[2,1],1f0)     # theta bound by [0,1]
             p3v[3] = mod(p3v[3]+1f0,2f0)     # phi bound by [0,2) 
@@ -286,10 +291,12 @@ function Momentum3Value2!(p3v::Vector{Float32},p3vp::Vector{Float32},p1v::Vector
 
         # check if valp is physical
         if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-valIdentical^2/(sqrt(m32+valIdentical^2)+m3)) > m3-m2-m1 
-            testp3 = false
+            testp3 = true
+        else
+            testp3p = false
         end
         
-    else # p3 is imagniary so two unphysical states
+    else # p3 is imagniary so one or two unphysical states
 
         NotIdenticalStates = true
         testp3 = false
@@ -298,16 +305,24 @@ function Momentum3Value2!(p3v::Vector{Float32},p3vp::Vector{Float32},p1v::Vector
         # need to correctly assign t3 values depending on if real part of p3 is +/-
         valReal = C2/C4
         # if valReal + then no change, if -ve then need to re-assign costheta and phi for both states
-        if valReal < 0f0
+        if valReal == 0f0 # real part is zero but imaginary part is not so two states
+            zerop3 = true
+            zerop3p = true
+        elseif valReal < 0f0
+            zerop3 = false
+            zerop3p = false
             p3v[2] *= -1
             p3vp[2] *= -1
             p3v[3] = mod(p3v[3]+1f0,2f0)
             p3vp[3] = mod(p3vp[3]+1f0,2f0)
+        else
+            zerop3 = false
+            zerop3p = false
         end
         
     end
 
-    return NotIdenticalStates, testp3, testp3p
+    return NotIdenticalStates, testp3, testp3p, zerop3, zerop3p
 
 end
 
