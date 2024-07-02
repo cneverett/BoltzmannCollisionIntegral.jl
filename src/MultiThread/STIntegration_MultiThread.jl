@@ -16,6 +16,7 @@
     using JLD2
     include("STMonteCarlo_MultiThread.jl")
 
+
 #=
     Optimisation of the multi-threaded version would not have been possible without the kind guidence of those on the Julia Forums: https://discourse.julialang.org/t/fast-multi-threaded-array-editing-without-data-races/114863/41
     In particular the assistance of users: mbauman, adienes, Oscar_Smith, Satvik, Salmon, sgaure and foobar_lv2
@@ -53,7 +54,7 @@ function SpectraEvaluateMultiThread()
 
     # ======== Set up Array of Locks ====== #
 
-        ArrayOfLocks = [Threads.SpinLock() for _ in 1:numt2]    
+        ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1]    
 
     # ===================================== #
 
@@ -79,8 +80,12 @@ function SpectraEvaluateMultiThread()
             @. @view(SMatrix[i,:,:,:,:,:]) = @view(SAtotal[i,:,:,:,:,:]) / SAtally
         end
         replace!(SMatrix,NaN=>0f0); # remove NaN caused by /0f0
-        TMatrix = TAtotal ./ TAtally
-        replace!(TMatrix,NaN=>0f0)
+        TMatrix = TAtotal ./ TAtally;
+        replace!(TMatrix,NaN=>0f0);
+
+        #testtotal = (dropdims(sum(SAtotal[:,:,60,:,60,:],dims=(3,4)),dims=(3,4)))
+        #testtally = Int.(dropdims(sum(SAtally[:,10,:,10,:],dims=(2,3)),dims=(2,3)))
+        #testtotal = (dropdims(sum(SMatrix[:,:,40,:,40,:],dims=(3,4)),dims=(3,4)))
 
         # Angle / Momentum Ranges
         t3val = trange(t3l,t3u,numt3)
@@ -94,7 +99,8 @@ function SpectraEvaluateMultiThread()
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
         STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
-        PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
+        #PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
+        PhaseSpaceFactors2_3D!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)
                                             
         # correction to better conserve particle number and account for statistical noise of MC method
         #SCorrection2!(SMatrix,TMatrix) 

@@ -47,6 +47,7 @@ end
     PhaseSpaceFactors2!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
 
 To follow 'PhaseSpaceFactors1' and 'STSymmetry'. Corrects phase space factors on 'SMatrix' and 'TMatrix' for use in kinetic codes.
+Assumes f(x,p,μ)= constant
 """
 function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vector{Float32},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32})
 
@@ -76,6 +77,46 @@ function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
     # overflow bin size assumed to be up to 1*maximum p3val 
     for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
         SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nump3+1]) # dp3dmu3
+    end
+
+    return nothing
+
+end
+
+"""
+    PhaseSpaceFactors2_3D!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
+
+To follow 'PhaseSpaceFactors1' and 'STSymmetry'. Corrects phase space factors on 'SMatrix' and 'TMatrix' for use in kinetic codes.
+Assumes f(x,vec{p})= constant
+"""
+function PhaseSpaceFactors2_3D!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vector{Float32},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32})
+
+    # Function that divides the S T elements by dp3dmu3 or equivilant to then be used in kinetic models
+
+    # Momentum space volume elements
+    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1
+        for mm in 1:numt3
+            for nn in 1:nump3
+                if nn == 1 # must account for underflow values increasing bin size (perhaps not)
+                SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]^3-p3val[nn]^3)/3 # dp3dmu3 
+                else
+                SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]^3-p3val[nn]^3)/3 # dp3dmu3 
+                end
+            end
+        end
+        TMatrix[ll,kk,jj,ii] /= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]^3-p1val[ll]^3)/3 # dp1dmu1      
+    end
+
+    # underflow bin size
+    #= 
+    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
+        SMatrix[1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[1]) # dp3dmu3
+    end
+    =#
+
+    # overflow bin size assumed to be up to 1*maximum p3val 
+    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
+        SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nump3+1]^3)/3 # dp3dmu3
     end
 
     return nothing
