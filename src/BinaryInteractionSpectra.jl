@@ -5,7 +5,8 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
     using JLD2
     using Base.Threads
     #using AccurateArithmetic
-    using KahanSummation
+    using AccurateArithmetic
+    using StaticArrays
 
     # include common files
         include("Common/MyPhysicalConstants.jl")
@@ -42,13 +43,15 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
             TMatrix = f["TMatrix"];
             p3Max = f["p3Max"];
             t3MinMax = f["t3MinMax"];
+            SConv = f["SConverge"];
+            TConv = f["TConverge"]
             close(f)
         else
             error("no file")
         end
 
-        return (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix, p3Max, t3MinMax);
-        #run (Stot, Ttot, Stal, Ttal, SMatrix, TMatrix, p3Max, t3MinMax) = fload();
+        return (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix, p3Max, t3MinMax,SConv,TConv);
+        #run (Stot,Ttot,Stal,Ttal,SMatrix,TMatrix,p3Max,t3MinMax,SConv,TConv) = fload();
 
     end
 

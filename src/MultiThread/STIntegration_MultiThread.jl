@@ -36,8 +36,8 @@ function SpectraEvaluateMultiThread()
             TAtotal = f["TTotal"];
             SAtally = f["STally"];
             TAtally = f["TTally"];
-            #SMatrix = f["SMatrix"];
-            #TMatrix = f["TMatrix"];
+            SMatrix = f["SMatrix"];
+            TMatrix = f["TMatrix"];
             p3Max = f["p3Max"];
             t3MinMax = f["t3MinMax"];
             close(f)
@@ -72,8 +72,10 @@ function SpectraEvaluateMultiThread()
         #= these operations are run in serial =#
 
         # preallocate
-        SMatrix = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2);
-        TMatrix = zeros(Float32,nump1,numt1,nump2,numt2);
+        SMatrixOldSum = dropdims(sum(SMatrix,dims=(3,4,5,6)),dims=(3,4,5,6));
+        fill!(SMatrix,0f0);
+        TMatrixOldSum = dropdims(sum(TMatrix,dims=(3,4)),dims=(3,4));
+        fill!(TMatrix,0f0);
 
         # divide element wise by tallys
         for i in axes(SMatrix,1)
@@ -99,11 +101,17 @@ function SpectraEvaluateMultiThread()
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
         #STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
-        #PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
+        PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
         #PhaseSpaceFactors2_3D!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)
                                             
         # correction to better conserve particle number and account for statistical noise of MC method
         #SCorrection2!(SMatrix,TMatrix) 
+
+        # output a measure of convergence, i.e. new-old/old
+        SMatrixSum = dropdims(sum(SMatrix,dims=(3,4,5,6)),dims=(3,4,5,6));
+        SConverge = (SMatrixSum .- SMatrixOldSum)./SMatrixOldSum
+        TMatrixSum = dropdims(sum(TMatrix,dims=(3,4)),dims=(3,4));
+        TConverge = (TMatrixSum .- TMatrixOldSum)./TMatrixOldSum
 
 
     # ===================================== # 
@@ -119,6 +127,8 @@ function SpectraEvaluateMultiThread()
         write(f,"TMatrix",TMatrix)
         write(f,"p3Max",p3Max)
         write(f,"t3MinMax",t3MinMax)
+        write(f,"SConverge",SConverge)
+        write(f,"TConverge",TConverge)
         write(f,"name1Data",eval(Symbol(name1*"Data")))
         write(f,"name2Data",eval(Symbol(name2*"Data")))
         write(f,"name3Data",eval(Symbol(name3*"Data")))
