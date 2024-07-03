@@ -105,6 +105,19 @@ function RPointSphereCosThetaPhi!(a::Vector{Float32})
     return nothing
     
 end
+function RPointSphereCosThetaPhi_2Elem!(a::Vector{Float32}) 
+    # Inputs a 2 element vector [cos(theta), phi] and mutates said vector with new random values using form given in https://mathworld.wolfram.com/SpherePointPicking.html (with theta and phi changed places)
+    # phi points are normalised by pi
+
+    u::Float32 = rand(Float32)
+    v::Float32 = rand(Float32)
+
+    a[1] = 2*v-1     # cos(theta) bound by [1,-1]
+    a[2] = 2*u       # phi bound by [0,2) 
+
+    return nothing
+    
+end
 
 """
     RPointSphereThetaPhi!()

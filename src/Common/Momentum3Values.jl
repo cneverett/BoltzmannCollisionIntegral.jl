@@ -326,6 +326,77 @@ function Momentum3Value2!(p3v::Vector{Float32},p3vp::Vector{Float32},p1v::Vector
 
 end
 
+function Momentum3Value3(th3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
+
+    # set normalised masses (defined in Init.jl)
+    m1 = mu1
+    m2 = mu2
+    m3 = mu3
+    m4 = mu4 
+
+    # define identical states
+    #identicalStates::Bool = false
+
+    # pv should be [p,t,h]
+    p1::Float32 = p1v[1]
+    p2::Float32 = p2v[1]
+
+    ct3::Float32 = th3v[1] 
+    ct1::Float32 = p1v[2]
+    ct2::Float32 = p2v[2] 
+
+    st3::Float32 = sqrt(1f0-ct3^2)
+    st1::Float32 = sqrt(1f0-ct1^2)
+    st2::Float32 = sqrt(1f0-ct2^2)
+
+    ch1h3::Float32 = cospi(th3v[2]-p1v[3])
+    ch1h4::Float32 = cospi(th3v[2]-p2v[3])
+    ch3h4::Float32 = cospi(p1v[3]-p2v[3])
+
+    m32::Float32 = m3^2
+    m42::Float32 = m4^2
+    m12::Float32 = m1^2
+    m22::Float32 = m2^2
+
+    p12::Float32 = p1^2
+    p22::Float32 = p2^2
+
+    sqm1p1::Float32 = sqrt(m12+p12)
+    sqm2p2::Float32 = sqrt(m22+p22)
+
+    ct3ct1::Float32 = ct3*ct1 
+    ct3ct2::Float32 = ct3*ct2
+    ct1ct2::Float32 = ct1*ct2
+    st3st1::Float32 = st3*st1
+    st3st2::Float32 = st3*st2
+    st1st2::Float32 = st1*st2
+
+    A1::Float32 = p12/(sqm1p1+m1)
+    A2::Float32 = p22/(sqm2p2+m2)
+
+    #sqm1p1sqm2p2 = sqm1p1*sqm2p2
+
+    #p1p2 = p1*p2
+
+    # reset p3v values
+    #p3v[1,1] = 0f0 
+    #p3v[1,2] = 0f0
+
+    C3sqr::ComplexF32 = ((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))^2*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))^2+(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(-m42+2*A2*(-m3+m1)+2*A1*(A2-m3+m2)+(-m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))*(-m42+2*A2*(m3+m1)+2*A1*(A2+m3+m2)+(m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2)) 
+
+    C2::Float32 =-4*((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1*ct2+ch3h4*st1st2))
+
+    C4::Float32 = -8*(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))
+    
+    C3::ComplexF32 = 4*sqrt(C3sqr)
+
+    p3 = (C2-C3)/C4
+    p3p = (C2+C3)/C4
+
+    return p3, p3p
+
+end
+
 
 #= Testing
 p1v = [1f0, 0.5f0, 1.8f0,]
