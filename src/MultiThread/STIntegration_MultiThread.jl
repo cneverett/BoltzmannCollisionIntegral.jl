@@ -87,10 +87,6 @@ function SpectraEvaluateMultiThread()
         TMatrix = TAtotal ./ TAtally;
         replace!(TMatrix,NaN=>0f0);
 
-        #testtotal = (dropdims(sum(SAtotal[:,:,60,:,60,:],dims=(3,4)),dims=(3,4)))
-        #testtally = Int.(dropdims(sum(SAtally[:,10,:,10,:],dims=(2,3)),dims=(2,3)))
-        #testtotal = (dropdims(sum(SMatrix[:,:,40,:,40,:],dims=(3,4)),dims=(3,4)))
-
         # Angle / Momentum Ranges
         t3val = trange(t3l,t3u,numt3)
         t1val = trange(t1l,t1u,numt1)
@@ -98,7 +94,6 @@ function SpectraEvaluateMultiThread()
         p3val = prange(p3l,p3u,nump3)
         p1val = prange(p1l,p1u,nump1)
         p2val = prange(p2l,p2u,nump2)
-
 
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
