@@ -137,7 +137,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
             fill!(localp3Max,Float32(0))
             fill!(localt3Min,Float32(0))
             fill!(localt3Max,Float32(0))
-            
+                    
             @inbounds for _ in 1:numSiterPerThread
 
                 #generate random p3 direction 
@@ -149,34 +149,34 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 # Calculate S Array Location
                 if zerop3 == false # neglect zero momentum states
                     t3loc = location(t3u,t3l,numt3,p3v[2])
-                    localSAtally[t3loc] += UInt32(1)
+                    #localSAtally[t3loc] += UInt32(1)
                     if testp3 # valid p3 state so add ST[1]
                         Sval = SValue(p3v,p1v,p2v,sumTerms)
                         if p3v[1] == 0f0 
                             error(p3v,p3vp)
                         end
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
-                        localSAtotal[p3loc,t3loc] += Sval
-                        localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
-                        localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
-                        localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
+                        #localSAtotal[p3loc,t3loc] += Sval
+                        #localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
+                        #localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
+                        #localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
                     end
                 end
 
                 if NotIdenticalStates # two unique but not nessessarlity physical states
                     if zerop3p == false
                         t3ploc = location(t3u,t3l,numt3,p3vp[2])
-                        localSAtally[t3ploc] += UInt32(1)
+                        #localSAtally[t3ploc] += UInt32(1)
                         if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
                             Svalp = SValue(p3vp,p1v,p2v,sumTerms)
                             if p3vp[1] == 0f0 
                                 error(p3v,p3vp)
                             end
                             p3ploc = locationp3(p3u,p3l,nump3,p3vp[1])
-                            localSAtotal[p3ploc,t3ploc] += Svalp
-                            localp3Max[t3ploc] = max(localp3Max[t3ploc],p3vp[1])
-                            localt3Min[p3ploc] = min(localt3Min[p3ploc],p3vp[2])
-                            localt3Max[p3ploc] = max(localt3Max[p3ploc],p3vp[2])
+                            #localSAtotal[p3ploc,t3ploc] += Svalp
+                            #localp3Max[t3ploc] = max(localp3Max[t3ploc],p3vp[1])
+                            #localt3Min[p3ploc] = min(localt3Min[p3ploc],p3vp[2])
+                            #localt3Max[p3ploc] = max(localt3Max[p3ploc],p3vp[2])
                         end
                     end
                 end
