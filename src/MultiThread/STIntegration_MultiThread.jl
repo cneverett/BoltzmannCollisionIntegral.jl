@@ -46,6 +46,8 @@ function SpectraEvaluateMultiThread()
             TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
             SAtally = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
+            SMatrix = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2);
+            TMatrix = zeros(Float32,nump1,numt1,nump2,numt2);
             p3Max = zeros(Float32,numt3,nump1,numt1,nump2,numt2);
             t3MinMax = zeros(Float32,2,(nump3+1),nump1,numt1,nump2,numt2);
         end

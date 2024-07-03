@@ -114,9 +114,9 @@ function PhaseSpaceFactors2_3D!(SMatrix::Array{Float32,6},TMatrix::Array{Float32
     end
     =#
 
-    # overflow bin size assumed to be up to 1*maximum p3val 
+    # overflow bin size assumed to be up to 1*maximum p3val i.e. p3val[nump3+1]->2*p3val[nump3+1]
     for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
-        SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nump3+1]^3)/3 # dp3dmu3
+        SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(7*p3val[nump3+1]^3)/3 # dp3dmu3
     end
 
     return nothing
@@ -134,26 +134,26 @@ function STSymmetry!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4})
     # FIRST: they are ALWAYS symmetric with respect to θ->π-θ for all particle momentum states
     # SECOND: if the incident masses are equal (mu1==mu2) then S and T are symmetric to swapping the incident particles 
 
-    avgT = zeros(Float32,size(TMatrix))
-    #avgS = zeros(Float32,size(SMatrix[:,:,1,1,1,1]))
+    avgT = 0f0
+    avgS = zeros(Float32,size(SMatrix[:,:,1,1,1,1]))
 
     # SMatrix has the symmetry that if t1 t2 are mirrored in the t=pi/2 plane then t3 is also mirrored in pi/2 plane genreting a mirrored identical state
     for ii in axes(SMatrix,6), jj in axes(SMatrix,5), kk in axes(SMatrix,4), ll in axes(SMatrix,3)
         sizet1 = size(SMatrix)[4]
         sizet2 = size(SMatrix)[6]
-        SView = @view SMatrix[:,1:end,ll,kk,jj,ii]
-        SViewAngleMirror = @view SMatrix[:,end:-1:1,ll,sizet1-kk+1,jj,sizet2-ii+1]
+        SView = @view(SMatrix[:,1:end,ll,kk,jj,ii])
+        SViewAngleMirror = @view(SMatrix[:,end:-1:1,ll,sizet1-kk+1,jj,sizet2-ii+1])
 
         if (mu1==mu2) # Both first and second Symmetry true
-            SView12Swap = @view SMatrix[:,1:end,jj,ii,ll,kk]
-            SViewAngleMirror12Swap = @view SMatrix[:,end:-1:1,jj,sizet2-ii+1,ll,sizet1-kk+1]
-            avgS = (SView + SViewAngleMirror + SView12Swap + SViewAngleMirror12Swap)/4
+            SView12Swap = @view(SMatrix[:,1:end,jj,ii,ll,kk])
+            SViewAngleMirror12Swap = @view(SMatrix[:,end:-1:1,jj,sizet2-ii+1,ll,sizet1-kk+1])
+            @. avgS = (SView + SViewAngleMirror + SView12Swap + SViewAngleMirror12Swap)/4
             @. SView = avgS
             @. SView12Swap = avgS
             @. SViewAngleMirror = avgS
             @. SViewAngleMirror12Swap = avgS
         else # only first symmetry true
-            avgS = (SView + SViewAngleMirror)/2
+            @. avgS = (SView + SViewAngleMirror)/2
             @. SView = avgS
             @. SViewAngleMirror = avgS
         end

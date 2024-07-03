@@ -137,12 +137,12 @@ function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},s
     #deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
     # more float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
     sumTerms .= (m1*p3, -m3*p1*(ct3*ct1+ch3h1*st3*st1), m2*p3, -m3*p2*(ct3*ct2+ch3h2*st3*st2), p3*Es1, p3*Es2, -Es3*p1*(ct3*ct1+ch3h1*st3*st1), -Es3*p2*(ct3*ct2+ch3h2*st3*st2))
-    deltacorrect = sum_kbn(sumTerms)
+    deltacorrect = sum_oro(sumTerms)
 
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
 
     if (Sval==Inf || Sval == -Inf)
-        error("ST1 Inf#"*string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig))  
+        error("ST1 Inf#"*string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig)*"#"*string(p3v)*"#"*string(p1v)*"#"*string(p2v))  
     end
 
     return Sval
@@ -224,7 +224,7 @@ function SValue3D(p3v::AbstractVector{Float32},p1v::Vector{Float32},p2v::Vector{
     #deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
 
     # more float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
-    sumTerms .= (m1*p3, -m3*p1*(ct3*ct1+ch3h1*st3*st1), m2*p3, -m3*p2*(ct3*ct2+ch3h2*st3*st2), p3*Es1, p3*Es2, -Es3*p1*(ct3*ct1+ch3h1*st3*st1), -Es3*p2*(ct3*ct2+ch3h2*st3*st2))
+    sumTerms .= (m1*p3, -m3*p1*(ct3*ct1+ch3h1*st3*st1), m2*p3, -m3*p2*(ct3*ct2+ch3h2*st3*st2), p3*Es1, -Es3*p1*(ct3*ct1+ch3h1*st3*st1), p3*Es2, -Es3*p2*(ct3*ct2+ch3h2*st3*st2))
     deltacorrect = sum_kbn(sumTerms)
 
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))

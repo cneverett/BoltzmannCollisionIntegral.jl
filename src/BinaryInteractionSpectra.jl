@@ -4,9 +4,8 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
 
     using JLD2
     using Base.Threads
-    #using AccurateArithmetic
     using AccurateArithmetic
-    using StaticArrays
+    #using StaticArrays
 
     # include common files
         include("Common/MyPhysicalConstants.jl")
