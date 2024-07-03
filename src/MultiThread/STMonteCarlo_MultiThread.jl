@@ -207,8 +207,6 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
     end # Tloop
 
-    end # Thread spwan
-
-    return nothing 
+    end # Thread spwan 
 
 end # function
