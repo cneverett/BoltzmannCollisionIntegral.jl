@@ -298,8 +298,9 @@ function SValue2(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},
 
     #deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
     # more float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
-    sumTerms .= (m1*p3, -m3*p1*(ct3*ct1+ch3h1*st3*st1), m2*p3, -m3*p2*(ct3*ct2+ch3h2*st3*st2), p3*Es1, p3*Es2, -Es3*p1*(ct3*ct1+ch3h1*st3*st1), -Es3*p2*(ct3*ct2+ch3h2*st3*st2))
+    sumTerms .= (p3*Es1, p3*Es2, -Es3*p1*ct3*ct1, -Es3*p1*ch3h1*st3*st1, -Es3*p2*ct3*ct2, -Es3*p2*ch3h2*st3*st2, m1*p3, -m3*p1*ct3*ct1, -m3*p1*ch3h1*st3*st1, m2*p3, -m3*p2*ct3*ct2, -m3*p2*ch3h2*st3*st2)
     deltacorrect = sum_oro(sumTerms)
+
 
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
 
@@ -310,6 +311,11 @@ function SValue2(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},
     return Sval
 
 end
+
+#p3v = Float32[2278.854, 0.82976556, 1.9210192]
+#p1v = Float32[4838.188, 0.91439915, 0.10710609]
+#p2v = Float32[1557.162, 0.67729926, 1.6672481]
+
 
 """
     SValue3D(p3v,p1v,p2v)
