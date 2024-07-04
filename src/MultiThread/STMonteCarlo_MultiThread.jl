@@ -82,7 +82,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
     # Set up worker
 
-    #Threads.@spawn begin
+    Threads.@spawn begin
 
     # allocate arrays for each thread
     p1v::Vector{Float32} = zeros(Float32,3)
@@ -195,6 +195,6 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
     end # Tloop
 
-#    end # Thread spwan 
+    end # Thread spwan 
 
 end # function 
