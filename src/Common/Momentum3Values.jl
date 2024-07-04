@@ -326,7 +326,7 @@ function Momentum3Value2!(p3v::Vector{Float32},p3vp::Vector{Float32},p1v::Vector
 
 end
 
-function Momentum3Value3(th3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
+function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
 
     # set normalised masses (defined in Init.jl)
     m1 = mu1
@@ -341,7 +341,7 @@ function Momentum3Value3(th3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{
     p1::Float32 = p1v[1]
     p2::Float32 = p2v[1]
 
-    ct3::Float32 = th3v[1] 
+    ct3::Float32 = p3v[2] 
     ct1::Float32 = p1v[2]
     ct2::Float32 = p2v[2] 
 
@@ -349,8 +349,8 @@ function Momentum3Value3(th3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{
     st1::Float32 = sqrt(1f0-ct1^2)
     st2::Float32 = sqrt(1f0-ct2^2)
 
-    ch1h3::Float32 = cospi(th3v[2]-p1v[3])
-    ch1h4::Float32 = cospi(th3v[2]-p2v[3])
+    ch1h3::Float32 = cospi(p3v[3]-p1v[3])
+    ch1h4::Float32 = cospi(p3v[3]-p2v[3])
     ch3h4::Float32 = cospi(p1v[3]-p2v[3])
 
     m32::Float32 = m3^2
@@ -390,10 +390,52 @@ function Momentum3Value3(th3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{
     
     C3::ComplexF32 = 4*sqrt(C3sqr)
 
-    p3 = (C2-C3)/C4
-    p3p = (C2+C3)/C4
+    p3Complex::ComplexF32 = (C2-C3)/C4
+    p3pComplex::ComplexF32 = (C2+C3)/C4
 
-    return p3, p3p
+    p3::Float32 = real(p3Complex)
+    p3sign::Bool = signbit(p3) 
+    p3p::Float32 = real(p3pComplex)
+    p3psign::Bool = signbit(p3p)
+
+    # direction adjustments
+    if p3sign # true if -ve
+        p3v[1] = -p3
+        p3v[2] *= -1
+        p3v[3] = mod(p3v[3]+1f0,2f0)
+    else
+        p3v[1] = p3
+    end
+    if p3psign # true if -ve
+        p3pv[1] = -p3p
+        p3pv[2] *= -1
+        p3pv[3] = mod(p3pv[3]+1f0,2f0)
+    else
+        p3pv[1] = p3p
+    end
+    # are they identical
+    if p3pv[1] == p3v[1] && p3pv[2] == p3v[2] && p3pv[3] == p3v[3]
+        NotIdentical = false
+    else
+        NotIdentical = true
+    end
+    # physical checks
+    if isreal(p3Complex) && (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-real(p3)^2/(sqrt(m32+real(p3)^2)+m3)) > m3-m2-m1 
+        p3_physical = true
+    else
+        p3_physical = false
+    end
+    if NotIdentical
+        if isreal(p3pComplex) && (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-real(p3p)^2/(sqrt(m32+real(p3p)^2)+m3)) > m3-m2-m1 
+            p3p_physical = true
+        else
+            p3p_physical = false
+        end
+    else
+        p3p_physical = false
+    end
+
+    return p3_physical, p3p_physical, NotIdentical
 
 end
 
