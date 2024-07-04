@@ -77,7 +77,7 @@ using BenchmarkTools
 # ------------- =#
 
 
-function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
+#function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
     # check arrays are correct size 
     #size(AStally) != ((nump3+1),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
@@ -87,7 +87,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
     # Set up worker
 
-    Threads.@spawn begin
+#    Threads.@spawn begin
 
     # allocate arrays for each thread
     p1v::Vector{Float32} = zeros(Float32,3)
@@ -104,13 +104,13 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     zerop3::Bool = true
     zerop3p::Bool = true
 
-    localSAtotal = zeros(Float32,size(SAtotal)[1:2])
-    localSAtally = zeros(UInt32,size(SAtally)[1])
-    localp3Max = zeros(Float32,size(p3Max)[1])
-    localt3Min = zeros(Float32,size(t3MinMax)[2])
-    localt3Max = zeros(Float32,size(t3MinMax)[2])
+#    localSAtotal = zeros(Float32,size(SAtotal)[1:2])
+#    localSAtally = zeros(UInt32,size(SAtally)[1])
+#    localp3Max = zeros(Float32,size(p3Max)[1])
+#    localt3Min = zeros(Float32,size(t3MinMax)[2])
+#    localt3Max = zeros(Float32,size(t3MinMax)[2])
 
-    for _ in 1:numTiterPerThread
+@btime    for _ in 1:numTiterPerThread
 
         # generate p1 and p2 vectors initially as to not have to re-caculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
@@ -126,14 +126,14 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
         (p2loc,t2loc) = vectorLocation(p2u,p2l,t2u,t2l,nump2,numt2,p2v)
         loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
 
-        fill!(localSAtally,UInt32(0))
+#        fill!(localSAtally,UInt32(0))
 
         if Tval != 0f0 # i.e. it is a valid interaction state
 
-            fill!(localSAtotal,0f0)
-            fill!(localp3Max,Float32(0))
-            fill!(localt3Min,Float32(0))
-            fill!(localt3Max,Float32(0))
+#            fill!(localSAtotal,0f0)
+#            fill!(localp3Max,Float32(0))
+#            fill!(localt3Min,Float32(0))
+#            fill!(localt3Max,Float32(0))
                     
             @inbounds for _ in 1:numSiterPerThread
 
@@ -145,34 +145,34 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 # Calculate S Array Location
                 if zerop3 == false # neglect zero momentum states
                     t3loc = location(t3u,t3l,numt3,p3v[2])
-                    localSAtally[t3loc] += UInt32(1)
+#                    localSAtally[t3loc] += UInt32(1)
                     if testp3 # valid p3 state so add ST[1]
                         Sval = SValue(p3v,p1v,p2v,sumTerms)
                         if p3v[1] == 0f0 
                             error(p3v,p3vp)
                         end
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
-                        localSAtotal[p3loc,t3loc] += Sval
-                        localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
-                        localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
-                        localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
+#                        localSAtotal[p3loc,t3loc] += Sval
+#                        localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
+#                        localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
+#                        localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
                     end
                 end
 
                 if NotIdenticalStates # two unique but not nessessarlity physical states
                     if zerop3p == false
                         t3ploc = location(t3u,t3l,numt3,p3vp[2])
-                        localSAtally[t3ploc] += UInt32(1)
+#                        localSAtally[t3ploc] += UInt32(1)
                         if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
                             Svalp = SValue(p3vp,p1v,p2v,sumTerms)
                             if p3vp[1] == 0f0 
                                 error(p3v,p3vp)
                             end
                             p3ploc = locationp3(p3u,p3l,nump3,p3vp[1])
-                            localSAtotal[p3ploc,t3ploc] += Svalp
-                            localp3Max[t3ploc] = max(localp3Max[t3ploc],p3vp[1])
-                            localt3Min[p3ploc] = min(localt3Min[p3ploc],p3vp[2])
-                            localt3Max[p3ploc] = max(localt3Max[p3ploc],p3vp[2])
+#                            localSAtotal[p3ploc,t3ploc] += Svalp
+#                            localp3Max[t3ploc] = max(localp3Max[t3ploc],p3vp[1])
+#                            localt3Min[p3ploc] = min(localt3Min[p3ploc],p3vp[2])
+#                            localt3Max[p3ploc] = max(localt3Max[p3ploc],p3vp[2])
                         end
                     end
                 end
@@ -181,10 +181,10 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
         else # no valid interaction state
             # add one to tally of all relavant S tallies i.e. all momenta and all angles as no emission states are possible
-            localSAtally .+= UInt32(1)
+#            localSAtally .+= UInt32(1)
         end
 
-        # assign values to arrays
+#=        # assign values to arrays
         @lock ArrayOfLocks[p1loc] begin
             TAtotal[loc12] += Tval
             TAtally[loc12] += UInt32(1)
@@ -196,9 +196,9 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 @view(t3MinMax[2,:,loc12]) .= max.(@view(t3MinMax[2,:,loc12]),localt3Max)
             end 
         end
-
+=#
     end # Tloop
 
-    end # Thread spwan
+#    end # Thread spwan
 
-end # function
+#end # function
