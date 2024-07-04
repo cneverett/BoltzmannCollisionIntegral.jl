@@ -149,7 +149,7 @@ function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},s
 
 end
 
-function SValue2(p3_re::Float32,th3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},sumTerms::Vector{Float32})
+function SValue2(p3value::Float32,th3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},sumTerms::Vector{Float32})
 
     # returns one s values
 
@@ -201,7 +201,7 @@ function SValue2(p3_re::Float32,th3v::Vector{Float32},p1v::Vector{Float32},p2v::
     # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
     val::Float32 = (1/E1)*(1/E2)*(2*InvarientFlux2Small(sSmol,m1,m2))
 
-    p3::Float32 = p3_re
+    p3::Float32 = p3value
     ct3::Float32 = th3v[1] 
     st3::Float32 = sqrt(1f0-ct3^2)
     ch3h1::Float32 = cospi(th3v[2]-p1v[3])
@@ -223,7 +223,7 @@ function SValue2(p3_re::Float32,th3v::Vector{Float32},p1v::Vector{Float32},p2v::
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
 
     if (Sval==Inf || Sval == -Inf)
-        error("ST1 Inf#"*string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig)*"#"*string(p3v)*"#"*string(p1v)*"#"*string(p2v))  
+        error("ST1 Inf#"*string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig)*"#"*string(p3)*"#"*string(th3v)*"#"*string(p1v)*"#"*string(p2v))  
     end
 
     return Sval

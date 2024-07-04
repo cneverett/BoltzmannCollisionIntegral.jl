@@ -77,7 +77,7 @@ using BenchmarkTools
 # ------------- =#
 
 
-function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
+#function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
     # check arrays are correct size 
     #size(AStally) != ((nump3+1),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
@@ -87,7 +87,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
     # Set up worker
 
-    Threads.@spawn begin
+    #Threads.@spawn begin
 
     # allocate arrays for each thread
     p1v::Vector{Float32} = zeros(Float32,3)
@@ -101,13 +101,13 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     Tval::Float32 = 0f0
     sumTerms::Vector{Float32} = zeros(Float32,8)
 
-    localSAtotal = zeros(Float32,size(SAtotal)[1:2])
-    localSAtally = zeros(UInt32,size(SAtally)[1])
-    localp3Max = zeros(Float32,size(p3Max)[1])
-    localt3Min = zeros(Float32,size(t3MinMax)[2])
-    localt3Max = zeros(Float32,size(t3MinMax)[2])
+    #localSAtotal = zeros(Float32,size(SAtotal)[1:2])
+    #localSAtally = zeros(UInt32,size(SAtally)[1])
+    #localp3Max = zeros(Float32,size(p3Max)[1])
+    #localt3Min = zeros(Float32,size(t3MinMax)[2])
+    #localt3Max = zeros(Float32,size(t3MinMax)[2])
 
-    for _ in 1:numTiterPerThread
+    #for _ in 1:numTiterPerThread
 
         # generate p1 and p2 vectors initially as to not have to re-caculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
@@ -123,16 +123,18 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
         (p2loc,t2loc) = vectorLocation(p2u,p2l,t2u,t2l,nump2,numt2,p2v)
         loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
 
-        fill!(localSAtally,UInt32(0))
+        #fill!(localSAtally,UInt32(0))
 
-        if Tval != 0f0 # i.e. it is a valid interaction state
+        #if Tval != 0f0 # i.e. it is a valid interaction state
 
-            fill!(localSAtotal,0f0)
-            fill!(localp3Max,Float32(0))
-            fill!(localt3Min,Float32(0))
-            fill!(localt3Max,Float32(0))
+            #fill!(localSAtotal,0f0)
+            #fill!(localp3Max,Float32(0))
+            #fill!(localt3Min,Float32(0))
+            #fill!(localt3Max,Float32(0))
+
+            using BenchmarkTools
             
-            @inbounds for _ in 1:numSiterPerThread
+            @btime @inbounds for _ in 1:numSiterPerThread
 
                 #generate random p3 direction 
                 RPointSphereCosThetaPhi_2Elem!(th3v)
@@ -142,58 +144,141 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 (p3,p3p) = Momentum3Value3(th3v,p1v,p2v)
 
                 # Calculate S Array Location
-                if isreal(p3) && isreal(p3p)
+                if isreal(p3) # && isreal(p3p) only need to check if one is real
                     p3_re = real(p3)
-                    if p3_re < 0f0
-                        p3_re *= -1
-                        th3v[1] *= -1
-                        th3v[2] = mod(th3v[2]+1f0,2f0)
-                    end
                     p3p_re = real(p3p)
-                    if p3p_re < 0f0
-                        p3p_re *= -1
-                        th3pv[1] *= -1
-                        th3pv[2] = mod(th3pv[2]+1f0,2f0)
-                    end
-                    t3loc = location(t3u,t3l,numt3,th3v[1])
-                    t3ploc = location(t3u,t3l,numt3,th3pv[1])
-                    localSAtally[t3loc] += UInt32(1)
-                    if t3loc != t3ploc # only time to count two states
-                        localSAtally[t3loc] += UInt32(1)
-                    end
                     p12 = p1v[1]^2
                     p22 = p2v[1]^2
                     sqm1p1 = sqrt(p12+mu1^2)
                     sqm2p2 = sqrt(p22+mu2^2)
-                    if p3_re != 0f0 && (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3_re^2/(sqrt(mu3^2+p3_re^2)+mu3)) > mu3-mu2-mu1
-                        p3loc = locationp3(p3u,p3l,nump3,p3_re)
-                        Sval = SValue2(p3_re,th3v,p1v,p2v,sumTerms)
-                        localSAtotal[p3loc,t3loc] += Sval
+
+                    if p3_re < 0f0
+                        # adjust th3 values
+                        p3_re *= -1
+                        th3v[1] *= -1
+                        th3v[2] = mod(th3v[2]+1f0,2f0)
+                        t3loc = location(t3u,t3l,numt3,th3v[1])
+                        # add one to tally 
+                        #localSAtally[t3loc] += UInt32(1)
+                        # check if p3 is physical, if so add to total
+                        if (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3_re^2/(sqrt(mu3^2+p3_re^2)+mu3) > mu3-mu2-mu1)
+                            p3loc = locationp3(p3u,p3l,nump3,p3_re)
+                            Sval = SValue2(p3_re,th3v,p1v,p2v,sumTerms)
+                            #localSAtotal[p3loc,t3loc] += Sval
+                        end
+                        
+                        if p3p_re < 0f0 
+                            # th3p values same as th3, no need to adjust instead use th3
+                            p3p_re *= -1
+                            # check if p3p is physical and not identical to p3
+                            if p3p_re != p3_re && (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3p_re^2/(sqrt(mu3^2+p3p_re^2)+mu3) > mu3-mu2-mu1)
+                                p3ploc = locationp3(p3u,p3l,nump3,p3p_re)
+                                Svalp = SValue2(p3p_re,th3v,p1v,p2v,sumTerms)
+                                #localSAtotal[p3ploc,t3loc] += Svalp
+                            end
+                        elseif p3p_re > 0 
+                            # no need to adjust th3p values, just need to calculate t3ploc
+                            t3ploc = location(t3u,t3l,numt3,th3pv[1])
+                            # add one to tally 
+                            #localSAtally[t3ploc] += UInt32(1)
+                            # check if p3p is physical
+                            if (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3p_re^2/(sqrt(mu3^2+p3p_re^2)+mu3) > mu3-mu2-mu1)
+                                p3ploc = locationp3(p3u,p3l,nump3,p3p_re)
+                                Svalp = SValue2(p3p_re,th3pv,p1v,p2v,sumTerms)
+                                #localSAtotal[p3ploc,t3ploc] += Svalp
+                            end
+                        else 
+                            # p3p equal to 0f0, do nothing
+                        end
+
+                    elseif  p3_re > 0f0
+                        # no need to adjuct th3 values
+                        t3loc = location(t3u,t3l,numt3,th3v[1])
+                        # add on to tally
+                        #localSAtally[t3loc] += UInt32(1)
+                        # if physical
+                        if (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3_re^2/(sqrt(mu3^2+p3_re^2)+mu3) > mu3-mu2-mu1)
+                            p3loc = locationp3(p3u,p3l,nump3,p3_re)
+                            Sval = SValue2(p3_re,th3v,p1v,p2v,sumTerms)
+                            #localSAtotal[p3loc,t3loc] += Sval
+                        end
+
+                        if p3p_re > 0f0 
+                            # th3p values same as th3, do not add to tally
+                            # check if p3p is physical and not identical to p3
+                            if p3p_re != p3_re && (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3p_re^2/(sqrt(mu3^2+p3p_re^2)+mu3) > mu3-mu2-mu1)
+                                p3ploc = locationp3(p3u,p3l,nump3,p3p_re)
+                                Svalp = SValue2(p3p_re,th3v,p1v,p2v,sumTerms)
+                                #localSAtotal[p3ploc,t3loc] += Svalp
+                            end
+                        elseif p3p_re < 0 
+                            # adjust th3p values
+                            p3p_re *= -1
+                            th3pv[1] *= -1
+                            th3pv[2] = mod(th3pv[2]+1f0,2f0)
+                            t3ploc = location(t3u,t3l,numt3,th3pv[1])
+                            # add one to tally 
+                            #localSAtally[t3ploc] += UInt32(1)
+                            # check if p3p is physical
+                            if (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3p_re^2/(sqrt(mu3^2+p3p_re^2)+mu3) > mu3-mu2-mu1)
+                                p3ploc = locationp3(p3u,p3l,nump3,p3p_re)
+                                Svalp = SValue2(p3p_re,th3pv,p1v,p2v,sumTerms)
+                                #localSAtotal[p3ploc,t3ploc] += Svalp
+                            end
+                        else 
+                            # p3p equal to 0f0, do nothing
+                        end
+
+                    else # p3_re = 0f0
+                        if p3p_re > 0f0 
+                            t3ploc = location(t3u,t3l,numt3,th3pv[1])
+                            # add 1 to tally
+                            #localSAtally[t3ploc] += UInt32(1)
+                            # check if p3p is physical and not identical to p3
+                            if (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3p_re^2/(sqrt(mu3^2+p3p_re^2)+mu3) > mu3-mu2-mu1)
+                                p3ploc = locationp3(p3u,p3l,nump3,p3p_re)
+                                Svalp = SValue2(p3p_re,th3v,p1v,p2v,sumTerms)
+                                #localSAtotal[p3ploc,t3loc] += Svalp
+                            end
+                        elseif p3p_re < 0 
+                            # adjust th3p values
+                            p3p_re *= -1
+                            th3pv[1] *= -1
+                            th3pv[2] = mod(th3pv[2]+1f0,2f0)
+                            t3ploc = location(t3u,t3l,numt3,th3pv[1])
+                            # add one to tally 
+                            #localSAtally[t3ploc] += UInt32(1)
+                            # check if p3p is physical
+                            if (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3p_re^2/(sqrt(mu3^2+p3p_re^2)+mu3) > mu3-mu2-mu1)
+                                p3ploc = locationp3(p3u,p3l,nump3,p3p_re)
+                                Svalp = SValue2(p3p_re,th3pv,p1v,p2v,sumTerms)
+                                #localSAtotal[p3ploc,t3ploc] += Svalp
+                            end
+                        else 
+                            # p3p equal to 0f0, do nothing
+                        end  
+                        
                     end
-                    if p3p_re != 0f0 && (p12/(sqm1p1+mu1)+p22/(sqm2p2+mu2)-p3p_re^2/(sqrt(mu3^2+p3p_re^2)+mu3)) > mu3-mu2-mu1
-                        p3ploc = locationp3(p3u,p3l,nump3,p3p_re)
-                        Svalp = SValue2(p3p_re,th3pv,p1v,p2v,sumTerms)
-                        localSAtotal[p3ploc,t3ploc] += Sval
-                    end
-                elseif (isreal(p3)==false) && (isreal(p3p)==false)
+
+                elseif (isreal(p3)==false) # && (isreal(p3p)==false) # only need to check one
                     # if both complex then t3 must be the same for both
                     p3_re = real(p3)
                     if p3_re < 0f0
                         th3v[1] *= -1
                     end
                     t3loc = location(t3u,t3l,numt3,th3v[1])
-                    localSAtally[t3loc] += UInt32(1)
+                    #localSAtally[t3loc] += UInt32(1)
                 end
 
             end # Sloop
 
-        else # no valid interaction state
+        #else # no valid interaction state
             # add one to tally of all relavant S tallies i.e. all momenta and all angles as no emission states are possible
-            localSAtally .+= UInt32(1)
-        end
+            #localSAtally .+= UInt32(1)
+        #end
 
         # assign values to arrays
-        @lock ArrayOfLocks[p1loc] begin
+        #=@lock ArrayOfLocks[p1loc] begin
             TAtotal[loc12] += Tval
             TAtally[loc12] += UInt32(1)
             @view(SAtotal[:,:,loc12]) .+= localSAtotal
@@ -203,10 +288,10 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 @view(t3MinMax[1,:,loc12]) .= min.(@view(t3MinMax[1,:,loc12]),localt3Min)
                 @view(t3MinMax[2,:,loc12]) .= max.(@view(t3MinMax[2,:,loc12]),localt3Max)
             end 
-        end
+        end 
 
     end # Tloop
 
     end # Thread spwan 
 
-end # function
+end # function =#
