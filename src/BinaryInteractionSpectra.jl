@@ -6,6 +6,7 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
     using Base.Threads
     using AccurateArithmetic
     #using StaticArrays
+    using BenchmarkTools
 
     # include common files
         include("Common/MyPhysicalConstants.jl")
