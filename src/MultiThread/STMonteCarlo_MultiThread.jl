@@ -107,7 +107,7 @@ using BenchmarkTools
     #localt3Min = zeros(Float32,size(t3MinMax)[2])
     #localt3Max = zeros(Float32,size(t3MinMax)[2])
 
-    #for _ in 1:numTiterPerThread
+    @btime for _ in 1:numTiterPerThread
 
         # generate p1 and p2 vectors initially as to not have to re-caculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
@@ -125,16 +125,14 @@ using BenchmarkTools
 
         #fill!(localSAtally,UInt32(0))
 
-        #if Tval != 0f0 # i.e. it is a valid interaction state
+        if Tval != 0f0 # i.e. it is a valid interaction state
 
             #fill!(localSAtotal,0f0)
             #fill!(localp3Max,Float32(0))
             #fill!(localt3Min,Float32(0))
             #fill!(localt3Max,Float32(0))
-
-            using BenchmarkTools
             
-            @btime @inbounds for _ in 1:numSiterPerThread
+            @inbounds for _ in 1:numSiterPerThread
 
                 #generate random p3 direction 
                 RPointSphereCosThetaPhi_2Elem!(th3v)
@@ -176,7 +174,8 @@ using BenchmarkTools
                                 Svalp = SValue2(p3p_re,th3v,p1v,p2v,sumTerms)
                                 #localSAtotal[p3ploc,t3loc] += Svalp
                             end
-                        elseif p3p_re > 0 
+                        end
+                        if p3p_re > 0 
                             # no need to adjust th3p values, just need to calculate t3ploc
                             t3ploc = location(t3u,t3l,numt3,th3pv[1])
                             # add one to tally 
@@ -187,8 +186,6 @@ using BenchmarkTools
                                 Svalp = SValue2(p3p_re,th3pv,p1v,p2v,sumTerms)
                                 #localSAtotal[p3ploc,t3ploc] += Svalp
                             end
-                        else 
-                            # p3p equal to 0f0, do nothing
                         end
 
                     elseif  p3_re > 0f0
@@ -211,7 +208,8 @@ using BenchmarkTools
                                 Svalp = SValue2(p3p_re,th3v,p1v,p2v,sumTerms)
                                 #localSAtotal[p3ploc,t3loc] += Svalp
                             end
-                        elseif p3p_re < 0 
+                        end
+                        if p3p_re < 0 
                             # adjust th3p values
                             p3p_re *= -1
                             th3pv[1] *= -1
@@ -225,8 +223,6 @@ using BenchmarkTools
                                 Svalp = SValue2(p3p_re,th3pv,p1v,p2v,sumTerms)
                                 #localSAtotal[p3ploc,t3ploc] += Svalp
                             end
-                        else 
-                            # p3p equal to 0f0, do nothing
                         end
 
                     else # p3_re = 0f0
@@ -240,7 +236,8 @@ using BenchmarkTools
                                 Svalp = SValue2(p3p_re,th3v,p1v,p2v,sumTerms)
                                 #localSAtotal[p3ploc,t3loc] += Svalp
                             end
-                        elseif p3p_re < 0 
+                        end
+                        if p3p_re < 0 
                             # adjust th3p values
                             p3p_re *= -1
                             th3pv[1] *= -1
@@ -254,10 +251,7 @@ using BenchmarkTools
                                 Svalp = SValue2(p3p_re,th3pv,p1v,p2v,sumTerms)
                                 #localSAtotal[p3ploc,t3ploc] += Svalp
                             end
-                        else 
-                            # p3p equal to 0f0, do nothing
-                        end  
-                        
+                        end     
                     end
 
                 elseif (isreal(p3)==false) # && (isreal(p3p)==false) # only need to check one
@@ -272,10 +266,10 @@ using BenchmarkTools
 
             end # Sloop
 
-        #else # no valid interaction state
+        else # no valid interaction state
             # add one to tally of all relavant S tallies i.e. all momenta and all angles as no emission states are possible
             #localSAtally .+= UInt32(1)
-        #end
+        end
 
         # assign values to arrays
         #=@lock ArrayOfLocks[p1loc] begin
@@ -288,10 +282,10 @@ using BenchmarkTools
                 @view(t3MinMax[1,:,loc12]) .= min.(@view(t3MinMax[1,:,loc12]),localt3Min)
                 @view(t3MinMax[2,:,loc12]) .= max.(@view(t3MinMax[2,:,loc12]),localt3Max)
             end 
-        end 
+        end=# 
 
     end # Tloop
 
-    end # Thread spwan 
+#    end # Thread spwan 
 
-end # function =#
+#end # function 
