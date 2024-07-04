@@ -76,13 +76,13 @@ using BenchmarkTools
 
 # ------------- =#
 
-#SAtotal = Array{Float32,6}(undef,(nump3+1),numt3,nump1,numt1,nump2,numt2);
-#TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
-#SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
-#TAtally = Array{UInt32,4}(undef,nump1,numt1,nump2,numt2);
-#p3Max = Array{Float32,5}(undef,numt3,nump1,numt1,nump2,numt2);
-#t3MinMax = Array{Float32,6}(undef,2,(nump3+1),nump1,numt1,nump2,numt2);
-#ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1];
+SAtotal = Array{Float32,6}(undef,(nump3+1),numt3,nump1,numt1,nump2,numt2);
+TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
+SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
+TAtally = Array{UInt32,4}(undef,nump1,numt1,nump2,numt2);
+p3Max = Array{Float32,5}(undef,numt3,nump1,numt1,nump2,numt2);
+t3MinMax = Array{Float32,6}(undef,2,(nump3+1),nump1,numt1,nump2,numt2);
+ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1];
 
 @btime STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax)
 
@@ -149,30 +149,33 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 p3pv .= p3v
 
                 # Calculate p3 value with checks
-                (p3_physical,p3p_physical,NotIdentical) = Momentum3Value3!(p3v,p3pv,p1v,p2v)
+                (p3_physical,p3p_physical,IsOneState) = Momentum3Value3!(p3v,p3pv,p1v,p2v)
 
                 # Calculate S Array Location
-                if p3v[1] != 0f0
+                if IsOneState && p3v[1] != 0f0
                     t3loc = location(t3u,t3l,numt3,p3v[2])
+                    localSAtally[t3loc] += UInt32(1)
                     if p3_physical
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue2(p3v,p1v,p2v,sumTerms)
                         localSAtotal[p3loc,t3loc] += Sval
                     end
-                    localSAtally[t3loc] += UInt32(1)
-                end
-
-                if NotIdentical && p3pv[1] != 0f0
+                else
+                    t3loc = location(t3u,t3l,numt3,p3v[2])
                     t3ploc = location(t3u,t3l,numt3,p3pv[2])
+                    localSAtally[t3loc] += UInt32(1)
+                    if t3ploc != t3loc
+                        localSAtally[t3ploc] += UInt32(1)
+                    end
+                    if p3_physical
+                        p3loc = locationp3(p3u,p3l,nump3,p3v[1])
+                        Sval = SValue2(p3v,p1v,p2v,sumTerms)
+                        localSAtotal[p3loc,t3loc] += Sval
+                    end
                     if p3p_physical
                         p3ploc = locationp3(p3u,p3l,nump3,p3pv[1])
                         Svalp = SValue2(p3pv,p1v,p2v,sumTerms)
                         localSAtotal[p3ploc,t3ploc] += Svalp
-                    end
-                    if p3v[1] != 0f0 && t3ploc != t3loc
-                        localSAtally[t3ploc] += UInt32(1)
-                    elseif p3v[1] == 0f0
-                        localSAtally[t3ploc] += UInt32(1)
                     end
                 end
 
