@@ -60,22 +60,6 @@ include("../Common/UsefulGridValueFunctions.jl")
 include("../Common/PhaseSpaceFactors.jl")
 include("../Common/Location.jl")
 
-SAtotal = Array{Float32,6}(undef, nump3+1,numt3,nump1,numt1,nump2,numt2);
-TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
-SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
-TAtally = Array{UInt32,4}(undef,nump1,numt1,nump2,numt2);
-ArrayOfLocks = [Threads.SpinLock() for _ in 1:numt2] 
-
-p1v = zeros(Float32,3)
-p2v = zeros(Float32,3)
-p3v = zeros(Float32,3,2)
-
-using BenchmarkTools
-
-@btime STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks)
-
-# ------------- =#
-
 SAtotal = Array{Float32,6}(undef,(nump3+1),numt3,nump1,numt1,nump2,numt2);
 TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
 SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
@@ -86,6 +70,7 @@ ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1];
 
 @btime STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax)
 
+# ------------- =#
 
 function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
@@ -159,6 +144,9 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue2(p3v,p1v,p2v,sumTerms)
                         localSAtotal[p3loc,t3loc] += Sval
+                        localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
+                        localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
+                        localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
                     end
                 else
                     t3loc = location(t3u,t3l,numt3,p3v[2])
@@ -171,11 +159,17 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue2(p3v,p1v,p2v,sumTerms)
                         localSAtotal[p3loc,t3loc] += Sval
+                        localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
+                        localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
+                        localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
                     end
                     if p3p_physical
                         p3ploc = locationp3(p3u,p3l,nump3,p3pv[1])
                         Svalp = SValue2(p3pv,p1v,p2v,sumTerms)
                         localSAtotal[p3ploc,t3ploc] += Svalp
+                        localp3Max[t3ploc] = max(localp3Max[t3ploc],p3v[1])
+                        localt3Min[p3ploc] = min(localt3Min[p3ploc],p3v[2])
+                        localt3Max[p3ploc] = max(localt3Max[p3ploc],p3v[2])
                     end
                 end
 
