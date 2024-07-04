@@ -382,21 +382,82 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
     #p3v[1,1] = 0f0 
     #p3v[1,2] = 0f0
 
-    C3sqr::ComplexF32 = ((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))^2*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))^2+(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(-m42+2*A2*(-m3+m1)+2*A1*(A2-m3+m2)+(-m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))*(-m42+2*A2*(m3+m1)+2*A1*(A2+m3+m2)+(m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2)) 
+    C3sqr::Float32 = ((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))^2*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))^2+(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(-m42+2*A2*(-m3+m1)+2*A1*(A2-m3+m2)+(-m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))*(-m42+2*A2*(m3+m1)+2*A1*(A2+m3+m2)+(m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2)) 
 
     C2::Float32 =-4*((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1*ct2+ch3h4*st1st2))
 
     C4::Float32 = -8*(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))
+
+    if C3sqr == 0f0 # only one state
+        NotIdentical = false
+        p3p_physical = false
+
+        p3 = C2/C4
+        if p3 >= 0f0
+            p3v[1] = p3
+        elseif p3 < 0f0
+            p3v[1] = -p3
+            p3v[2] *= -1
+            p3v[3] = mod(p3v[3]+1f0,2f0)
+        end
+        if p3 != 0f0 && (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m2-m1
+            p3_physical = true
+        else
+            p3_physical = false
+        end
+
+    elseif C3sqr > 0f0
+        NotIdentical = true
+        C3 = sqrt(C3sqr)
+        p3 = (C2-C3)/C4
+        p3p = (C2+C3)/C4
+        if p3 >= 0f0
+            p3v[1] = p3
+        else
+            p3v[1] = -p3
+            p3v[2] *= -1
+            p3v[3] = mod(p3pv[3]+1f0,2f0)
+        end
+        if p3p >= 0f0
+            p3pv[1] = p3p
+        else
+            p3pv[1] = -p3p
+            p3pv[2] *= -1
+            p3pv[3] = mod(p3pv[3]+1f0,2f0)
+        end
+        if p3 != 0f0 && (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m2-m1
+            p3_physical = true
+        else
+            p3_physical = false
+        end
+        if p3p != 0f0 && (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3p^2/(sqrt(m32+p3p^2)+m3)) > m3-m2-m1
+            p3p_physical = true
+        else
+            p3p_physical = false
+        end
+
+    else # imaginary
+
+        NotIdentical = true
+        p3p_physical = false
+        p3_physical = false
+
+        p3Real = C2/C4
+        if p3Real < 0f0
+            p3v[2] *= -1
+            p3v[3] = mod(p3pv[3]+1f0,2f0)
+        end
+
+    end
     
-    C3::ComplexF32 = 4*sqrt(C3sqr)
+    #=
+    C3::ComplexF32 = 4*sqrt(complex(C3sqr))
 
     p3Complex::ComplexF32 = (C2-C3)/C4
     p3pComplex::ComplexF32 = (C2+C3)/C4
 
     p3::Float32 = real(p3Complex)
     p3sign::Bool = signbit(p3) 
-    p3p::Float32 = real(p3pComplex)
-    p3psign::Bool = signbit(p3p)
 
     # direction adjustments
     if p3sign # true if -ve
@@ -406,34 +467,35 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
     else
         p3v[1] = p3
     end
-    if p3psign # true if -ve
-        p3pv[1] = -p3p
-        p3pv[2] *= -1
-        p3pv[3] = mod(p3pv[3]+1f0,2f0)
-    else
-        p3pv[1] = p3p
-    end
-    # are they identical
-    if p3pv[1] == p3v[1] && p3pv[2] == p3v[2] && p3pv[3] == p3v[3]
-        NotIdentical = false
-    else
-        NotIdentical = true
-    end
     # physical checks
     if isreal(p3Complex) && (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-real(p3)^2/(sqrt(m32+real(p3)^2)+m3)) > m3-m2-m1 
         p3_physical = true
     else
         p3_physical = false
     end
-    if NotIdentical
+    # are they identical
+    if C3sqr != 0f0
+        NotIdentical = true
+        p3p::Float32 = real(p3pComplex)
+        p3psign::Bool = signbit(p3p)
+        if p3psign # true if -ve
+            p3pv[1] = -p3p
+            p3pv[2] *= -1
+            p3pv[3] = mod(p3pv[3]+1f0,2f0)
+        else
+            p3pv[1] = p3p
+        end
+        # physical check
         if isreal(p3pComplex) && (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-real(p3p)^2/(sqrt(m32+real(p3p)^2)+m3)) > m3-m2-m1 
             p3p_physical = true
         else
             p3p_physical = false
         end
     else
+        NotIdentical = false
         p3p_physical = false
     end
+    =#
 
     return p3_physical, p3p_physical, NotIdentical
 
