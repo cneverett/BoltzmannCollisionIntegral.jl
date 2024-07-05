@@ -401,7 +401,7 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
             p3v[2] *= -1
             p3v[3] = mod(p3v[3]+1f0,2f0)
         end
-        if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m2-m1
+        if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)+m1+m2) > m3+p3^2/(sqrt(m32+p3^2)+m3)
             p3_physical = true
         else
             p3_physical = false
@@ -420,14 +420,14 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
         else
             if p3 > 0f0
                 p3v[1] = p3
-                if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m2-m1
+                if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)+m1+m2) > m3+p3^2/(sqrt(m32+p3^2)+m3)
                     p3_physical = true
                 end
             else
                 p3v[1] = -p3
                 p3v[2] *= -1
                 p3v[3] = mod(p3pv[3]+1f0,2f0)
-                if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m2-m1
+                if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)+m1+m2) > m3+p3^2/(sqrt(m32+p3^2)+m3)
                     p3_physical = true
                 end
             end
@@ -440,14 +440,14 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
             else
                 if p3p > 0f0
                     p3pv[1] = p3p
-                    if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3p^2/(sqrt(m32+p3p^2)+m3)) > m3-m2-m1
+                    if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)+m1+m2) > m3+p3p^2/(sqrt(m32+p3p^2)+m3)
                         p3p_physical = true
                     end
                 else
                     p3pv[1] = -p3p
                     p3pv[2] *= -1
                     p3pv[3] = mod(p3pv[3]+1f0,2f0)
-                    if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3p^2/(sqrt(m32+p3p^2)+m3)) > m3-m2-m1
+                    if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)+m1+m2) > m3+p3p^2/(sqrt(m32+p3p^2)+m3)
                         p3p_physical = true
                     end
                 end
@@ -455,14 +455,14 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
         else
             if p3p > 0f0
                 p3v[1] = p3p
-                if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3p^2/(sqrt(m32+p3p^2)+m3)) > m3-m2-m1
+                if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)+m1+m2) > m3+p3p^2/(sqrt(m32+p3p^2)+m3)
                     p3p_physical = true
                 end
             else
                 p3v[1] = -p3p
                 p3v[2] *= -1
                 p3v[3] = mod(p3pv[3]+1f0,2f0)
-                if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3p^2/(sqrt(m32+p3p^2)+m3)) > m3-m2-m1
+                if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)+m1+m2) > m3+p3p^2/(sqrt(m32+p3p^2)+m3)
                     p3p_physical = true
                 end
             end
