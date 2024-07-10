@@ -92,7 +92,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     Sval::Float32 = 0f0
     Svalp::Float32 = 0f0
     Tval::Float32 = 0f0
-    sumTerms::Vector{Float32} = zeros(Float32,12)
+    sumTerms::Vector{Float64} = zeros(Float64,12)
     p3_physical::Bool = true
     p3p_physical::Bool = true
 
