@@ -171,7 +171,9 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 if NotIdenticalStates # two unique but not nessessarlity physical states
                     if zerop3p == false
                         t3ploc = location(t3u,t3l,numt3,p3vp[2])
+                        if (zerop3 == false && t3loc != t3ploc) || zerop3 == true
                         localSAtally[t3ploc] += UInt32(1)
+                        end
                         if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
                             Svalp = SValue(p3vp,p1v,p2v,sumTerms)
                             if p3vp[1] == 0f0 
