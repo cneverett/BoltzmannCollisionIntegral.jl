@@ -76,15 +76,15 @@ using BenchmarkTools
 
 # ------------- =#
 
-SAtotal = Array{Float32,6}(undef,(nump3+1),numt3,nump1,numt1,nump2,numt2);
-TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
-SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
-TAtally = Array{UInt32,4}(undef,nump1,numt1,nump2,numt2);
-p3Max = Array{Float32,5}(undef,numt3,nump1,numt1,nump2,numt2);
-t3MinMax = Array{Float32,6}(undef,2,(nump3+1),nump1,numt1,nump2,numt2);
-ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1];
+#SAtotal = Array{Float32,6}(undef,(nump3+1),numt3,nump1,numt1,nump2,numt2);
+#TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
+#SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
+#TAtally = Array{UInt32,4}(undef,nump1,numt1,nump2,numt2);
+#p3Max = Array{Float32,5}(undef,numt3,nump1,numt1,nump2,numt2);
+#t3MinMax = Array{Float32,6}(undef,2,(nump3+1),nump1,numt1,nump2,numt2);
+#ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1];
 
-@btime STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax)
+#@btime STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax)
 
 function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
@@ -96,7 +96,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
     # Set up worker
 
-#    Threads.@spawn begin
+    Threads.@spawn begin
 
     # allocate arrays for each thread
     p1v::Vector{Float32} = zeros(Float32,3)
@@ -208,6 +208,6 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
     end # Tloop
 
-#    end # Thread spwan
+    end # Thread spwan
 
 end # function
