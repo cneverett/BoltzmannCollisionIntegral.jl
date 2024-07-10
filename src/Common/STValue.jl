@@ -136,11 +136,8 @@ function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},s
 
     #deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
     # more float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
-    sumTerms .= (m1*p3, m2*p3, -m3*p1*(ct3*ct1),-m3*p1*(ch3h1*st3*st1), -m3*p2*(ct3*ct2),-m3*p2*(ch3h2*st3*st2), p3*Es1, p3*Es2, -Es3*p1*(ct3*ct1),-Es3*p1*(ch3h1*st3*st1), -Es3*p2*(ct3*ct2),-Es3*p2*(ch3h2*st3*st2))
+    sumTerms .= (m1*p3, -m3*p1*(ct3*ct1+ch3h1*st3*st1), m2*p3, -m3*p2*(ct3*ct2+ch3h2*st3*st2), p3*Es1, p3*Es2, -Es3*p1*(ct3*ct1+ch3h1*st3*st1), -Es3*p2*(ct3*ct2+ch3h2*st3*st2))
     deltacorrect = sum_oro(sumTerms)
-
-    println(deltacorrect)
-    println(dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig))
 
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
 
@@ -306,9 +303,6 @@ function SValue2(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},
     sumTerms .= (p3*Es1, p3*Es2, -Es3*p1*ct3*ct1, -Es3*p1*ch3h1*st3*st1, -Es3*p2*ct3*ct2, -Es3*p2*ch3h2*st3*st2, m1*p3, m2*p3, -m3*p1*ct3*ct1, -m3*p1*ch3h1*st3*st1, -m3*p2*ct3*ct2, -m3*p2*ch3h2*st3*st2)
     deltacorrect = sum(sumTerms)
 
-    #println(deltacorrect)
-    #println(dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig))
-
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
 
     if (Sval==Inf || Sval == -Inf)
@@ -321,22 +315,30 @@ end
 
 #using AccurateArithmetic
 
-#sumTerms = zeros(Float32,12)
-#sumTerms2 = zeros(Float64,12)
-#sumTerms3 = zeros(Float64,12)
-#p3v = Float32[1310.8748, 0.18619525, 0.93947005]
-#p1v = Float32[5493.3477, -0.18349457, 1.0412174]
-#p2v = Float32[965.7312, -0.55817854, 0.36690378]
+#= sumTerms = zeros(Float32,8);
+sumTerms2 = zeros(Float64,12);
 
-#p3v = Float32[2066.4658, 0.30071533, 1.6234965]
-#p1v = Float32[4849.61, 0.31509948, 1.7178323]
-#p2v = Float32[4421.6333, -0.54550934, 1.6488668]
+p3v = Float32[1310.8748, 0.18619525, 0.93947005]
+p1v = Float32[5493.3477, -0.18349457, 1.0412174]
+p2v = Float32[965.7312, -0.55817854, 0.36690378]
 
-#sumTerms2
-#sumTerms
+p3v = Float32[2066.4658, 0.30071533, 1.6234965]
+p1v = Float32[4849.61, 0.31509948, 1.7178323]
+p2v = Float32[4421.6333, -0.54550934, 1.6488668]
 
-#SValue(p3v,p1v,p2v,sumTerms)
-#SValue2(p3v,p1v,p2v,sumTerms2)
+p3v = Float32[1939.376, 0.4624158, 1.9623433]
+p1v = Float32[2276.6106, 0.53184867, 0.14479053]
+p2v = Float32[4371.789, 0.8839624, 1.9059743]
+
+p3v = Float32[911.10297, 0.32916713, 1.1656545]
+p1v = Float32[7291.8926, 0.6624396, 1.4999361]
+p2v = Float32[3930.5273, -0.74726427, 1.3458211]
+
+SValue(p3v,p1v,p2v,sumTerms)
+SValue2(p3v,p1v,p2v,sumTerms2)
+
+sum_oro(sumTerms)
+sum(sumTerms2) =#
 
 #m1 = mu1
 #m2 = mu2
