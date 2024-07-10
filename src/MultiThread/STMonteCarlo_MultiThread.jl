@@ -96,6 +96,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     sumTerms2::Vector{Float64} = zeros(Float64,12)
     p3_physical::Bool = true
     p3p_physical::Bool = true
+    NumStates::Int64 = 2
 
     localSAtotal = zeros(Float32,size(SAtotal)[1:2])
     localSAtally = zeros(UInt32,size(SAtally)[1])
@@ -135,26 +136,24 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 p3pv .= p3v
 
                 # Calculate p3 value with checks
-                (p3_physical,p3p_physical,IsOneState) = Momentum3Value3!(p3v,p3pv,p1v,p2v)
+                (p3_physical,p3p_physical,NumStates) = Momentum3Value3!(p3v,p3pv,p1v,p2v)
 
                 # Calculate S Array Location
-                if IsOneState == true 
-                    if p3v[1] != 0f0
-                        t3loc = location(t3u,t3l,numt3,p3v[2])
-                        localSAtally[t3loc] += UInt32(1)
-                        if p3_physical
-                            p3loc = locationp3(p3u,p3l,nump3,p3v[1])
-                            Sval = SValue(p3v,p1v,p2v,sumTerms)
-                            #Sval = SValue2(p3v,p1v,p2v,sumTerms2)
-                            localSAtotal[p3loc,t3loc] += Sval
-                            localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
-                            localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
-                            localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
-                        end
+                if NumStates == 1
+                    t3loc = location(t3u,t3l,numt3,p3v[2])
+                    localSAtally[t3loc] += UInt32(1)
+                    if p3_physical
+                        p3loc = locationp3(p3u,p3l,nump3,p3v[1])
+                        Sval = SValue(p3v,p1v,p2v,sumTerms)
+                        #Sval = SValue2(p3v,p1v,p2v,sumTerms2)
+                        localSAtotal[p3loc,t3loc] += Sval
+                        localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
+                        localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
+                        localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
                     end
                 end
 
-                if IsOneState == false
+                if NumStates == 2
                     t3loc = location(t3u,t3l,numt3,p3v[2])
                     t3ploc = location(t3u,t3l,numt3,p3pv[2])
                     localSAtally[t3loc] += UInt32(1)

@@ -127,6 +127,11 @@ function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},s
     ch3h2::Float32 = cospi(p3v[3]-p2v[3])
     Es3::Float32 = (p3^2)/(sqrt(m32+p3^2)+m3)
 
+    Es3prime::Float32 = p3/(sqrt(m32+p3^2)+m3)
+
+    E3 = m3+Es3
+    E3prime = m3/p3+Es3prime
+
     # t = tBig + tSmol
     tBig::Float32 = (m3-m1)^2
     tSmol::Float32 = -2*(m1*Es3 + m3*Es1 + Es3*Es1 - p3*p1*(ct3*ct1+ch3h1*st3*st1))
@@ -136,94 +141,13 @@ function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},s
 
     #deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
     # more float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
-    sumTerms .= (m1*p3, -m3*p1*(ct3*ct1+ch3h1*st3*st1), m2*p3, -m3*p2*(ct3*ct2+ch3h2*st3*st2), p3*Es1, p3*Es2, -Es3*p1*(ct3*ct1+ch3h1*st3*st1), -Es3*p2*(ct3*ct2+ch3h2*st3*st2))
-    deltacorrect = sum_oro(sumTerms)
+    sumTerms .= (Es1, -Es3prime*p1*(ct3*ct1+ch3h1*st3*st1), Es2, -Es3prime*p2*(ct3*ct2+ch3h2*st3*st2), m1, -(m3/p3)*p1*(ct3*ct1+ch3h1*st3*st1), m2, -(m3/p3)*p2*(ct3*ct2+ch3h2*st3*st2))
+    deltacorrect = p3*sum_oro(sumTerms)
 
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
 
     if (Sval==Inf || Sval == -Inf)
         error("ST1 Inf#"*string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig)*"#"*string(p3v)*"#"*string(p1v)*"#"*string(p2v))  
-    end
-
-    return Sval
-
-end
-
-function SValue2(p3value::Float32,th3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},sumTerms::Vector{Float64})
-
-    # returns one s values
-
-    # define normalise masses
-    m1 = mu1
-    m2 = mu2 
-    m3 = mu3 
-
-    # pre-defining terms for efficiency 
-    p1::Float32 = p1v[1]
-    p2::Float32 = p2v[1]
-
-    ct1::Float32 = p1v[2] #cospi(p1v[2])
-    ct2::Float32 = p2v[2] #cospi(p2v[2]) 
-
-    st1::Float32 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
-    st2::Float32 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
-
-    ch1h2::Float32 = cospi(p1v[3]-p2v[3])
-
-    m32 = m3^2
-    m12 = m1^2
-    m22 = m2^2
-    
-    #= This method leads to errors when p/m < 10^-6 due to floating point precision, causing s<(m+m)^2 and InvFlux to retun a complex number error 
-    E1 = sqrt(p1^2+m12)
-    E3 = sqrt(p3^2+m32)
-    E4 = sqrt(p4^2+m42) 
-    s = m32+m42 + 2*E3*E4 - 2*p3*p4*(ct3*ct4-ch3h4*st3*st4)
-    t = m32+m12 - 2*E1*E3 + 2*p1*p3*(ct1*ct3+ch1h3*st1*st3)
-    =#
-
-    #= will attempt to use the algebraic relation sqrt(1+x)-1 = x/(sqrt(1+x)+1) to split E up into a large and small part i.e. sqrt(p^2+m^2) = m + (p^2)/(sqrt(m^2+p^2)+m) = E 
-    then label Es = (p^2)/(sqrt(m^2+p^2)+m) and rewrite 
-    s = (m3+m4)^2 + 2(m3*Es4+m4*Es3+Es3*Es4 - p3p4(...))
-    t = (m1-m3)^2 - 2(m3*Es1+m1*Es3+Es1*Es3 - p1p3(...)) =#
-
-    Es1::Float32 = (p1^2)/(sqrt(m12+p1^2)+m1)
-    Es2::Float32 = (p2^2)/(sqrt(m22+p2^2)+m2)
-
-    sBig::Float32 = (m1+m2)^2
-    sSmol::Float32 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2+ch1h2*st1*st2))
-
-    #s = sBig + sSmol
-    
-    E1::Float32 = Es1 + m1
-    E2::Float32 = Es2 + m2
-
-    # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
-    val::Float32 = (1/E1)*(1/E2)*(2*InvarientFlux2Small(sSmol,m1,m2))
-
-    p3::Float32 = p3value
-    ct3::Float32 = th3v[1] 
-    st3::Float32 = sqrt(1f0-ct3^2)
-    ch3h1::Float32 = cospi(th3v[2]-p1v[3])
-    ch3h2::Float32 = cospi(th3v[2]-p2v[3])
-    Es3::Float32 = (p3^2)/(sqrt(m32+p3^2)+m3)
-
-    # t = tBig + tSmol
-    tBig::Float32 = (m3-m1)^2
-    tSmol::Float32 = -2*(m1*Es3 + m3*Es1 + Es3*Es1 - p3*p1*(ct3*ct1+ch3h1*st3*st1))
-    # u = uBig + uSmol
-    uBig::Float32 = (m2-m3)^2
-    uSmol::Float32 = -2*(m3*Es2 + m2*Es3 + Es2*Es3 - p2*p3*(ct2*ct3+ch3h2*st2*st3))
-
-    #deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
-    # more float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
-    sumTerms .= (m1*p3, -m3*p1*(ct3*ct1+ch3h1*st3*st1), m2*p3, -m3*p2*(ct3*ct2+ch3h2*st3*st2), p3*Es1, p3*Es2, -Es3*p1*(ct3*ct1+ch3h1*st3*st1), -Es3*p2*(ct3*ct2+ch3h2*st3*st2))
-    deltacorrect = sum_oro(sumTerms)
-
-    Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
-
-    if (Sval==Inf || Sval == -Inf)
-        error("ST1 Inf#"*string(deltacorrect)*"#"*string(tSmol)*"#"*string(tBig)*"#"*string(sSmol)*"#"*string(sBig)*"#"*string(p3)*"#"*string(th3v)*"#"*string(p1v)*"#"*string(p2v))  
     end
 
     return Sval
@@ -300,7 +224,7 @@ function SValue2(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},
 
     #deltacorrect::Float64 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
     # more float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
-    sumTerms .= (p3*Es1, p3*Es2, -Es3*p1*ct3*ct1, -Es3*p1*ch3h1*st3*st1, -Es3*p2*ct3*ct2, -Es3*p2*ch3h2*st3*st2, m1*p3, m2*p3, -m3*p1*ct3*ct1, -m3*p1*ch3h1*st3*st1, -m3*p2*ct3*ct2, -m3*p2*ch3h2*st3*st2)
+    sumTerms .= (p3*Es1, m1*p3, -m3*p1*ct3*ct1, -m3*p1*ch3h1*st3*st1, -Es3*p1*ct3*ct1, -Es3*p1*ch3h1*st3*st1, p3*Es2, m2*p3, -m3*p2*ct3*ct2, -m3*p2*ch3h2*st3*st2, -Es3*p2*ct3*ct2, -Es3*p2*ch3h2*st3*st2)
     deltacorrect = sum(sumTerms)
 
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
@@ -315,7 +239,8 @@ end
 
 #using AccurateArithmetic
 
-#= sumTerms = zeros(Float32,8);
+#=
+sumTerms = zeros(Float32,8);
 sumTerms2 = zeros(Float64,12);
 
 p3v = Float32[1310.8748, 0.18619525, 0.93947005]
@@ -338,11 +263,49 @@ p3v = Float32[1148.5731, 0.35796976, 0.7427006]
 p1v = Float32[4580.9736, 0.5865948, 1.159183]
 p2v = Float32[3316.672, -0.21471739, 0.7299031]
 
+p3v = Float32[1611.4032, 0.8428147, 1.6687021]
+p1v = Float32[1696.6399, 0.56952393, 1.3687525]
+p2v = Float32[4568.314, 0.896646, 0.11325812]
+
+p3v = Float32[2471.5857, 0.99945235, 1.0934644]
+p1v = Float32[4755.139, 0.98691106, 0.42941344]
+p2v = Float32[1539.5929, 0.86070216, 1.425962]
+
+p3v = Float32[1344.8613, 0.6284934, 0.43425727]
+p1v = Float32[5575.884, 0.23424172, 0.25551093]
+p2v = Float32[890.9748, -0.48099768, 0.3000399]
+
+p3v = Float32[2477.5803, 0.70000625, 1.2908807]
+p2v = Float32[4426.429, 0.68573844, 1.2220751]
+p1v = Float32[3568.4944, 0.15726769, 1.4209498]
+
+p3v = Float32[2282.1575, 0.42138875, 0.584322]
+p1v = Float32[1480.2142, 0.20757353, 0.8636919]
+p2v = Float32[8706.053, -0.022790909, 0.598878]
+
+p3v = Float32[883.64343, 0.18709445, 0.27163696]
+p1v = Float32[9975.04, 0.43234944, 0.08596659]
+p2v = Float32[3555.7231, -0.1440463, 1.5806023]
+
+p3v = Float32[2399.8464, -0.9112277, 0.6679145]
+p1v = Float32[4614.545, -0.737568, 0.6580323]
+p2v = Float32[1833.5154, -0.98802865, 0.08539677]
+
+p3v = Float32[7.147129, 0.7736238, 1.9076179]
+p1v = Float32[9.2896595, 0.75850165, 1.802476]
+p2v = Float32[5.56435, 0.6841588, 1.751785]
+
+p3v = Float32[0.006277652, -0.43729234, 0.62806463]
+p1v = Float32[0.008336283, -0.23659337, 0.636328]
+p2v = Float32[0.0055497563, -0.08499956, 0.80733776]
+
 SValue(p3v,p1v,p2v,sumTerms)
 SValue2(p3v,p1v,p2v,sumTerms2)
 
-sum_oro(sumTerms)
-sum(sumTerms2) =#
+sum_oro(sumTerms)*p3v[1]
+sum(sumTerms2)
+
+sumTerms =#
 
 #m1 = mu1
 #m2 = mu2

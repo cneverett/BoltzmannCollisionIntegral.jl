@@ -389,24 +389,29 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
     C4::Float32 = -8*(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))
 
     if C3sqr == 0f0 # only one state and p3 cannont equal zero
-        IsOneState = true
+        NumStates = 1
         p3_physical = false
         p3p_physical = false
 
         p3 = C2/C4
-        if p3 >= 0f0
-            p3v[1] = p3
+        if p3 == 0f0
+            NumStates = 0
         else
-            p3v[1] = -p3
-            p3v[2] *= -1
-            p3v[3] = mod(p3v[3]+1f0,2f0)
-        end
-
-        if m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3) > 0f0
-            p3_physical = true
+            if p3 > 0f0
+                p3v[1] = p3
+            else
+                p3v[1] = -p3
+                p3v[2] *= -1
+                p3v[3] = mod(p3v[3]+1f0,2f0)
+            end
+            if m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3) > 0f0
+                p3_physical = true
+            end
         end
 
     elseif C3sqr > 0f0
+
+        NumStates = 2
 
         p3_physical = false
         p3p_physical = false
@@ -415,9 +420,8 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
         p3 = (C2-C3)/C4
 
         if p3 == 0f0
-            IsOneState = true
+            NumStates = 1
         else
-            IsOneState = false
             if p3 > 0f0
                 p3v[1] = p3
             else
@@ -431,11 +435,10 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
             end
         end
 
-
-        if IsOneState == false
+        if NumStates == 2
             p3p = (C2+C3)/C4
             if p3p == 0f0
-                IsOneState = true
+                NumStates = 1
             else
                 if p3p > 0f0
                     p3pv[1] = p3p
@@ -450,24 +453,28 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
                     p3p_physical = true
                 end
             end
-        else
+        else # NumStates == 1
             p3 = (C2+C3)/C4
-            if p3 > 0f0
-                p3v[1] = p3
+            if p3 == 0
+                NumStates = 0
             else
-                p3v[1] = -p3
-                p3v[2] *= -1
-                p3v[3] = mod(p3v[3]+1f0,2f0)
-            end
-            
-            if m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3) > 0f0
-                p3_physical = true
-            end
+                if p3 > 0f0
+                    p3v[1] = p3
+                else
+                    p3v[1] = -p3
+                    p3v[2] *= -1
+                    p3v[3] = mod(p3v[3]+1f0,2f0)
+                end
+                if m1+m2-m3+p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3) > 0f0
+                    p3_physical = true
+                end
+            end    
+
         end
 
-    else # imaginary
+    else # imaginary C3sqr < 0f0
 
-        IsOneState = true
+        NumStates = 2
         p3p_physical = false
         p3_physical = false
 
@@ -475,11 +482,13 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
         if p3Real < 0f0
             p3v[2] *= -1
             p3v[3] = mod(p3v[3]+1f0,2f0)
+            p3pv[2] *= -1
+            p3pv[3] = mod(p3pv[3]+1f0,2f0)
         end
 
     end
 
-    return p3_physical, p3p_physical, IsOneState
+    return p3_physical, p3p_physical, NumStates
 
 end
 
