@@ -97,7 +97,7 @@ function SpectraEvaluateMultiThread()
 
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
-        #STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
+        STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
         PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
         #PhaseSpaceFactors2_3D!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)
                                             

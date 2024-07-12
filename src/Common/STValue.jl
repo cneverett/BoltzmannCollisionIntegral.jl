@@ -68,7 +68,7 @@ end
 Returns 'Sval' from MC integration based on initial momentum states 'p1v' and 'p2v' and final state 'p3v'.  
 Assumes f(x,p,μ)=constant over bin
 """
-function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},sumTerms::Vector{Float32})
+function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
 
     # returns one s values
 
@@ -298,6 +298,8 @@ p2v = Float32[5.56435, 0.6841588, 1.751785]
 p3v = Float32[0.006277652, -0.43729234, 0.62806463]
 p1v = Float32[0.008336283, -0.23659337, 0.636328]
 p2v = Float32[0.0055497563, -0.08499956, 0.80733776]
+
+Float32[550.49805, 0.6716571, 1.1593782]#Float32[1353.1063, 0.9887152, 1.2448756]#Float32[279.22748, 0.87663436, 1.7217331]
 
 SValue(p3v,p1v,p2v,sumTerms)
 SValue2(p3v,p1v,p2v,sumTerms2)

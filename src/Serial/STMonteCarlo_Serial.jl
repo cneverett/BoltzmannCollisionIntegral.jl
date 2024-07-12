@@ -94,8 +94,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         RPointSphereCosThetaPhi!(p1v)
         RPointSphereCosThetaPhi!(p2v)
 
-        RPointLogMomentum!(p1u,p1l,p1v)
-        RPointLogMomentum!(p2u,p2l,p2v)
+        RPointLogMomentum!(p1u,p1l,p1v,nump1)
+        RPointLogMomentum!(p2u,p2l,p2v,nump2)
   
         # Tval
         Tval = TValue(p1v,p2v)
@@ -108,8 +108,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         SAtotalView = @view SAtotal[:,:,loc12]
         SAtallyView = @view SAtally[:,loc12]
         p3MaxView = @view p3Max[:,loc12]
-        t3MinView = @view p3MinMax[1,:,loc12]
-        t3MaxView = @view p3MinMax[2,:,loc12]
+        t3MinView = @view t3MinMax[1,:,loc12]
+        t3MaxView = @view t3MinMax[2,:,loc12]
         
         if Tval != 0f0 # valid initial state for interaction
 
@@ -139,8 +139,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                         p3ploc = locationp3(p3u,p3l,nump3,p3v[1,2])
                         SAtotalView[p3ploc,t3ploc] += Svalp
                         p3MaxView[t3ploc] = max(p3MaxView[t3ploc],p3v[1,2])
-                        t3MinView[p3loc] = min(t3MinView[p3loc],p3v[2,2])
-                        t3MaxView[p3loc] = max(t3MaxView[p3loc],p3v[2,2])
+                        t3MinView[p3ploc] = min(t3MinView[p3ploc],p3v[2,2])
+                        t3MaxView[p3ploc] = max(t3MaxView[p3ploc],p3v[2,2])
                     end
                     SAtallyView[t3ploc] += UInt32(1)
                 end
