@@ -144,8 +144,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     localSAtally[t3loc] += UInt32(1)
                     if p3_physical
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
-                        Sval = SValue(p3v,p1v,p2v,sumTerms)
-                        #Sval = SValue2(p3v,p1v,p2v,sumTerms2)
+                        #Sval = SValue(p3v,p1v,p2v,sumTerms)
+                        Sval = SValue2(p3v,p1v,p2v,sumTerms2)
                         localSAtotal[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
                         localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
@@ -162,8 +162,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     end
                     if p3_physical
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
-                        Sval = SValue(p3v,p1v,p2v,sumTerms)
-                        #Sval = SValue2(p3v,p1v,p2v,sumTerms2)
+                        #Sval = SValue(p3v,p1v,p2v,sumTerms)
+                        Sval = SValue2(p3v,p1v,p2v,sumTerms2)
                         localSAtotal[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
                         localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
@@ -171,8 +171,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     end
                     if p3p_physical
                         p3ploc = locationp3(p3u,p3l,nump3,p3pv[1])
-                        Svalp = SValue(p3pv,p1v,p2v,sumTerms)
-                        #Svalp = SValue2(p3pv,p1v,p2v,sumTerms2)
+                        #Svalp = SValue(p3pv,p1v,p2v,sumTerms)
+                        Svalp = SValue2(p3pv,p1v,p2v,sumTerms2)
                         localSAtotal[p3ploc,t3ploc] += Svalp
                         localp3Max[t3ploc] = max(localp3Max[t3ploc],p3pv[1])
                         localt3Min[p3ploc] = min(localt3Min[p3ploc],p3pv[2])

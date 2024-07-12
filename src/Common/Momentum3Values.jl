@@ -416,7 +416,7 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
         p3_physical = false
         p3p_physical = false
 
-        C3 = sqrt(C3sqr)
+        C3 = 4*sqrt(C3sqr)
         p3 = (C2-C3)/C4
 
         if p3 == 0f0
@@ -474,16 +474,20 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
 
     else # imaginary C3sqr < 0f0
 
-        NumStates = 2
+        NumStates = 1 # two states but both in same bin so same as one
         p3p_physical = false
         p3_physical = false
 
         p3Real = C2/C4
-        if p3Real < 0f0
+        if p3Real == 0f0
+            NumStates = 0
+        else
+            if p3Real < 0f0
             p3v[2] *= -1
             p3v[3] = mod(p3v[3]+1f0,2f0)
-            p3pv[2] *= -1
-            p3pv[3] = mod(p3pv[3]+1f0,2f0)
+            #p3pv[2] *= -1
+            #p3pv[3] = mod(p3pv[3]+1f0,2f0)
+            end
         end
 
     end
@@ -493,11 +497,21 @@ function Momentum3Value3!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector
 end
 
 
-#= Testing
+#=Testing
 p1v = [1f0, 0.5f0, 1.8f0,]
 p2v = [2f0, 0.2f0, 0.7f0]
 p3v = [0f0 0f0; 0.3f0 0.3f0; 0.7f0 0.7f0]
+p3v = [0f0;0.3f0; 0.7f0]
+p3pv = copy(p3v)
 
 Momentum3Value!(p3v,p1v,p2v)
 p3v
+
+Momentum3Value2!(p3v,p3pv,p1v,p2v)
+p3v
+p3pv
+
+Momentum3Value3!(p3v,p3pv,p1v,p2v)
+p3v
+p3pv
 =#
