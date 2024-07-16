@@ -63,7 +63,7 @@ function SpectraEvaluateMultiThread()
     # ===== Run MonteCarlo Integration ==== #
 
         # Set up workers
-        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax) for i in 1:nThreads]
+        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax) for _ in 1:nThreads]
         
         wait.(workers) # Allow all workers to finish
    
@@ -87,10 +87,6 @@ function SpectraEvaluateMultiThread()
         TMatrix = TAtotal ./ TAtally;
         replace!(TMatrix,NaN=>0f0);
 
-        #testtotal = (dropdims(sum(SAtotal[:,:,60,:,60,:],dims=(3,4)),dims=(3,4)))
-        #testtally = Int.(dropdims(sum(SAtally[:,10,:,10,:],dims=(2,3)),dims=(2,3)))
-        #testtotal = (dropdims(sum(SMatrix[:,:,40,:,40,:],dims=(3,4)),dims=(3,4)))
-
         # Angle / Momentum Ranges
         t3val = trange(t3l,t3u,numt3)
         t1val = trange(t1l,t1u,numt1)
@@ -99,10 +95,9 @@ function SpectraEvaluateMultiThread()
         p1val = prange(p1l,p1u,nump1)
         p2val = prange(p2l,p2u,nump2)
 
-
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
-        #STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
+        STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
         PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
         #PhaseSpaceFactors2_3D!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)
                                             

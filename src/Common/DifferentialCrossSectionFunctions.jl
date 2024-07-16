@@ -49,6 +49,30 @@ if (name1 == "Sph" && name2 == "Sph" && name3 == "Sph" && name4 == "Sph")
 
     end
 
+    #Float64 versions
+    function dsigmadt(s::Float64,t::Float64)
+        
+        1f0/(s-4*muSph^2)
+
+    end
+    function dsigmadt(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
+        
+        1e0/(sSmol#=+(sBig-4*muSph^2)=#) # sBig = (m3+m4)^2=4musph^2
+
+    end
+
+    function sigma(s::Float64)
+        
+        1e0/2e0 # factor of 2 accounts for identical final states
+
+    end
+
+    function sigma(sSmol::Float64,sBig::Float64)
+        
+        1e0/2e0 # factor of 2 accounts for identical final states
+
+    end
+
     const dsigmadtn = Float32(pi)*(2f0*RSph)^2
     const sigman = Float32(pi)*(2f0*RSph)^2
 
