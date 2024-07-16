@@ -3,42 +3,6 @@
 This module provides functions for MonteCarlo Integration of S and T Matricies
 =#
 
-#= for testing --
-
-# Dependancies
-include("../Common/MyPhysicalConstants.jl")
-include("../Common/ParticleData.jl")
-include("../Common\\Init.jl")
-include("../Common\\DifferentialCrossSectionFunctions.jl")
-include("../Common\\Momentum3Values.jl")
-include("../Common\\RandomPointMomentum.jl")
-include("../Common\\RandomPointSphere.jl")
-include("../Common/MandelstramChecks.jl")
-include("../Common\\STValue.jl")
-include("../Common/UsefulGridValueFunctions.jl")
-include("../Common/PhaseSpaceFactors.jl")
-include("../Common/Location.jl")
-
-using BenchmarkTools
-SAtotal = Array{Float32,6}(undef, nump3+1,numt3,nump1,numt1,nump2,numt2);
-TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
-SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
-TAtally = Array{UInt32,4}(undef,nump1,numt1,nump2,numt2);
-p1v= zeros(Float32,3)
-p2v = zeros(Float32,3)
-p3v = zeros(Float32,3,2)
-p3vTest = zeros(Float32,3)
-p3vpTest= zeros(Float32,3)
-ST = zeros(Float32,3)
-# -------------
-
-@btime STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p1v,p2v,ST)
-
-@btime STMonteCarloAxi_SerialTest!(SAtotal,TAtotal,SAtally,TAtally,p3v,p1v,p2v)
-@btime STMonteCarloAxi_SerialTest!(SAtotal,TAtotal,SAtally,TAtally,p3vTest,p3vpTest,p1v,p2v)
-
-=#
-
 """
     STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax})
 

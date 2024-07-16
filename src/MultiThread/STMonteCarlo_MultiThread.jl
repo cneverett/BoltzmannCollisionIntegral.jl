@@ -3,75 +3,42 @@
 This module provides functions for MonteCarlo Integration of S and T Matricies
 =#
 
-#= 
+"""
+    STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax})
+
 Intput:
-    - Domain Boundaries
+
+    - Domain Boundaries (defined as CONST in Init.jl)
         - p bounds and divisions for species 1,3,4
         - theta divisions for species 1,3,4 ( bounds not nessessarlity needed as assumed [0,1] )
         - phi divisions for species 1,3,4 ( bounds not nessessarlity needed as assumed [0,2] )
-
-    - Particle Masses
+    - Particle Masses (defined as CONST in Init.jl)
         - for species 1,2,3,4
-
-    - Array of stored integration totals and tallys
+    - Array of stored integration totals and tallys 
         - total is cumulative sum of reaction rate in that domain
-        - tally is cumalitive total of points that have landed in that doimain
-        - S Array will have dimensions ((p+1)x2px3t) for axisymmetric
-        - T Array will have dimensions (2px2t) for axisymmetric
-            - the x2 counts for total and tally values
-            - this is likely to take up large data storage
-        - an alternative is impliment where arrays are reduced to 2D in size and S and tally arrays are generated as sparse array. The dimensions of the S Array are ((p+1)x(2p)x(3t))
-            - there will be an extra 1 for overflow momenta i.e. array acts like [p3 i, p3 i+1, p3 i+2 .... p3 nump3, overflow]
-            - points that land under the momentum domain i.e. underflow are assigned to the lowest momentum bin. This in effect "re-boosts" them up to the lowest momentum.
-    
-    - n integration points
+        - tally is cumalitive total of points that have been sampled in that doimain
+        - S Array will have dimensions ((nump3+1) x numt3 x nump1 x numt1 x nump2 x numt2) for axisymmetric
+            - extra entry for p3 is for overflow momenta i.e. array acts like [p3 i, p3 i+1, p3 i+2 .... p3 nump3, overflow]
+        - T Array will have dimensions (nump1 x numt1 x nump2 x numt2) for axisymmetric
+    - numTiter and numSiter (defined in Init.jl) as the number of T and S integrations to perform.
+    - nThreads as the number of threads to run the integration on
 
 Calculation:
+
+    - Set up workers to perform the integration on multiple threads
     - Random Sample points in each of these domains
-        - RandomPointSphere for theta and phi
-        - RandomPointMomentum for p ( species 3,4 only )
+        - RandomPointSphere for theta and phi (for species 1,2,3)
+        - RandomPointMomentum for p ( species 1,2 only )
     - Take random points (t3,h1,p1,p2,t1,t2,h3,h4) and calculate valid p3 point/points 
-        - if non-valid point at t3 h1 then this will add 0 to MC integration total and 1 to MC integration tally
-        - if valid point calculate reaction rate value 
-    - Find position in arry of stored values corresponding to integration point and add reaction rate value to integration total and 1 to integration tally
-    - Run for n integration points
+    - Find position in S and T arrays and allocated tallies and totals accordingly (using locks to ensure single thread access to arrays). 
 
 Output:
-    - Array of stored integration totals and tallys
+
+    - Edited arrays of stored integration totals and tallys
     - One array (S array) gives rate of reaction to particular state/particles 1(2) from state 34 i.e. rate of emission of 1 from reaction 34->1(2)
-    = One array (T array) gives rate of reaction from state/particles 34 to any state 12 i.e. rate of absorption of 34 in reaction 34->12
+    - One array (T array) gives rate of reaction from state/particles 34 to any state 12 i.e. rate of absorption of 34 in reaction 34->12
 
-=#
-
-#= for testing --
-
-# Dependancies
-
-include("../Common/MyPhysicalConstants.jl")
-include("../Common/ParticleData.jl")
-include("../Common\\Init.jl")
-include("../Common\\DifferentialCrossSectionFunctions.jl")
-include("../Common\\Momentum3Values.jl")
-include("../Common\\RandomPointMomentum.jl")
-include("../Common\\RandomPointSphere.jl")
-include("../Common/MandelstramChecks.jl")
-include("../Common\\STValue.jl")
-include("../Common/UsefulGridValueFunctions.jl")
-include("../Common/PhaseSpaceFactors.jl")
-include("../Common/Location.jl")
-
-SAtotal = Array{Float32,6}(undef,(nump3+1),numt3,nump1,numt1,nump2,numt2);
-TAtotal = Array{Float32,4}(undef,nump1,numt1,nump2,numt2);
-SAtally = Array{UInt32,5}(undef,numt3,nump1,numt1,nump2,numt2);
-TAtally = Array{UInt32,4}(undef,nump1,numt1,nump2,numt2);
-p3Max = Array{Float32,5}(undef,numt3,nump1,numt1,nump2,numt2);
-t3MinMax = Array{Float32,6}(undef,2,(nump3+1),nump1,numt1,nump2,numt2);
-ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1];
-
-@btime STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax)
-
--- =#
-
+"""
 function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
     # Set up worker
