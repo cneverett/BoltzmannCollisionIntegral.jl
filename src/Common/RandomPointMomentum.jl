@@ -45,8 +45,8 @@ function RPointLogMomentum!(pu::Float32,pl::Float32,pv::Vector{Float32},num::Int
     u = (pl + (pu-pl)*(bin)/num)
 
     U = rand(Float32)
-    #pv[1] = 1f1^u*cbrt(U+(1f0-U)*1f1^(3*(l-u))) 
-    pv[1] = U*10^(u)+(1f0-U)*10^(l) 
+    pv[1] = (1f1^u)*cbrt(U+(1f0-U)*1f3^(l-u)) 
+    #pv[1] = U*10^(u)+(1f0-U)*10^(l) 
 
     return nothing
     
