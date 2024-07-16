@@ -73,9 +73,9 @@ function SpectraEvaluateSerial()
         replace!(TMatrix,NaN=>0f0)
 
         # Angle / Momentum Ranges
-        t3val = trange(t3l,t3u,numt3) # bounds of numt3 blocks
-        t1val = trange(t1l,t1u,numt1)
-        t2val = trange(t2l,t2u,numt2)
+        t3val = trange(numt3) # bounds of numt3 blocks
+        t1val = trange(numt1)
+        t2val = trange(numt2)
         p3val = prange(p3l,p3u,nump3)
         p1val = prange(p1l,p1u,nump1)
         p2val = prange(p2l,p2u,nump2)

@@ -10,8 +10,8 @@ Intput:
 
     - Domain Boundaries (defined as CONST in Init.jl)
         - p bounds and divisions for species 1,3,4
-        - theta divisions for species 1,3,4 ( bounds not nessessarlity needed as assumed [0,1] )
-        - phi divisions for species 1,3,4 ( bounds not nessessarlity needed as assumed [0,2] )
+        - theta divisions for species 1,3,4 ( bounds not needed as assumed [-1,1] )
+        - phi divisions for species 1,3,4 ( bounds not needed as assumed [0,2] )
     - Particle Masses (defined as CONST in Init.jl)
         - for species 1,2,3,4
     - Array of stored integration totals and tallys 
@@ -52,8 +52,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         # Tval
         Tval = TValue(p1v,p2v)
         # Calculate T Array Location
-        (p1loc,t1loc) = vectorLocation(p1u,p1l,t1u,t1l,nump1,numt1,p1v)
-        (p2loc,t2loc) = vectorLocation(p2u,p2l,t2u,t2l,nump2,numt2,p2v)
+        (p1loc,t1loc) = vectorLocation(p1u,p1l,nump1,numt1,p1v)
+        (p2loc,t2loc) = vectorLocation(p2u,p2l,nump2,numt2,p2v)
         loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
 
         SAtotalView = @view SAtotal[:,:,loc12]
@@ -76,8 +76,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                 # S Array Tallies
                 # For each t3 sampled, p3 will be + or -ve, corresponding to a change in sign of t3. Therefore by sampling one t3 we are actually sampling t3 and -t3 with one or both having valid p3 states.
                 if NumStates != 0
-                    t3loc = location(t3u,t3l,numt3,p3v[2])
-                    t3locMirror = location(t3u,t3l,numt3,-p3v[2])
+                    t3loc = location_t(numt3,p3v[2])
+                    t3locMirror = location_t(numt3,-p3v[2])
                     SAtallyView[t3loc] += UInt32(1)
                     SAtallyView[t3locMirror] += UInt32(1)
                 end
@@ -85,7 +85,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                 # Calculate S Array totals
                 if NumStates == 1
                     if p3_physical
-                        p3loc = locationp3(p3u,p3l,nump3,p3v[1])
+                        p3loc = location_p3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue(p3v,p1v,p2v)
                         SAtotalView[p3loc,t3loc] += Sval
                         p3MaxView[t3loc] = max(p3MaxView[t3loc],p3v[1])
@@ -95,9 +95,9 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                 end
 
                 if NumStates == 2
-                    t3ploc = location(t3u,t3l,numt3,p3pv[2])
+                    t3ploc = location_t(numt3,p3pv[2])
                     if p3_physical
-                        p3loc = locationp3(p3u,p3l,nump3,p3v[1])
+                        p3loc = location_p3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue(p3v,p1v,p2v)
                         SAtotalView[p3loc,t3loc] += Sval
                         p3MaxView[t3loc] = max(p3MaxView[t3loc],p3v[1])
@@ -105,7 +105,7 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
                         t3MaxView[p3loc] = max(t3MaxView[p3loc],p3v[2])
                     end
                     if p3p_physical
-                        p3ploc = locationp3(p3u,p3l,nump3,p3pv[1])
+                        p3ploc = location_p3(p3u,p3l,nump3,p3pv[1])
                         Svalp = SValue(p3pv,p1v,p2v)
                         SAtotalView[p3ploc,t3ploc] += Svalp
                         p3MaxView[t3ploc] = max(p3MaxView[t3ploc],p3pv[1])

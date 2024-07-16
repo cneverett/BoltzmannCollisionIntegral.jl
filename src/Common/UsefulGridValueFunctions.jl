@@ -27,8 +27,9 @@ The "useful quantities" are then used in calculating moments of the distribution
         return 10 .^[range(pl,pu,nump+1);]
     end
 
-    function trange(tl::Float32,tu::Float32,numt::Int64)
+    function trange(numt::Int64)
         # returns a vector{Float32} of t grid bounds in terms of cospi(t)
+        # tl and tu defined as CONST in Init.jl 
         return [range(tl,tu,numt+1);]
     end
 

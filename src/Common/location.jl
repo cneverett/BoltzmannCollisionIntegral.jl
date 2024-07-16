@@ -15,21 +15,38 @@ function location(u::Float32,l::Float32,num::Int64,val::Float32)
 end
 
 """
-    locationp3(u,l,num,val)
+    location_t(numt,val)
+
+Returns the index of the bin in which the costheta 'val' is contatined based on the 'numt' of bins. Bounds [tl tu] are defined as CONST in Init.jl
+
+# Examples
+```julia-repl
+julia> location_t(8,0.5f0)
+6
+```
+"""
+function location_t(numt::Int64,val::Float32)
+    # function for generating poisition in array. Bins MUST be uniform
+    return val != tl ? ceil(Int64,Float32(numt)*(val-tl)/(tu-tl)) : Int64(1) 
+end
+
+
+"""
+    location_p3(u,l,num,val)
 
 Returns the index of the bin in which 'val' is contatined based on the 'num' of bins and their 'u' upper and 'l' lower bound including overflow and underflow possibilities. Overflow are assigned to num+1 while underflow are assigned to lowest bin i.e. 1.
 
 # Examples
 ```julia-repl
-julia> locationp3(10f0,1f0,9,2f0)
+julia> location_p3(10f0,1f0,9,2f0)
 2
-julia> locationp3(10f0,1f0,9,11f0) # overflow
+julia> location_p3(10f0,1f0,9,11f0) # overflow
 10
-julia> locationp3(10f0,1f0,9,0.5f0) # underflow
+julia> location_p3(10f0,1f0,9,0.5f0) # underflow
 1
 ```
 """
-function locationp3(u::Float32,l::Float32,num::Int64,val::Float32)
+function location_p3(u::Float32,l::Float32,num::Int64,val::Float32)
     # function for generating poisition in array. Bins MUST be uniform
     logp = log10(val)
     loc = logp != l ? ceil(Int64,Float32(num)*(logp-l)/(u-l)) : Int64(1) 
@@ -40,14 +57,15 @@ end
     vectorLocation(u1,l1,u2,l2,num1,num2,vector)
 
 Returns a tuple of bin location for (log10momentum,cos(theta)) based on an input 'vector' and bounds 'u,l' of their domains and the 'num' of uniformly spaced bins.
+costheta bounds [tl tu] are defined as CONST in Init.jl
 """
-function vectorLocation(u1::Float32,l1::Float32,u2::Float32,l2::Float32,num1::Int64,num2::Int64,vector::Vector{Float32})
+function vectorLocation(pu::Float32,pl::Float32,nump::Int64,numt::Int64,vector::Vector{Float32})
 
     logp = log10(vector[1])
     ctheta = vector[2]
 
-    logploc = (logp != l1 ? ceil(Int64,Float32(num1)*(logp-l1)/(u1-l1)) : Int64(1))
-    cthetaloc = (ctheta != l2 ? ceil(Int64,Float32(num2)*(ctheta-l2)/(u2-l2)) : Int64(1))
+    logploc = (logp != pl ? ceil(Int64,Float32(nump)*(logp-pl)/(pu-pl)) : Int64(1))
+    cthetaloc = (ctheta != tu ? ceil(Int64,Float32(numt)*(ctheta-tl)/(tu-tl)) : Int64(1))
     
     return (logploc,cthetaloc)
     

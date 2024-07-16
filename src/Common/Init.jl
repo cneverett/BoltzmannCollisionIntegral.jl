@@ -36,17 +36,12 @@ user defined constant parameters for STIntegration
     const p2u::Float32 = eval(Symbol(name2*"Data")).pu
     const nump2::Int64 = eval(Symbol(name2*"Data")).nump
 
-    # cos(theta) 
-    const t3l::Float32 = eval(Symbol(name3*"Data")).tl
-    const t3u::Float32 = eval(Symbol(name3*"Data")).tu
-    const numt3::Int64 = eval(Symbol(name3*"Data")).numt
+    # cos(theta), bounds are always -1 and 1
+    const tl::Float32 = -1.0f0
+    const tu::Float32 = 1.0f0
 
-    const t1l::Float32 = eval(Symbol(name1*"Data")).tl
-    const t1u::Float32 = eval(Symbol(name1*"Data")).tu
+    const numt3::Int64 = eval(Symbol(name3*"Data")).numt
     const numt1::Int64 = eval(Symbol(name1*"Data")).numt
-    
-    const t2l::Float32 = eval(Symbol(name2*"Data")).tl
-    const t2u::Float32 = eval(Symbol(name2*"Data")).tu
     const numt2::Int64 = eval(Symbol(name2*"Data")).numt
 
 # ---------------------------------------------- #
@@ -58,8 +53,8 @@ user defined constant parameters for STIntegration
     # integration time approx 250ns per itteration 
 
     # For Serial 
-    numTiter::Int64 = nump1*numt1*nump2*numt2*5;    # number of T matrix itterations i.e. random p1 p2 points
-    numSiter::Int64 = nump3*numt3*5;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
+    numTiter::Int64 = nump1*numt1*nump2*numt2*1;    # number of T matrix itterations i.e. random p1 p2 points
+    numSiter::Int64 = nump3*numt3*1;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
 
     #For MultiThread
     numTiterPerThread::Int64 = nump1*numt1*nump2*numt2*1;    # number of T matrix itterations i.e. random p1 p2 points. Should be > nump1*numt1*nump2*numt2 to ensure good sampling.

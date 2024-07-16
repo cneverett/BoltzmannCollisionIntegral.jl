@@ -22,9 +22,11 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
 
     # include serial methods
         include("Serial\\STIntegration_Serial.jl")
+        include("Serial\\STMonteCarlo_Serial.jl")
 
     #include parallel methods
         include("MultiThread\\STIntegration_MultiThread.jl")
+        include("MultiThread\\STMonteCarlo_MultiThread.jl")
 
     function fload()
         
