@@ -80,13 +80,8 @@ ST = zeros(Float32,3)
 =#
 
 
-function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},p3v::Array{Float32,2},p1v::Vector{Float32},p2v::Vector{Float32},p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
+function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
-    # check arrays are correct size 
-    #size(AStally) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("ASally Array improperly sized")
-    #size(ATtally) != (nump1,numt1,nump2,numt2) && error("ATally Array improperly sized")
-    #size(SAtotal) != ((nump3+2),numt3,nump1,numt1,nump2,numt2) && error("S Total Array improperly sized")
-    #size(TAtotal) != (nump1,numt1,nump2,numt2) && error("tally Array improperly sized")
 
     for _ in 1:numTiter
 
@@ -99,7 +94,6 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
   
         # Tval
         Tval = TValue(p1v,p2v)
-
         # Calculate T Array Location
         (p1loc,t1loc) = vectorLocation(p1u,p1l,t1u,t1l,nump1,numt1,p1v)
         (p2loc,t2loc) = vectorLocation(p2u,p2l,t2u,t2l,nump2,numt2,p2v)
@@ -111,38 +105,56 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         t3MinView = @view t3MinMax[1,:,loc12]
         t3MaxView = @view t3MinMax[2,:,loc12]
         
-        if Tval != 0f0 # valid initial state for interaction
+        if Tval != 0f0 # i.e. it is a valid interaction state
 
             for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
                 #generate random p3 direction 
-                R2PointSphereCosThetaPhi!(p3v)
+                RPointSphereCosThetaPhi!(p3v)
+                p3pv .= p3v
 
                 # Calculate p3 value
-                (NotIdenticalStates,testp3,testp3p) = Momentum3Value!(p3v,p1v,p2v)
-  
-                t3loc = location(t3u,t3l,numt3,p3v[2,1])
-                if testp3 # valid p3 state so add ST[1]
-                    Sval = SValue(@view(p3v[:,1]),p1v,p2v)
-                    p3loc = locationp3(p3u,p3l,nump3,p3v[1,1])
-                    SAtotalView[p3loc,t3loc] += Sval
-                    p3MaxView[t3loc] = max(p3MaxView[t3loc],p3v[1,1])
-                    t3MinView[p3loc] = min(t3MinView[p3loc],p3v[2,1])
-                    t3MaxView[p3loc] = max(t3MaxView[p3loc],p3v[2,1])
+                (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v)
+
+                # S Array Tallies
+                # For each t3 sampled, p3 will be + or -ve, corresponding to a change in sign of t3. Therefore by sampling one t3 we are actually sampling t3 and -t3 with one or both having valid p3 states.
+                if NumStates != 0
+                    t3loc = location(t3u,t3l,numt3,p3v[2])
+                    t3locMirror = location(t3u,t3l,numt3,-p3v[2])
+                    SAtallyView[t3loc] += UInt32(1)
+                    SAtallyView[t3locMirror] += UInt32(1)
                 end
-                SAtallyView[t3loc] += UInt32(1)
-                
-                if NotIdenticalStates # two unique but not nessessarlity physical states
-                    t3ploc = location(t3u,t3l,numt3,p3v[2,2])
-                    if testp3p # physical unique p3p state (could be mirror of p3) and add ST[2]
-                        Svalp = SValue(@view(p3v[:,2]),p1v,p2v)
-                        p3ploc = locationp3(p3u,p3l,nump3,p3v[1,2])
-                        SAtotalView[p3ploc,t3ploc] += Svalp
-                        p3MaxView[t3ploc] = max(p3MaxView[t3ploc],p3v[1,2])
-                        t3MinView[p3ploc] = min(t3MinView[p3ploc],p3v[2,2])
-                        t3MaxView[p3ploc] = max(t3MaxView[p3ploc],p3v[2,2])
+  
+                # Calculate S Array totals
+                if NumStates == 1
+                    if p3_physical
+                        p3loc = locationp3(p3u,p3l,nump3,p3v[1])
+                        Sval = SValue(p3v,p1v,p2v)
+                        SAtotalView[p3loc,t3loc] += Sval
+                        p3MaxView[t3loc] = max(p3MaxView[t3loc],p3v[1])
+                        t3MinView[p3loc] = min(t3MinView[p3loc],p3v[2])
+                        t3MaxView[p3loc] = max(t3MaxView[p3loc],p3v[2])
                     end
-                    SAtallyView[t3ploc] += UInt32(1)
+                end
+
+                if NumStates == 2
+                    t3ploc = location(t3u,t3l,numt3,p3pv[2])
+                    if p3_physical
+                        p3loc = locationp3(p3u,p3l,nump3,p3v[1])
+                        Sval = SValue(p3v,p1v,p2v)
+                        SAtotalView[p3loc,t3loc] += Sval
+                        p3MaxView[t3loc] = max(p3MaxView[t3loc],p3v[1])
+                        t3MinView[p3loc] = min(t3MinView[p3loc],p3v[2])
+                        t3MaxView[p3loc] = max(t3MaxView[p3loc],p3v[2])
+                    end
+                    if p3p_physical
+                        p3ploc = locationp3(p3u,p3l,nump3,p3pv[1])
+                        Svalp = SValue(p3pv,p1v,p2v)
+                        SAtotalView[p3ploc,t3ploc] += Svalp
+                        p3MaxView[t3ploc] = max(p3MaxView[t3ploc],p3pv[1])
+                        t3MinView[p3ploc] = min(t3MinView[p3ploc],p3pv[2])
+                        t3MaxView[p3ploc] = max(t3MaxView[p3ploc],p3pv[2])
+                    end
                 end
 
             end # Sloop

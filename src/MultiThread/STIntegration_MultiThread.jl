@@ -16,7 +16,6 @@
     using JLD2
     include("STMonteCarlo_MultiThread.jl")
 
-
 #=
     Optimisation of the multi-threaded version would not have been possible without the kind guidence of those on the Julia Forums: https://discourse.julialang.org/t/fast-multi-threaded-array-editing-without-data-races/114863/41
     In particular the assistance of users: mbauman, adienes, Oscar_Smith, Satvik, Salmon, sgaure and foobar_lv2
@@ -94,11 +93,9 @@ function SpectraEvaluateMultiThread()
         p3val = prange(p3l,p3u,nump3)
         p1val = prange(p1l,p1u,nump1)
         p2val = prange(p2l,p2u,nump2)
-        p3valfull = [p3val; 2*p3val[end]];
 
         # Momentum space volume elements and symmetries
-        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)      # applies phase space factors for symmetries
-        #p3MaxCorrection!(SMatrix,TMatrix,p3Max,p3valfull)                       # applies correction to phase space due to maximum p3 value in bin (flux limiting factor)
+        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)      # applies phase space factors for symmetries                  
         STSymmetry!(SMatrix,TMatrix)                                            # initial states are symmetric -> apply symmetry of interaction to improve MC values
         PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)            # corrects phase space factors for application in kinetic models
                                             
@@ -137,4 +134,4 @@ function SpectraEvaluateMultiThread()
 
     return nothing
 
-end 
+end # function
