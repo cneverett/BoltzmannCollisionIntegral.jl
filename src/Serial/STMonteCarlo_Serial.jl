@@ -3,46 +3,6 @@
 This module provides functions for MonteCarlo Integration of S and T Matricies
 =#
 
-#= 
-Intput:
-    - Domain Boundaries
-        - p bounds and divisions for species 1,3,4
-        - theta divisions for species 1,3,4 ( bounds not nessessarlity needed as assumed [0,1] )
-        - phi divisions for species 1,3,4 ( bounds not nessessarlity needed as assumed [0,2] )
-
-    - Particle Masses
-        - for species 1,2,3,4
-
-    - Array of stored integration totals and tallys
-        - total is cumulative sum of reaction rate in that domain
-        - tally is cumalitive total of points that have landed in that doimain
-        - S Array will have dimensions (3px3t) for axisymmetric and (3px3tx3h) for anisotropic
-        - T Array will have dimensions (2px2t) for axisymmetric
-            - the x2 counts for total and tally values
-            - this is likely to take up large data storage
-        - an alternative is impliment where arrays are reduced to 2D in size and S and tally arrays are generated as sparse array. The number of elements is ((3p)x(3t))
-            - T array not sparse as all entries should be non-zero
-            - there will be an extra 2 entries one for underflow and one for overflow momenta i.e. array acts like [underflow, overflow, p3 i, p3 i+1, p3 i+2 .... p3 nump3]
-    
-    - n integration points
-
-Calculation:
-    - Random Sample points in each of these domains
-        - RandomPointSphere for theta and phi
-        - RandomPointMomentum for p ( species 3,4 only )
-    - Take random points (t3,h1,p1,p2,t1,t2,h3,h4) and calculate valid p3 point/points 
-        - if non-valid point at t3 h1 then this will add 0 to MC integration total and 1 to MC integration tally
-        - if valid point calculate reaction rate value 
-    - Find position in arry of stored values corresponding to integration point and add reaction rate value to integration total and 1 to integration tally
-    - Run for n integration points
-
-Output:
-    - Array of stored integration totals and tallys
-    - One array (S array) gives rate of reaction to particular state/particles 1(2) from state 34 i.e. rate of emission of 1 from reaction 34->1(2)
-    = One array (T array) gives rate of reaction from state/particles 34 to any state 12 i.e. rate of absorption of 34 in reaction 34->12
-
-=#
-
 #= for testing --
 
 # Dependancies
@@ -79,7 +39,40 @@ ST = zeros(Float32,3)
 
 =#
 
+"""
+    STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax})
 
+Intput:
+
+    - Domain Boundaries (defined as CONST in Init.jl)
+        - p bounds and divisions for species 1,3,4
+        - theta divisions for species 1,3,4 ( bounds not nessessarlity needed as assumed [0,1] )
+        - phi divisions for species 1,3,4 ( bounds not nessessarlity needed as assumed [0,2] )
+    - Particle Masses (defined as CONST in Init.jl)
+        - for species 1,2,3,4
+    - Array of stored integration totals and tallys 
+        - total is cumulative sum of reaction rate in that domain
+        - tally is cumalitive total of points that have been sampled in that doimain
+        - S Array will have dimensions ((nump3+1) x numt3 x nump1 x numt1 x nump2 x numt2) for axisymmetric
+            - extra entry for p3 is for overflow momenta i.e. array acts like [p3 i, p3 i+1, p3 i+2 .... p3 nump3, overflow]
+        - T Array will have dimensions (nump1 x numt1 x nump2 x numt2) for axisymmetric
+    - numTiter and numSiter (defined in Init.jl) as the number of T and S integrations to perform.
+
+Calculation:
+
+    - Random Sample points in each of these domains
+        - RandomPointSphere for theta and phi (for species 1,2,3)
+        - RandomPointMomentum for p ( species 1,2 only )
+    - Take random points (t3,h1,p1,p2,t1,t2,h3,h4) and calculate valid p3 point/points 
+    - Find position in S and T arrays and allocated tallies and totals accordingly. 
+
+Output:
+
+    - Edited arrays of stored integration totals and tallys
+    - One array (S array) gives rate of reaction to particular state/particles 1(2) from state 34 i.e. rate of emission of 1 from reaction 34->1(2)
+    - One array (T array) gives rate of reaction from state/particles 34 to any state 12 i.e. rate of absorption of 34 in reaction 34->12
+
+"""
 function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
 

@@ -4,7 +4,6 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
 
     using JLD2
     using Base.Threads
-    using AccurateArithmetic
     #using StaticArrays
     using BenchmarkTools
 
@@ -50,7 +49,7 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
         end
 
         return (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix, p3Max, t3MinMax,SConv,TConv);
-        #run (Stot,Ttot,Stal,Ttal,SMatrix,TMatrix,p3Max,t3MinMax,SConv,TConv) = fload();
+        #run (Stot,Ttot,Stal,Ttal,SMatrix,TMatrix,p3Max,t3MinMax,SConv,TConv) = fload(); in REPL
 
     end
 
