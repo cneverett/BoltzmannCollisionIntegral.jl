@@ -83,45 +83,6 @@ function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
 
 end
 
-"""
-    PhaseSpaceFactors2_3D!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
-
-To follow 'PhaseSpaceFactors1' and 'STSymmetry'. Corrects phase space factors on 'SMatrix' and 'TMatrix' for use in kinetic codes.
-Assumes f(x,vec{p})= constant
-"""
-function PhaseSpaceFactors2_3D!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vector{Float32},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32})
-
-    # Function that divides the S T elements by dp3dmu3 or equivilant to then be used in kinetic models
-
-    # Momentum space volume elements
-    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1
-        for mm in 1:numt3
-            for nn in 1:nump3
-                if nn == 1 # must account for underflow values increasing bin size (perhaps not)
-                SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]^3-p3val[nn]^3)/3 # dp3dmu3 
-                else
-                SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]^3-p3val[nn]^3)/3 # dp3dmu3 
-                end
-            end
-        end
-        TMatrix[ll,kk,jj,ii] /= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]^3-p1val[ll]^3)/3 # dp1dmu1      
-    end
-
-    # underflow bin size
-    #= 
-    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
-        SMatrix[1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[1]) # dp3dmu3
-    end
-    =#
-
-    # overflow bin size assumed to be up to 1*maximum p3val i.e. p3val[nump3+1]->2*p3val[nump3+1]
-    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
-        SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(7*p3val[nump3+1]^3)/3 # dp3dmu3
-    end
-
-    return nothing
-
-end
 
 """
     STSymmetry!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
@@ -182,80 +143,84 @@ function STSymmetry!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4})
 
 end
 
-function SCorrection!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vector{Float32},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32},p2val::Vector{Float32},t2val::Vector{Float32})
+# ====== Currently Unused ================ #
 
-    # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays
+    function SCorrection!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},p3val::Vector{Float32},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32},p2val::Vector{Float32},t2val::Vector{Float32})
 
-    SFull = zeros(size(SMatrix))
-    TFull = zeros(size(TMatrix))
+        # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays
 
-    # Momentum space volume elements
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        for nn in 1:nump3
-                            SFull[nn+2,mm,ll,kk,jj,ii] = SMatrix[nn+2,mm,ll,kk,jj,ii] *(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nn+1]-p3val[nn]) # d^2pvec3
+        SFull = zeros(size(SMatrix))
+        TFull = zeros(size(TMatrix))
+
+        # Momentum space volume elements
+        for ii in 1:numt2
+            for jj in 1:nump2
+                for kk in 1:numt1
+                    for ll in 1:nump1
+                        for mm in 1:numt3
+                            for nn in 1:nump3
+                                SFull[nn+2,mm,ll,kk,jj,ii] = SMatrix[nn+2,mm,ll,kk,jj,ii] *(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nn+1]-p3val[nn]) # d^2pvec3
+                            end
+                        end
+                        TFull[ll,kk,jj,ii] = TMatrix[ll,kk,jj,ii] * (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])
+                    end
+                end
+            end
+        end
+
+        # underflow bin size 
+        for ii in 1:numt2
+            for jj in 1:nump2
+                for kk in 1:numt1
+                    for ll in 1:nump1
+                        for mm in 1:numt3
+                            SFull[1,mm,ll,kk,jj,ii] = SMatrix[1,mm,ll,kk,jj,ii] * (cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[1]) # d^3pvec3
                         end
                     end
-                    TFull[ll,kk,jj,ii] = TMatrix[ll,kk,jj,ii] * (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])
                 end
             end
         end
-    end
 
-    # underflow bin size 
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        SFull[1,mm,ll,kk,jj,ii] = SMatrix[1,mm,ll,kk,jj,ii] * (cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[1]) # d^3pvec3
+        # overflow bin size assumed to be up to the next pval (if one exsisted)
+        for ii in 1:numt2
+            for jj in 1:nump2
+                for kk in 1:numt1
+                    for ll in 1:nump1
+                        for mm in 1:numt3
+                            SFull[2,mm,ll,kk,jj,ii] = SMatrix[2,mm,ll,kk,jj,ii] * (cospi(t3val[mm])-cospi(t3val[mm+1])) * (p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1])  # d^3pvec3
+                        end
                     end
                 end
             end
         end
-    end
 
-    # overflow bin size assumed to be up to the next pval (if one exsisted)
-    for ii in 1:numt2
-        for jj in 1:nump2
-            for kk in 1:numt1
-                for ll in 1:nump1
-                    for mm in 1:numt3
-                        SFull[2,mm,ll,kk,jj,ii] = SMatrix[2,mm,ll,kk,jj,ii] * (cospi(t3val[mm])-cospi(t3val[mm+1])) * (p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1])  # d^3pvec3
-                    end
-                end
-            end
+        testT = TFull
+        testS = dropdims(sum(SFull,dims=(1,2)),dims=(1,2))
+        SCor = zeros(size(testS))
+        @. SCor = testT/testS
+
+        #display(dropdims(sum(SCor,dims=(2,4)),dims=(2,4)))
+
+        for ii in axes(SCor,4), jj in axes(SCor,3), kk in axes(SCor,2), ll in axes(SCor,1)
+            SMatrix[:,:,ll,kk,jj,ii] *= SCor[ll,kk,jj,ii]
         end
+
     end
 
-    testT = TFull
-    testS = dropdims(sum(SFull,dims=(1,2)),dims=(1,2))
-    SCor = zeros(size(testS))
-    @. SCor = testT/testS
+    function SCorrection2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4})
 
-    #display(dropdims(sum(SCor,dims=(2,4)),dims=(2,4)))
+        # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays
 
-    for ii in axes(SCor,4), jj in axes(SCor,3), kk in axes(SCor,2), ll in axes(SCor,1)
-        SMatrix[:,:,ll,kk,jj,ii] *= SCor[ll,kk,jj,ii]
+        SMatrixSum = dropdims(sum(SMatrix,dims=(1,2)),dims=(1,2))
+        SCor = zeros(size(SMatrixSum))
+        @. SCor = TMatrix/SMatrixSum
+
+        #display(dropdims(sum(SCor,dims=(2,4)),dims=(2,4)))
+
+        for ii in axes(SCor,4), jj in axes(SCor,3), kk in axes(SCor,2), ll in axes(SCor,1)
+            SMatrix[:,:,ll,kk,jj,ii] *= SCor[ll,kk,jj,ii]
+        end
+
     end
 
-end
-
-function SCorrection2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4})
-
-    # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays
-
-    SMatrixSum = dropdims(sum(SMatrix,dims=(1,2)),dims=(1,2))
-    SCor = zeros(size(SMatrixSum))
-    @. SCor = TMatrix/SMatrixSum
-
-    #display(dropdims(sum(SCor,dims=(2,4)),dims=(2,4)))
-
-    for ii in axes(SCor,4), jj in axes(SCor,3), kk in axes(SCor,2), ll in axes(SCor,1)
-        SMatrix[:,:,ll,kk,jj,ii] *= SCor[ll,kk,jj,ii]
-    end
-
-end
+# ======================================== #

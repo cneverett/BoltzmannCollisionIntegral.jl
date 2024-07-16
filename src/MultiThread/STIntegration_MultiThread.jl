@@ -94,12 +94,13 @@ function SpectraEvaluateMultiThread()
         p3val = prange(p3l,p3u,nump3)
         p1val = prange(p1l,p1u,nump1)
         p2val = prange(p2l,p2u,nump2)
+        p3valfull = [p3val; 2*p3val[end]];
 
         # Momentum space volume elements and symmetries
-        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
-        STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
-        PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
-        #PhaseSpaceFactors2_3D!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)
+        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)      # applies phase space factors for symmetries
+        #p3MaxCorrection!(SMatrix,TMatrix,p3Max,p3valfull)                       # applies correction to phase space due to maximum p3 value in bin (flux limiting factor)
+        STSymmetry!(SMatrix,TMatrix)                                            # initial states are symmetric -> apply symmetry of interaction to improve MC values
+        PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)            # corrects phase space factors for application in kinetic models
                                             
         # correction to better conserve particle number and account for statistical noise of MC method
         #SCorrection2!(SMatrix,TMatrix) 

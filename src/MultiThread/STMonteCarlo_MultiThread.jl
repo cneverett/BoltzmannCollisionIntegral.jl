@@ -70,7 +70,7 @@ ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1];
 
 @btime STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax)
 
-# ------------- =#
+-- =#
 
 function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6})
 
@@ -92,8 +92,6 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     Sval::Float32 = 0f0
     Svalp::Float32 = 0f0
     Tval::Float32 = 0f0
-    sumTerms::Vector{Float32} = zeros(Float32,8)
-    sumTerms2::Vector{Float64} = zeros(Float64,12)
     p3_physical::Bool = true
     p3p_physical::Bool = true
     NumStates::Int64 = 2
@@ -136,23 +134,22 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 p3pv .= p3v
 
                 # Calculate p3 value with checks
-                (p3_physical,p3p_physical,NumStates) = Momentum3Value3!(p3v,p3pv,p1v,p2v)
+                (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v)
 
                 # S Array Tallies
                 # For each t3 sampled, p3 will be + or -ve, corresponding to a change in sign of t3. Therefore by sampling one t3 we are actually sampling t3 and -t3 with one or both having valid p3 states.
-                t3loc = location(t3u,t3l,numt3,p3v[2])
-                t3locMirror = location(t3u,t3l,numt3,-p3v[2])
-                localSAtally[t3loc] += UInt32(1)
-                localSAtally[t3locMirror] += UInt32(1)
+                if NumStates != 0
+                    t3loc = location(t3u,t3l,numt3,p3v[2])
+                    t3locMirror = location(t3u,t3l,numt3,-p3v[2])
+                    localSAtally[t3loc] += UInt32(1)
+                    localSAtally[t3locMirror] += UInt32(1)
+                end
 
                 # Calculate S Array Location
                 if NumStates == 1
-                    #t3loc = location(t3u,t3l,numt3,p3v[2])
-                    #localSAtally[t3loc] += UInt32(1)
                     if p3_physical
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue(p3v,p1v,p2v)
-                        #Sval = SValue2(p3v,p1v,p2v,sumTerms2)
                         localSAtotal[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
                         localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
@@ -161,16 +158,10 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 end
 
                 if NumStates == 2
-                    #t3loc = location(t3u,t3l,numt3,p3v[2])
                     t3ploc = location(t3u,t3l,numt3,p3pv[2])
-                    #localSAtally[t3loc] += UInt32(1)
-                    #if t3ploc != t3loc
-                    #    localSAtally[t3ploc] += UInt32(1)
-                    #end
                     if p3_physical
                         p3loc = locationp3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue(p3v,p1v,p2v)
-                        #Sval = SValue2(p3v,p1v,p2v,sumTerms2)
                         localSAtotal[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
                         localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
@@ -179,7 +170,6 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     if p3p_physical
                         p3ploc = locationp3(p3u,p3l,nump3,p3pv[1])
                         Svalp = SValue(p3pv,p1v,p2v)
-                        #Svalp = SValue2(p3pv,p1v,p2v,sumTerms2)
                         localSAtotal[p3ploc,t3ploc] += Svalp
                         localp3Max[t3ploc] = max(localp3Max[t3ploc],p3pv[1])
                         localt3Min[p3ploc] = min(localt3Min[p3ploc],p3pv[2])

@@ -62,8 +62,8 @@ user defined constant parameters for STIntegration
     numSiter::Int64 = nump3*numt3*5;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point
 
     #For MultiThread
-    numTiterPerThread::Int64 = nump1*numt1*nump2*numt2*110;    # number of T matrix itterations i.e. random p1 p2 points. Should be > nump1*numt1*nump2*numt2 to ensure good sampling.
-    numSiterPerThread::Int64 = nump3*numt3*110;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point. Should be > nump3*numt3 to ensure good sampling.
+    numTiterPerThread::Int64 = nump1*numt1*nump2*numt2*1;    # number of T matrix itterations i.e. random p1 p2 points. Should be > nump1*numt1*nump2*numt2 to ensure good sampling.
+    numSiterPerThread::Int64 = nump3*numt3*1;        # number of S matrix iteration per T matrix iteration i.e. random p3 directions per p1 p2 point. Should be > nump3*numt3 to ensure good sampling.
     nThreads::Int64 = 10;    # number of threads
     
 # ---------------------------------------------- #
