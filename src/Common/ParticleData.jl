@@ -22,7 +22,7 @@
 # ====================== Assign Data ======================== # 
 
     # Hard Sphere
-    pl = -5f0; pu = 4f0; nump = 36; numt = 8;
+    pl = -5f0; pu = 4f0; nump = 72; numt = 8;
     SphData = PD("Sph",pl,pu,nump,numt,1.672622f-27,1836.1528f0)
 
     # Electron

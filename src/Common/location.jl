@@ -65,7 +65,7 @@ function vectorLocation(pu::Float32,pl::Float32,nump::Int64,numt::Int64,vector::
     ctheta = vector[2]
 
     logploc = (logp != pl ? ceil(Int64,Float32(nump)*(logp-pl)/(pu-pl)) : Int64(1))
-    cthetaloc = (ctheta != tu ? ceil(Int64,Float32(numt)*(ctheta-tl)/(tu-tl)) : Int64(1))
+    cthetaloc = (ctheta != tl ? ceil(Int64,Float32(numt)*(ctheta-tl)/(tu-tl)) : Int64(1))
     
     return (logploc,cthetaloc)
     
