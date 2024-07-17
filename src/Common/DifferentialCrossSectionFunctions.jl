@@ -148,12 +148,3 @@ const sigmaNorm_PhoPhoElePos = 3*σT;
 
 # ==================================================================== #
 # ==================================================================== #
-
-# ======= Define Cross Section Functions Based on Particle Selections ========= #
-        
-    name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
-    const sigma = getfield(BinaryInteractionSpectra,name_sigma)
-    name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
-    const dsigmadt = getfield(BinaryInteractionSpectra,name_dsigmadt)
-
-# ============================================================================ #

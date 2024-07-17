@@ -1,12 +1,12 @@
 #= Functions for the S and T integation functions =#
 
 """
-    TValue(p1v,p2v)
+    TValue(p1v,p2v,sigma)
 
-returns 'Tval' with its Tval from MC integration based on initial momentum states 'p1v' and 'p2v'. If initial state fails 'sCheck', i.e. cannot generate a physical output state, Tval is set to 0f0. 
+returns `Tval` with its Tval from MC integration based on initial momentum states `p1v` and `p2v` and cross section `sigma` based on particle selection. If initial state fails `sCheck`, i.e. cannot generate a physical output state, Tval is set to 0f0. 
 Assumes f(x,p,μ)=constant over bin
 """
-function TValue(p1v::Vector{Float32},p2v::Vector{Float32})
+function TValue(p1v::Vector{Float32},p2v::Vector{Float32},sigma::Function)
 
     # define normalised masses
     m1 = mu1
@@ -61,12 +61,12 @@ function TValue(p1v::Vector{Float32},p2v::Vector{Float32})
 end
 
 """
-    SValue(p3v,p1v,p2v)
+    SValue(p3v,p1v,p2v,dsigmadt)
 
-Returns 'Sval' from MC integration based on initial momentum states 'p1v' and 'p2v' and final state 'p3v'.  
+Returns `Sval` from MC integration based on initial momentum states `p1v` and `p2v` and final state `p3v` and differential cross section `dsigmadt` based on particle selection.  
 Assumes f(x,p,μ)=constant over bin
 """
-function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
+function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},dsigmadt::Function)
 
     # define normalise masses
     m1 = mu1

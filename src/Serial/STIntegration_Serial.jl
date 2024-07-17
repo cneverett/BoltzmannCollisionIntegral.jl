@@ -49,9 +49,18 @@ function SpectraEvaluateSerial()
 
     # ===================================== #
 
+    # ======= Define Cross Section Functions Based on Particle Selections ========= #
+
+        name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
+        sigma = getfield(BinaryInteractionSpectra,name_sigma)
+        name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
+        dsigmadt = getfield(BinaryInteractionSpectra,name_dsigmadt)
+
+    # ============================================================================ #
+
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax)
+        STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax,sigma,dsigmadt)
 
     # ===================================== #
 

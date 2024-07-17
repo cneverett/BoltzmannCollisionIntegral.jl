@@ -42,6 +42,15 @@ function SpectraEvaluateMultiThread()
 
     # ====================================== #
 
+    # ======= Define Cross Section Functions Based on Particle Selections ========= #
+
+        name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
+        sigma = getfield(BinaryInteractionSpectra,name_sigma)
+        name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
+        dsigmadt = getfield(BinaryInteractionSpectra,name_dsigmadt)
+
+    # ============================================================================ #
+
     # ======== Set up Array of Locks ====== #
 
         ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1]    
@@ -51,7 +60,7 @@ function SpectraEvaluateMultiThread()
     # ===== Run MonteCarlo Integration ==== #
 
         # Set up workers
-        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax) for _ in 1:nThreads]
+        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax,sigma,dsigmadt) for _ in 1:nThreads]
         
         wait.(workers) # Allow all workers to finish
    
