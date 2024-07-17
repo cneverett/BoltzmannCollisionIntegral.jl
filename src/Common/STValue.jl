@@ -8,8 +8,6 @@ Assumes f(x,p,μ)=constant over bin
 """
 function TValue(p1v::Vector{Float32},p2v::Vector{Float32})
 
-    # returns one t value
-
     # define normalised masses
     m1 = mu1
     m2 = mu2
@@ -69,8 +67,6 @@ Returns 'Sval' from MC integration based on initial momentum states 'p1v' and 'p
 Assumes f(x,p,μ)=constant over bin
 """
 function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
-
-    # returns one s values
 
     # define normalise masses
     m1 = mu1

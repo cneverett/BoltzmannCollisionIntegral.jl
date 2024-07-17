@@ -9,7 +9,11 @@ Function also returns a Int 'NumStates' indicating the number of valid output st
 Requrires normalised masses (mu1,mu2,mu3,mu4) to be defined in advance in Init.jl as const.
 
 # Examples
-```julia-repl
+```jldoctest
+julia> const mu1 = 1836.1528f0
+julia> const mu2 = 1836.1528f0
+julia> const mu3 = 1836.1528f0
+julia> const mu4 = 1836.1528f0
 julia> p1v = [1f0, 0.5f0, 1.8f0]
 julia> p2v = [2f0, 0.2f0, 0.7f0]
 julia> p3v = [0f0, 0.3f0, 0.7f0]
@@ -200,49 +204,3 @@ function Momentum3Value!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector{
     return p3_physical, p3p_physical, NumStates
 
 end
-
-
-#=Testing
-p1v = [1f0, 0.5f0, 1.8f0,]
-p2v = [2f0, 0.2f0, 0.7f0]
-p3v = [0f0 0f0; 0.3f0 0.3f0; 0.7f0 0.7f0]
-p3v = [0f0;0.3f0; 0.7f0]
-p3pv = copy(p3v)
-p3v2 = [p3v p3pv]
-
-Momentum3Value!(p3v2,p1v,p2v)
-p3v2
-
-Momentum3Value2!(p3v,p3pv,p1v,p2v)
-p3v
-p3pv
-
-Momentum3Value3!(p3v,p3pv,p1v,p2v)
-p3v
-p3pv
-
-p3v = Float32[550.49805, 0.6716571, 1.1593782]
-p1v = Float32[1353.1063, 0.9887152, 1.2448756]
-p2v = Float32[279.22748, 0.87663436, 1.7217331]
-
-p3v = Float32[0.006277652, -0.43729234, 0.62806463]
-p1v = Float32[0.008336283, -0.23659337, 0.636328]
-p2v = Float32[0.0055497563, -0.08499956, 0.80733776]
-
-p3v = Float32[7.147129, 0.7736238, 1.9076179]
-p1v = Float32[9.2896595, 0.75850165, 1.802476]
-p2v = Float32[5.56435, 0.6841588, 1.751785]
-
-p3v = Float32[2399.8464, -0.9112277, 0.6679145]
-p1v = Float32[4614.545, -0.737568, 0.6580323]
-p2v = Float32[1833.5154, -0.98802865, 0.08539677]
-
-p3v = Float32[2477.5803, 0.70000625, 1.2908807]
-p2v = Float32[4426.429, 0.68573844, 1.2220751]
-p1v = Float32[3568.4944, 0.15726769, 1.4209498]
-
-p3v = Float32[550.49805, 0.6716571, 1.1593782]
-p1v = Float32[1353.1063, 0.9887152, 1.2448756]
-p2v = Float32[279.22748, 0.87663436, 1.7217331]
-
-Sval = SValue(p3v,p1v,p2v)=#

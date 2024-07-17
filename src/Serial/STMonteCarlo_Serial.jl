@@ -74,12 +74,12 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
 
                 # S Array Tallies
                 # For each t3 sampled, p3 will be + or -ve, corresponding to a change in sign of t3. Therefore by sampling one t3 we are actually sampling t3 and -t3 with one or both having valid p3 states.
-                if NumStates != 0
+                #if NumStates != 0
                     t3loc = location_t(numt3,p3v[2])
                     t3locMirror = location_t(numt3,-p3v[2])
                     SAtallyView[t3loc] += UInt32(1)
                     SAtallyView[t3locMirror] += UInt32(1)
-                end
+                #end
   
                 # Calculate S Array totals
                 if NumStates == 1

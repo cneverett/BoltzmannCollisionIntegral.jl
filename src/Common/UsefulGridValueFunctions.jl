@@ -21,73 +21,151 @@ The "useful quantities" are then used in calculating moments of the distribution
 =#
 
 # =============== Values on Grid Boundaries ====================== #
+"""
+    prange(pl,pu,nump)
 
-    function prange(pl::Float32,pu::Float32,nump::Int64)
-        # returns a vector{Float32} of p grid bounds NOT in Log10 space
-        return 10 .^[range(pl,pu,nump+1);]
-    end
+Returns a (nump+1) vector{Float32} of p-space grid bounds NOT in Log10 space.
 
-    function trange(numt::Int64)
-        # returns a vector{Float32} of t grid bounds in terms of cospi(t)
-        # tl and tu defined as CONST in Init.jl 
-        return [range(tl,tu,numt+1);]
-    end
+# Examples
+```jldoctest
+julia> prange(-5f0,4f0,9)
+10-element Vector{Float32}:
+ 1.0e-5
+ 1.0e-4
+ 1.0e-3
+ 0.01
+ 0.1
+ 1.0
+ 10.0
+ 100.0
+ 1000.0
+ 10000.0
+```
+"""
+function prange(pl::Float32,pu::Float32,nump::Int64)
+    # returns a vector{Float32} of p grid bounds NOT in Log10 space
+    return 10 .^[range(pl,pu,nump+1);]
+end
+
+"""
+    trange(numt)
+
+Returns a (numt+1) vector{Float32} of theta-space grid bounds in terms of cos(theta).
+Upper and lower bounds [tl tu] are defined as CONST in Init.jl as [-1f0 1f0].
+
+# Examples
+```jldoctest
+julia> trange(8)
+9-element Vector{Float32}:
+ -1.0
+ -0.75
+ -0.5
+ -0.25
+  0.0
+  0.25
+  0.5
+  0.75
+  1.0
+```
+"""
+function trange(numt::Int64) 
+    return [range(tl,tu,numt+1);]
+end
 
 # ================================================================ #
 
 # =============== Momentum and Angle Changes over grid cells ===== #
 
-    function deltaVector(valr::Vector{Float32})
-        # inputs a (num+1) vector{Float32} quantitiy values and returns a (num) vector{Float32} of differeces 
+"""
+    deltaVector(valr)
 
-        num = size(valr)[1]-1  # number of grid cells
-        Δ = zeros(Float32,num)
-        
-        for ii in 1:num 
-            Δ[ii] += abs(valr[ii+1] - valr[ii]) # abs accounts for Δμ = Δcosθ = cospi(t i) - cospi(t 1+1)
-        end
+Inputs a (num+1) vector{Float32} quantitiy values (domain bounds) and returns a (num) vector{Float32} of differeces (domain widths).
 
-        return Δ
+# Examples
+```jldoctest
+julia> deltaVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0])
+3-element Vector{Float32}:
+ 9.0
+ 90.0
+ 900.0
+```
+"""
+function deltaVector(valr::Vector{Float32})
+    num = size(valr)[1]-1  # number of grid cells
+    Δ = zeros(Float32,num)
+    
+    for ii in 1:num 
+        Δ[ii] += abs(valr[ii+1] - valr[ii]) # abs accounts for Δμ = Δcosθ = cospi(t i) - cospi(t 1+1)
     end
+
+    return Δ
+end
 
 # ================================================================ #
 
 # ============== Mean Values in Grid Cells ======================= #
 
-    function meanVector(valr::Vector{Float32})
-        # inputs a (num+1) vector{Float32} quantitiy values and returns a (num) vector{Float32} of averages
-        num = size(valr)[1]-1  # number of grid cells
-        mean = zeros(Float32,num)
-        
-        for ii in 1:num 
-            mean[ii] = (valr[ii+1] + valr[ii])/2
-        end
+"""
+    meanVector(valr)
 
-        return mean
+Inputs a (num+1) vector{Float32} of domain bounds and returns a (num) vector{Float32} of mean value in domain range.
+
+# Examples
+```jldoctest
+julia> meanVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0])
+3-element Vector{Float32}:
+ 5.5
+ 55.0
+ 550.0
+```
+"""
+function meanVector(valr::Vector{Float32})
+    num = size(valr)[1]-1  # number of grid cells
+    mean = zeros(Float32,num)
+    
+    for ii in 1:num 
+        mean[ii] = (valr[ii+1] + valr[ii])/2
     end
+
+    return mean
+end
 
 # ================================================================ #
 
 # ========================= "Delta Energy" ======================= #
 
-    function deltaEVector(pr::Vector{Float32},mu::Float32)
-        # inputs a (num+1) vector{Float32} of p grid boundries and the particle mu value and return a (num) vector{Float32} of average energy values per grid cell
-        num = size(pr)[1]-1  # number of grid cells
-        E = zeros(Float32,num+1)
-        ΔE = zeros(Float32,num)
+"""
+    deltaEVector(pr,mu)
 
-        for ii in 1:num+1 
-            E[ii] = mu + pr[ii]^2/(sqrt(mu^2+pr[ii]^2)+mu)
+Inputs a (num+1) vector{Float32} of p grid boundries and the particle mu value and returns a (num) vector{Float32} of average energy values per grid cell.
+
+# Examples
+```jldoctest
+julia> deltaEVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0], 1.0f0)
+3-element Vector{Float32}:
+ 50.600693
+ 4951.15
+ 495001.16
+```
+"""
+function deltaEVector(pr::Vector{Float32},mu::Float32)
+
+    num = size(pr)[1]-1  # number of grid cells
+    E = zeros(Float32,num+1)
+    ΔE = zeros(Float32,num)
+
+    for ii in 1:num+1 
+        E[ii] = mu + pr[ii]^2/(sqrt(mu^2+pr[ii]^2)+mu)
+    end 
+
+    for ii in 1:num 
+        ΔE[ii] = (pr[ii+1]-pr[ii])*mu
+        ΔE[ii] += pr[ii+1]^3/(E[ii+1]+mu) - pr[ii]^3/(E[ii]+mu) 
+        ΔE[ii] += mu^2*(asinh(pr[ii+1]/mu)-asinh(pr[ii]/mu))
+        ΔE[ii] /= 2f0
         end 
 
-        for ii in 1:num 
-            ΔE[ii] = (pr[ii+1]-pr[ii])*mu
-            ΔE[ii] += pr[ii+1]^3/(E[ii+1]+mu) - pr[ii]^3/(E[ii]+mu) 
-            ΔE[ii] += mu^2*(asinh(pr[ii+1]/mu)-asinh(pr[ii]/mu))
-            ΔE[ii] /= 2f0
-         end 
-
-        return ΔE
-    end
+    return ΔE
+end
 
 # ================================================================ #
