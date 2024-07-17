@@ -4,164 +4,156 @@ This defines the differential/total cross section function and its normalisation
 
 =#
 
-#= if (name1 == name2 == name3 == name4) # all particles identical (1S 1T)
-    export dsigmadt, dsigmadtn, sigma, sigman
-elseif ((name1 == name2) && (name3 == name4))   # input particles are identical and final particles are identical (2T 2S)
-    error("not yet implimented")
-elseif ((name1 == name3) && (name2 == name4))   # input states and final state are identical (1T 2S)
-    error("not yet implimented")
-elseif (name1 == name2) && (name3 != name4) ||  (name1 != name2) && (name3 == name4) # either states 12 (or 34) are identical, but the other states 34 (or 12)  are not ()
-    error("not yet implimented")
-elseif (name1 != name2 != name3 != name4) # not particles identical
-    error("not yet implimented")
-else
-    error("particle states not considered")
-end =#
-
 # Dependancies  
 include("MyPhysicalConstants.jl")
 
-#======================= Hard Sphere Collisions ===============================#
+# ====================== Hard Sphere Collisions ============================== #
 
-if (name1 == "Sph" && name2 == "Sph" && name3 == "Sph" && name4 == "Sph")
-    # Hard sphere collisions
-    function dsigmadt(s::Float32,t::Float32)
-        
+"""
+    dsigmadt_SphSphSphSph(sSmol,sBig,tSmol,tBig,uSmol,uBig)
+
+returns the differential cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4
+
+# Arguments
+- `sSmol::Float32` : s - sBig
+- `sBig::Float32` : (m1+m2)^2
+- `tSmol::Float32` : t - tBig
+- `tBig::Float32` : (m3-m1)^2
+- `uSmol::Float32` : u - uBig
+- `uBig::Float32` : (m2-m3)^2
+"""
+function dsigmadt_SphSphSphSph(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
+
+    #=
         1f0/(s-4*muSph^2)
-
-    end
-
-    function dsigmadt(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
-        
-        1f0/(sSmol#=+(sBig-4*muSph^2)=#) # sBig = (m3+m4)^2=4musph^2
-
-    end
-
-    function sigma(s::Float32)
-        
-        1f0/2f0 # factor of 2 accounts for identical final states
-
-    end
-
-    function sigma(sSmol::Float32,sBig::Float32)
-        
-        1f0/2f0 # factor of 2 accounts for identical final states
-
-    end
-
-    #Float64 versions
-    function dsigmadt(s::Float64,t::Float64)
-        
-        1f0/(s-4*muSph^2)
-
-    end
-    function dsigmadt(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
-        
-        1e0/(sSmol#=+(sBig-4*muSph^2)=#) # sBig = (m3+m4)^2=4musph^2
-
-    end
-
-    function sigma(s::Float64)
-        
-        1e0/2e0 # factor of 2 accounts for identical final states
-
-    end
-
-    function sigma(sSmol::Float64,sBig::Float64)
-        
-        1e0/2e0 # factor of 2 accounts for identical final states
-
-    end
-
-    const dsigmadtn = Float32(pi)*(2f0*RSph)^2
-    const sigman = Float32(pi)*(2f0*RSph)^2
-
-    return nothing
+        sBig = (m3+m4)^2=4musph^2
+        sSmol = s - sBig
+    =#
+    1f0/(sSmol) 
 
 end
 
-#=======================================================================#
+"""
+    sigma_SphSphSphSph(sSmol,sBig)
+
+returns the total cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4
+
+# Arguments
+- `sSmol::Float32` : s - sBig
+- `sBig::Float32` : (m1+m2)^2
+"""
+function sigma_SphSphSphSph(sSmol::Float32,sBig::Float32)
+    
+    1f0/2f0 # factor of 2 accounts for identical final states
+
+end
+
+const dsigmadtNorm_SphSphSphSph = Float32(pi)*(2f0*RSph)^2
+const sigmanNorm_SphSphSphSph = Float32(pi)*(2f0*RSph)^2
+
+# ======================================================================= #
 
 #============== Electron Positron Annihilation to Two Photons ==========#
 
-if (name1 == "Ele" && name2 == "Pos" && name3 == "Pho" && name4 == "Pho")
-    # Hard sphere collisions
-    function dsigmadt(s::Float32,t::Float32) # Berestetskii (88.4)
-        
-        -(1/(s(s-4)))*((1/(t-1)+1/(1-s-t))^2+(1/(t-1)+1/(1-s-t))-(1/4)*((t-1)/(1-s-t)+(1-s-t)/(t-1)))
+"""
+    dsigmadt_ElePosPhoPho(sSmol,sBig,tSmol,tBig,uSmol,uBig)
 
-    end
+returns the differential cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.4)
 
-    function dsigmadt(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
-        
-        s = sSmol+sBig # sBig = (m1+m2)^2 = 4 (normalised units) -> s = sSmol + 4
-        #t = tSmol+tBig # tBig = (m3-m1)^2 = 1 (normalised units) -> t = tSmol + 1
-        #u = uSmol+uBig # uBig = (m2-m3)^2 = 1 (normalised units) -> u = uSmol + 1
-        -(1/((s)*(sSmol)))*((1/(tSmol)+1/(uSmol))^2+(1/(tSmol)+1/(uSmol))-(1/4)*((tSmol)/(uSmol)+(uSmol)/(tSmol)))
+# Arguments
+- `sSmol::Float32` : s - sBig
+- `sBig::Float32` : (m1+m2)^2 = 4 (normalised units) -> s = sSmol + 4
+- `tSmol::Float32` : t - tBig
+- `tBig::Float32` : (m3-m1)^2 = 1 (normalised units) -> t = tSmol + 1
+- `uSmol::Float32` : u - uBig
+- `uBig::Float32` : (m2-m3)^2 = 1 (normalised units) -> u = uSmol + 1
+"""
+function dsigmadt_ElePosPhoPho(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
 
-    end
-
-    function sigma(s::Float32) # Berestetskii (88.6)
-        
-        (1/(4*s^2*(s-4)))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
-
-    end
-
-    function sigma(sSmol::Float32,sBig::Float32)
-
-        s = sSmol+sBig
-        (1/(4*(sSmol)*s^2))*((sSmol^2+12*sSmol+24)*log((s+sSmol+2*sqrt(sSmol*s))/(sBig))-(sSmol+8)*sqrt((s)*(sSmol)))
-
-    end
-
-    const dsigmadtn = 3*σT;
-    const sigman = 3*σT;
-
-    return nothing
+    # -(1/(s(s-4)))*((1/(t-1)+1/(1-s-t))^2+(1/(t-1)+1/(1-s-t))-(1/4)*((t-1)/(1-s-t)+(1-s-t)/(t-1)))
+    
+    s = sSmol+sBig
+    -(1/((s)*(sSmol)))*((1/(tSmol)+1/(uSmol))^2+(1/(tSmol)+1/(uSmol))-(1/4)*((tSmol)/(uSmol)+(uSmol)/(tSmol)))
 
 end
+
+"""
+    sigma_ElePosPhoPho(sSmol,sBig)
+
+returns the total cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.6)
+
+# Arguments
+- `sSmol::Float32` : s - sBig
+- `sBig::Float32` : (m1+m2)^2 = 4 (normalised units) -> s = sSmol + 4
+"""
+function sigma_ElePosPhoPho(sSmol::Float32,sBig::Float32)
+
+    #(1/(4*s^2*(s-4)))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
+
+    s = sSmol+sBig
+    (1/(4*(sSmol)*s^2))*((sSmol^2+12*sSmol+24)*log((s+sSmol+2*sqrt(sSmol*s))/(sBig))-(sSmol+8)*sqrt((s)*(sSmol)))
+
+end
+
+const dsigmadtNorm_ElePosPhoPho = 3*σT;
+const sigmaNorm_ElePosPhoPho = 3*σT;
 
 # ==================================================================== # 
 
 
 #======== Electron Positron Pair Production from Two Photons ==========#
 
-if (name1 == "Pho" && name2 == "Pho" && name3 == "Ele" && name4 == "Pos")
-    # Hard sphere collisions
-    function dsigmadt(s::Float32,t::Float32)
-        
-        -(1/(s^2))*((1/(t-1)+1/(1-s-t))^2+(1/(t-1)+1/(1-s-t))-(1/4)*((t-1)/(1-s-t)+(1-s-t)/(t-1)))
+"""
+    dsigmadt_PhoPhoElePos(sSmol,sBig,tSmol,tBig,uSmol,uBig)
 
-    end
+returns the differential cross section for photon-photon annihilation to electron-positron pair. 
 
-    function dsigmadt(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
-        
-        s = sSmol # sBig = (m1+m2)^2 = 0 (normalised units) -> s = sSmol
-        #t = tSmol+tBig # tBig = (m3-m1)^2 = 1 (normalised units) -> t = tSmol + 1
-        #u = uSmol+uBig # uBig = (m2-m3)^2 = 1 (normalised units) -> u = uSmol + 1
-        -(1/(sSmol^2))*((1/(tSmol)+1/(uSmol))^2+(1/(tSmol)+1/(uSmol))-(1/4)*((tSmol)/(uSmol)+(uSmol)/(tSmol)))
+# Arguments
+- `sSmol::Float32` : s - sBig
+- `sBig::Float32` : (m1+m2)^2 = 0 (normalised units) -> s = sSmol
+- `tSmol::Float32` : t - tBig
+- `tBig::Float32` : (m3-m1)^2 = 1 (normalised units) -> t = tSmol + 1
+- `uSmol::Float32` : u - uBig
+- `uBig::Float32` : (m2-m3)^2 = 1 (normalised units) -> u = uSmol + 1
+"""
+function dsigmadt_PhoPhoElePos(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
 
-    end
-
-    function sigma(s::Float32) 
-        
-        (1/(2*s^3))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
-
-    end
-
-    function sigma(sSmol::Float32,sBig::Float32)
-
-        # For photon-photon annihilation, sBig=0 and sSmol=s but still want to avoid float issues with s-4
-        s = sSmol+sBig
-        (1/(2*s^3))*((s^2+4*s-8)*log((2*s-4+2*sqrt(s*(s-4)))/(4))-(s+4)*sqrt(s*(s-4)))
-
-    end
-
-    const dsigmadtn = 3*σT;
-    const sigman = 3*σT;
-
-    return nothing
+    # -(1/(s^2))*((1/(t-1)+1/(1-s-t))^2+(1/(t-1)+1/(1-s-t))-(1/4)*((t-1)/(1-s-t)+(1-s-t)/(t-1)))
+    
+    -(1/(sSmol^2))*((1/(tSmol)+1/(uSmol))^2+(1/(tSmol)+1/(uSmol))-(1/4)*((tSmol)/(uSmol)+(uSmol)/(tSmol)))
 
 end
 
+"""
+    sigma_PhoPhoElePos(sSmol,sBig)
+
+returns the total cross section for photon-photon annihilation to electron-positron pair.
+
+# Arguments
+- `sSmol::Float32` : s - sBig
+- `sBig::Float32` : (m1+m2)^2 = 0 (normalised units) -> s = sSmol
+"""
+function sigma_PhoPhoElePos(sSmol::Float32,sBig::Float32)
+
+    (1/(2*s^3))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
+    s = sSmol+sBig
+    (1/(2*s^3))*((s^2+4*s-8)*log((2*s-4+2*sqrt(s*(s-4)))/(4))-(s+4)*sqrt(s*(s-4)))
+
+end
+
+const dsigmadtNorm_PhoPhoElePos = 3*σT;
+const sigmaNorm_PhoPhoElePos = 3*σT;
+
 # ==================================================================== # 
+
+# ==================================================================== #
+# ==================================================================== #
+
+# ======= Define Cross Section Functions Based on Particle Selections ========= #
+        
+    name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
+    const sigma = getfield(BinaryInteractionSpectra,name_sigma)
+    name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
+    const dsigmadt = getfield(BinaryInteractionSpectra,name_dsigmadt)
+
+# ============================================================================ #
