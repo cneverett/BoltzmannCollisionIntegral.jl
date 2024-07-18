@@ -27,7 +27,7 @@ The "useful quantities" are then used in calculating moments of the distribution
 Returns a (nump+1) vector{Float32} of p-space grid bounds NOT in Log10 space.
 
 # Examples
-```jldoctest
+```julia-repl
 julia> prange(-5f0,4f0,9)
 10-element Vector{Float32}:
  1.0e-5
@@ -54,7 +54,7 @@ Returns a (numt+1) vector{Float32} of theta-space grid bounds in terms of cos(th
 Upper and lower bounds [tl tu] are defined as CONST in Init.jl as [-1f0 1f0].
 
 # Examples
-```jldoctest
+```julia-repl
 julia> trange(8)
 9-element Vector{Float32}:
  -1.0
@@ -82,7 +82,7 @@ end
 Inputs a (num+1) vector{Float32} quantitiy values (domain bounds) and returns a (num) vector{Float32} of differeces (domain widths).
 
 # Examples
-```jldoctest
+```julia-repl
 julia> deltaVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0])
 3-element Vector{Float32}:
  9.0
@@ -111,7 +111,7 @@ end
 Inputs a (num+1) vector{Float32} of domain bounds and returns a (num) vector{Float32} of mean value in domain range.
 
 # Examples
-```jldoctest
+```julia-repl
 julia> meanVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0])
 3-element Vector{Float32}:
  5.5
@@ -140,7 +140,7 @@ end
 Inputs a (num+1) vector{Float32} of p grid boundries and the particle mu value and returns a (num) vector{Float32} of average energy values per grid cell.
 
 # Examples
-```jldoctest
+```julia-repl
 julia> deltaEVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0], 1.0f0)
 3-element Vector{Float32}:
  50.600693

@@ -9,11 +9,11 @@ Function also returns a Int 'NumStates' indicating the number of valid output st
 Requrires normalised masses (mu1,mu2,mu3,mu4) to be defined in advance in Init.jl as const.
 
 # Examples
-```jldoctest
-julia> const mu1 = 1836.1528f0
-julia> const mu2 = 1836.1528f0
-julia> const mu3 = 1836.1528f0
-julia> const mu4 = 1836.1528f0
+```julia-repl
+julia> mu1 = 1836.1528f0
+julia> mu2 = 1836.1528f0
+julia> mu3 = 1836.1528f0
+julia> mu4 = 1836.1528f0
 julia> p1v = [1f0, 0.5f0, 1.8f0]
 julia> p2v = [2f0, 0.2f0, 0.7f0]
 julia> p3v = [0f0, 0.3f0, 0.7f0]
@@ -26,7 +26,7 @@ julia> p3v
  2.04505
  0.3
  0.7
-julia> p3vp
+julia> p3pv
  3-element Vector{Float32}
  0.691423
  -0.3

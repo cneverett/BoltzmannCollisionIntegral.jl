@@ -9,25 +9,25 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
     using Documenter
 
     # include common files
-        include("Common/MyPhysicalConstants.jl")
-        include("Common/ParticleData.jl")
-        include("Common\\Init.jl")
-        include("Common\\DifferentialCrossSectionFunctions.jl")
-        include("Common\\Momentum3Values.jl")
-        include("Common\\RandomPoints.jl")
+        include("Common/Constants.jl")
+        #include("Common/ParticleData.jl")
+        include("Common/Init.jl")
+        include("Common/DifferentialCrossSectionFunctions.jl")
+        include("Common/Momentum3Values.jl")
+        include("Common/RandomPoints.jl")
         include("Common/MandelstramChecks.jl")
-        include("Common\\STValue.jl")
+        include("Common/STValue.jl")
         include("Common/UsefulGridValueFunctions.jl")
         include("Common/PhaseSpaceFactors.jl")
         include("Common/Location.jl")
 
     # include serial methods
-        include("Serial\\STIntegration_Serial.jl")
-        include("Serial\\STMonteCarlo_Serial.jl")
+        include("Serial/STIntegration_Serial.jl")
+        include("Serial/STMonteCarlo_Serial.jl")
 
     #include parallel methods
-        include("MultiThread\\STIntegration_MultiThread.jl")
-        include("MultiThread\\STMonteCarlo_MultiThread.jl")
+        include("MultiThread/STIntegration_MultiThread.jl")
+        include("MultiThread/STMonteCarlo_MultiThread.jl")
 
     function fload()
         

@@ -4,7 +4,7 @@
 Returns the index of the bin in which 'val' is contatined based on the 'num' of bins and their 'u' upper and 'l' lower bound.
 
 # Examples
-```jldoctest
+```julia-repl
 julia> location(10f0,0f0,9,2f0)
 2
 ```
@@ -20,7 +20,7 @@ end
 Returns the index of the bin in which the costheta 'val' is contatined based on the 'numt' of bins. Bounds [tl tu] are defined as CONST in Init.jl
 
 # Examples
-```jldoctest
+```julia-repl
 julia> location_t(8,0.5f0)
 6
 ```
@@ -36,7 +36,7 @@ end
 Returns the index of the bin in which 'val' is contatined based on the 'num' of bins and their 'u' upper and 'l' lower bound including overflow and underflow possibilities. Overflow are assigned to num+1 while underflow are assigned to lowest bin i.e. 1.
 
 # Examples
-```jldoctest
+```julia-repl
 julia> location_p3(10f0,1f0,9,2f0)
 2
 julia> location_p3(10f0,1f0,9,11f0) # overflow
@@ -59,7 +59,7 @@ Returns a tuple of bin location for (log10momentum,cos(theta)) based on an input
 costheta bounds [tl tu] are defined as CONST in Init.jl
 
 # Examples
-```jldoctest
+```julia-repl
 julia> vectorLocation(4f0,-5f0,9,8,[1f0,0.5f0,1.5f0])
 (5,6)
 """
