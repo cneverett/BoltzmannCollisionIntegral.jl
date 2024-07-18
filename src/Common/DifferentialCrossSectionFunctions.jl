@@ -43,7 +43,7 @@ end
 returns the total cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4
 
 ```math
-σ = \frac{\pi}{2}R_{\text{Sph}}^2
+σ = \frac{1}{2}
 ```
 
 # Arguments
