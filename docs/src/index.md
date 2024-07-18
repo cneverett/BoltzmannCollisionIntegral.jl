@@ -2,11 +2,11 @@
 
 `BinaryInteractionSpectra.jl` is a package for the evaluation of the collision integral from binary interactions of arbitrary momentum and anisotropic particle distributions using a method of discretisation and Monte-Carlo integration. 
 
-The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions \$f(x^a,\boldsymbol{p})\$ within such a system is dictated by the collisional relativistic Boltzmann equation (neglecting external forcing):
+The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions \$f(x^a,\boldsymbol{p})\$ within such a system is dictated by the collisional relativistic Boltzmann equation:
 ```math
-p_1^\nu\partial_\nu f(x^\mu,\boldsymbol{p}_1)=C(x^\mu,\boldsymbol{p}_1),
+p_1^\nu\partial_\nu f(x^\mu,\boldsymbol{p}_1)+\partial_{p_1^\mu}\left(F^\mu f(x^\mu,\boldsymbol{p}_1))=C(x^\mu,\boldsymbol{p}_1),
 ```
-where \$p^\mu=(p^0,\boldsymbol{p})\$ is the 4-Momentum and \$C(x^a,\boldsymbol{p})\$ is the collision integral. The collision integral is given by 
+where \$p^\mu=(p^0,\boldsymbol{p})\$ is the 4-Momentum and \$C(x^a,\boldsymbol{p})\$ is the collision integral. From here we shall neglect the terms involving advection in space and advection on momentum-space (external forcing), as such the dependence on \$x^\mu\$ is also dropped. The collision integral is given by 
 ```math
     C(\boldsymbol{p}_1)=\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\delta_{34}}W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu)- \frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\delta_{34}}W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)\right],
 ```
@@ -36,9 +36,9 @@ In order to enable the evaluation of the emission and absorption terms, we make 
 - The axisymmetric distribution functions are averaged over phase space intervals \$\Delta p\Delta\mu\$, to generate discrete values i.e. \$f(t,p_i,\mu_j)=\frac{1}{\Delta p_i\Delta\mu_j\int_{\Delta p_i\Delta\mu_j} \mathrm{d}p \mathrm{d}\mu~f(p,\mu)\$, such that they act as if they are constant over that interval of phase space.  
 
 ## Discrete Form of the Boltzmann Equation
-Following the assumptions laid out in the previous section. The axisymmetric, momentum-discrete Boltzmann equation is given by 
+Following the assumptions laid out in the previous section. The axisymmetric, momentum-discrete Boltzmann equation is given by (remember the neglect of space and momentum-space advection terms)
 ```math
-\left(\partial_t+\braket{\beta}_i\braket{\mu}_j\partial_z\right)f_{1,ij}=f_{3,kl}f_{4,mn}S_{34|12,ijklmn}-f_{1,ij}f_{2,kl}T_{12|34,ijkl}
+\partial_t f_{1,ij}=f_{3,kl}f_{4,mn}S_{34|12,ijklmn}-f_{1,ij}f_{2,kl}T_{12|34,ijkl}
 ```
 The discrete emission spectrum term is a 6D array, given by
 ```math
