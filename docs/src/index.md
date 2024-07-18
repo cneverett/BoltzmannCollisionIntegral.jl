@@ -8,15 +8,11 @@ p_1^\nu\partial_\nu f(x^\mu,\boldsymbol{p}_1)=C(x^\mu,\boldsymbol{p}_1),
 ```
 where ``p^\mu=(p^0,\boldsymbol{p})`` is the 4-Momentum and ``C(x^a,\boldsymbol{p})`` is the collision integral. The collision integral is given by 
 ```math
-\begin{multline}
-    C(\boldsymbol{p}_1)=\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\updelta_{34}}W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu)\right. \\ \left.- \frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\updelta_{34}}W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)\right],
-    \end{multline}
+    C(\boldsymbol{p}_1)=\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\updelta_{34}}W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu)- \frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\updelta_{34}}W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)\right],
 ```
 with the transition rate ``W`` being given by:
 ```math
-\begin{equation}
 W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)=\frac{sp_{\text{in}}^{*2}}{\pi}\sigma_{12|34}(s,t)\updelta^{(4)}(p_1^\mu+p_2^\mu-p_3^\mu-p_4^\mu). 
-\end{equation}
 ```
 
 The Boltzmann equation can then be discretised in momentum space by integrating over a discrete volume element ``\Delta^3\boldsymbol{p}_1`` to yield: 
@@ -38,8 +34,12 @@ T_{\text{spe}}(\boldsymbol{p}_1)=\frac{1}{1+\updelta_{34}}\frac{1}{p^0_1}\int\fr
 dictating the rate of loss of particles of a specific type at a specific momentum from the same interaction.
 
 ## Assumptions
-In order to enable the evaluation of the emission and absorption terms, we make the following set of assumptions:  
-- The system is axisymmetric in momentum space coordinates i.e. only dependant on ``p=|\boldsymbol{p}|`` and the cosine of the angle to the axis of symmetry ``\mu`` where ``\hat{z}\cdot\boldsymbol{p}=p\cos\theta=p\mu`` 
+In order to enable the evaluation of the emission and absorption terms, we make the following set of assumptions (dropping dependence on space-time for notational simplicity):  
+- The system is axisymmetric in momentum space coordinates i.e. only dependant on ``p=|\boldsymbol{p}|`` and the cosine of the angle to the axis of symmetry (``\hat{z}``) ``\mu`` where ``\hat{z}\cdot\boldsymbol{p}=p\cos\theta=p\mu`` 
 - The distribution functions are redefined in an axisymmetric form i.e. ``f(\boldsymbol{p})\equiv\frac{f(p,\mu)}{2\pi p^2}``.
 	- This is done such that a single particle is described by the distribution ``f(p,\mu)=\delta(p-p_i)\delta(\mu-\mu_i)``.
-- The axisymmetric distribution functions are averaged over phase space intervals ``\Delta p\Delta\mu``, to generate discrete values i.e. ``f(t,p_i,\mu_j)=\frac{1}{\Delta p_i\Delta\mu_j\Delta z_\alpha}\int_{\Delta p_i\Delta\mu_j\Delta z_\alpha} \mathrm{d}p \mathrm{d}\mu \mathrm{d}z~f(z,t,p,\mu)``, such that they act as if they are constant over that interval of phase space.  
+- The axisymmetric distribution functions are averaged over phase space intervals ``\Delta p\Delta\mu``, to generate discrete values i.e. ``f(t,p_i,\mu_j)=\frac{1}{\Delta p_i\Delta\mu_j\int_{\Delta p_i\Delta\mu_j} \mathrm{d}p \mathrm{d}\mu~f(p,\mu)``, such that they act as if they are constant over that interval of phase space.  
+
+## Discrete Form of the Boltzmann Equation
+Following the assumptions laid out in the previous section. The axisymmetric, momentum-discrete Boltzmann equation is given by 
+$$\left(\partial_t+\braket{\beta}_i\braket{\mu}_j\partial_z\right)f_{1,ij}=f_{3,kl}f_{4,mn}S_{34|12,ijklmn}-f_{1,ij}f_{2,kl}T_{12|34,ijkl}$$
