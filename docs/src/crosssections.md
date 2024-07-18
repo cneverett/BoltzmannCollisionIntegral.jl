@@ -1,9 +1,9 @@
-# Available Binary Interactions
+# Cross Sections
 
-Below is a list of the currently available binary interactions:
-- Collision of hard spheres
-- Photon pair production from electron positron annihilation
-- Electron positron pair production from photon pair annihilation
+Below is a list of the currently available binary interaction cross sections that have been implemented:
+- Collision of hard spheres `SphSphSphSph`
+- Photon pair production from electron positron annihilation `ElePosPhoPho`
+- Electron positron pair production from photon pair annihilation `PhoPhoElePos`
 
 ## Differential and total cross section functions:
 

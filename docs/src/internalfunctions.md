@@ -6,6 +6,10 @@ using BinaryInteractionSpectra
 end
 ```
 
+```@autodocs
+Modules = [BinaryInteractionSpectra]
+```
+
 ```@docs
 prange
 trange
