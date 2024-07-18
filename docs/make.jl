@@ -7,7 +7,7 @@ makedocs(
          modules  = [BinaryInteractionSpectra],
          pages=[
                 "Overview" => "index.md",
-                "Quick Start" => "quickstart.md",
+                "Getting Started" => "quickstart.md",
                 "Cross Sections" => "crosssections.md",
                 "Internal Functions" => "internalfunctions.md"
                ])
