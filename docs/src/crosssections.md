@@ -1,4 +1,4 @@
-# Binary Interactions
+# Available Binary Interactions
 
 Below is a list of the currently available binary interactions:
 - Collision of hard spheres
