@@ -61,6 +61,6 @@ T_{val}=\frac{1}{1+\delta_{12}}\frac{\mathcal{F}_{12}(s)\sigma_{12|34}(s)}{p^0p_
 Given a user input of interaction to evaluate and what discretisation to use, the discrete emission spectrum ``S_{12|34,ijklmn}`` (note the change of order of the interaction) and absorption spectrum ``T_{12|34,ijkl}`` are solved simultaneously by Monte-Carlo integration. The evaluation is performed by the functions `SpectraEvaluateSerial()` or `SpectralEvaluateMultiThread()` depending on if the code is to run in serially on a single core or multi-threaded on multiple cores of a single CPU. The code will then save the resulting multidimensional arrays.
 
 !!! warning 
-    The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated and stored as `SConverge` and `TConverge` in the output file.
+    The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated (based on comparison to the output of the previous run) and stored as `SConverge` and `TConverge` in the output file.
 
 An in-depth setup guide is provided in the [Getting Started](@ref getting_started) section.  
