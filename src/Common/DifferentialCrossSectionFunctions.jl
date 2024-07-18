@@ -14,6 +14,10 @@ include("MyPhysicalConstants.jl")
 
 returns the differential cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4
 
+```math
+\frac{d\sigma}{dt} = \frac{1}{s-4\mu_{\text{Sph}}^2}
+```
+
 # Arguments
 - `sSmol::Float32` : s - sBig
 - `sBig::Float32` : (m1+m2)^2

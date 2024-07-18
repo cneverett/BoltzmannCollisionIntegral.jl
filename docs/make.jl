@@ -15,7 +15,7 @@ makedocs(
             mathengine = MathJax3(Dict(
                 :loader => Dict("load" => ["[tex]/physics"]),
                 :tex => Dict(
-                    #"inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                    "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
                     "tags" => "ams",
                     "packages" => ["base", "ams", "autoload", "physics"],
                 ),
