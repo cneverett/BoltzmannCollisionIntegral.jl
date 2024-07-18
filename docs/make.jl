@@ -8,7 +8,7 @@ makedocs(
          pages=[
                 "Overview" => "index.md",
                 "Quick Start" => "quickstart.md",
-                "Cross Sections" => "crosssections.md"
+                "Cross Sections" => "crosssections.md",
                 "Internal Functions" => "internalfunctions.md"
                ])
 deploydocs(;
