@@ -40,7 +40,7 @@ Following the assumptions laid out in the previous section. The axisymmetric, mo
 ```math
 \left(\partial_t+\braket{\beta}_i\braket{\mu}_j\partial_z\right)f_{1,ij}=f_{3,kl}f_{4,mn}S_{34|12,ijklmn}-f_{1,ij}f_{2,kl}T_{12|34,ijkl}
 ```
-The discrete emission spectrum term is given by
+The discrete emission spectrum term is a 6D array, given by
 ```math
 f_{3,kl}f_{4,mn}S_{34|12,ijklmn}=f(z,t,p_{3,k},\mu_{3,l})f(z,t,p_{4,m},\mu_{4,n})\frac{\Delta p_{3,k}\Delta \mu_{3,l}\Delta p_{4,m}\Delta \mu_{4,n}}{\Delta p_i}\frac{1}{N}\sum^{N}_{a=1}\left[S_{val}\right](\{\boldsymbol{p}_1,\boldsymbol{p}_3,\boldsymbol{p}_4\}_a), 
 ```
@@ -48,7 +48,7 @@ with
 ```math
 S_{val}=\frac{1+\delta_{12}}{1+\delta_{34}}\sum_\pm\frac{2p_\pm^2\mathcal{F}_{34}^2}{ p_3^0p_4^0}\frac{d\sigma_{34|12}}{dt}(s,t_\pm)\frac{1}{p_3^0p_\pm-p_\pm^0p_3\cos\Theta_{\pm3}+p_4^0p_\pm-p_\pm^0p_4\cos\Theta_{\pm4}},
 ```
-while the discrete absorption term is given by
+while the discrete absorption term is a 4D Array, given by
 ```math
 f_{1,ij}f_{2,kl}T_{12|34,ijkl}=f(z,t,p_i,\mu_j)f(z,t,p_{2,k},\mu_{2,l})\Delta\boldsymbol{p}_{2,k}\Delta\mu_{2,l}\frac{1}{N}\sum^{N}_{a=1}\left[T_{val}\right](\{\boldsymbol{p}_1,\boldsymbol{p}_2\}_a),
 ```
@@ -58,4 +58,8 @@ T_{val}=\frac{1}{1+\delta_{12}}\frac{\mathcal{F}_{12}(s)\sigma_{12|34}(s)}{p^0p_
 ```
 
 ## Evaluation
-The discrete emission spectrum ``S_{12|34,ijklmn}`` (note the change of order of the interaction) and absorption spectrum ``T_{12|34,ijkl}`` are solved simultaneously by Monte-Carlo integration. The evaluation is performed by the functions `SpectraEvaluateSerial()` or `SpectralEvaluateMultiThread()` depending on if the code is to run in serially on a single core or multi-threaded on multiple cores of a single CPU. A quick setup guide is provided in the [Getting Started](@ref getting_started)section . 
+Given a user input of interaction to evaluate and what discretisation to use, the discrete emission spectrum ``S_{12|34,ijklmn}`` (note the change of order of the interaction) and absorption spectrum ``T_{12|34,ijkl}`` are solved simultaneously by Monte-Carlo integration. The evaluation is performed by the functions `SpectraEvaluateSerial()` or `SpectralEvaluateMultiThread()` depending on if the code is to run in serially on a single core or multi-threaded on multiple cores of a single CPU. The code will then save the resulting multidimensional arrays.
+
+!!! warning The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated and stored as `SConverge` and `TConverge` in the output file.
+
+A quick setup guide is provided in the [Getting Started](@ref getting_started)section.  
