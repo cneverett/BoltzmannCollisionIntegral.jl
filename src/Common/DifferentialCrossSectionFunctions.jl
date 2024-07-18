@@ -15,7 +15,7 @@ include("MyPhysicalConstants.jl")
 returns the differential cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4
 
 ```math
-\frac{dσ}{dt} = \frac{1}{s-4μ_{\text{Sph}}^2}
+\\frac{dσ}{dt} = \\frac{1}{s-4μ_{\text{Sph}}^2}
 ```
 
 # Arguments
@@ -43,7 +43,7 @@ end
 returns the total cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4
 
 ```math
-σ = \frac{1}{2}
+σ = \\frac{1}{2}
 ```
 
 # Arguments
@@ -69,7 +69,7 @@ const sigmanNorm_SphSphSphSph = Float32(pi)*(2f0*RSph)^2
 returns the differential cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.4)
 
 ```math
-\frac{dσ}{dt} = -\frac{1}{s(s-4)}\left(\left(\frac{1}{t-1}+\frac{1}{u-1}\right)^2+\left(\frac{1}{t-1}+\frac{1}{u-1}\right)-\frac{1}{4}\left(\frac{t-1}{u-1}+\frac{u-1}{t-1}\right)\right)
+\\frac{dσ}{dt} = -\\frac{1}{s(s-4)}\\left(\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)^2+\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)-\\frac{1}{4}\\left(\\frac{t-1}{u-1}+\\frac{u-1}{t-1}\\right)\\right)
 ```
 
 # Arguments
@@ -95,7 +95,7 @@ end
 returns the total cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.6)
 
 ```math
-σ = \frac{1}{4s^2(s-4)}\left((s^2+4s-8)\log\left(\frac{\sqrt{s}+\sqrt{s-4}}{\sqrt{s}-\sqrt{s-4}}\right)-(s+4)\sqrt{s(s-4)}\right)
+σ = \\frac{1}{4s^2(s-4)}\\left((s^2+4s-8)\\log\\left(\\frac{\\sqrt{s}+\\sqrt{s-4}}{\\sqrt{s}-\\sqrt{s-4}}\\right)-(s+4)\\sqrt{s(s-4)}\\right)
 ```
 
 # Arguments
@@ -125,7 +125,7 @@ const sigmaNorm_ElePosPhoPho = 3*σT;
 returns the differential cross section for photon-photon annihilation to electron-positron pair. (Inverse proceess of electron positron annihilation to two photons) 
 
 ```maths
-\frac{dσ}{dt} = -\frac{1}{s^2}\left(\left(\frac{1}{t-1}+\frac{1}{u-1}\right)^2+\left(\frac{1}{t-1}+\frac{1}{u-1}\right)-\frac{1}{4}\left(\frac{t-1}{u-1}+\frac{u-1}{t-1}\right)\right)
+\\frac{dσ}{dt} = -\\frac{1}{s^2}\\left(\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)^2+\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)-\\frac{1}{4}\\left(\\frac{t-1}{u-1}+\\frac{u-1}{t-1}\\right)\\right)
 ```
 
 # Arguments
@@ -150,7 +150,7 @@ end
 returns the total cross section for photon-photon annihilation to electron-positron pair.
 
 ```math
-sigma = \frac{1}{2s^3}\left((s^2+4s-8)\log\left(\frac{\sqrt(s)+\sqrt(s-4)}{\sqrt(s)-\sqrt(s-4)}\right)-(s+4)\sqrt{s(s-4)}\right)
+sigma = \\frac{1}{2s^3}\\left((s^2+4s-8)\\log\\left(\\frac{\\sqrt(s)+\\sqrt(s-4)}{\\sqrt(s)-\\sqrt(s-4)}\\right)-(s+4)\\sqrt{s(s-4)}\\right)
 ```
 
 # Arguments
