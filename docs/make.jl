@@ -1,6 +1,6 @@
 # Inside make.jl
 push!(LOAD_PATH,"../src/")
-#using BinaryInteractionSpectra
+using BinaryInteractionSpectra
 using Documenter
 makedocs(
          sitename = "BinaryInteractionSpectra.jl",
