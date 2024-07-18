@@ -38,16 +38,6 @@ window.MathJax = {
       "autoload",
       "physics"
     ],
-    "inlineMath": [
-      [
-        "$",
-        "$"
-      ],
-      [
-        "\\(",
-        "\\)"
-      ]
-    ],
     "tags": "ams"
   },
   "loader": {
