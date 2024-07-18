@@ -8,7 +8,7 @@ p_1^\nu\partial_\nu f(x^\mu,\boldsymbol{p}_1)=C(x^\mu,\boldsymbol{p}_1),
 ```
 where ``p^\mu=(p^0,\boldsymbol{p})`` is the 4-Momentum and ``C(x^a,\boldsymbol{p})`` is the collision integral. The collision integral is given by 
 ```math
-    C(\boldsymbol{p}_1)=\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\updelta_{34}}W(p_3^\mu,p_4^\mu\|p_1^\mu,p_2^\mu)- \frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\updelta_{34}}W(p_1^\mu,p_2^\mu\|p_3^\mu,p_4^\mu)\right],
+    C(\boldsymbol{p}_1)=\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\updelta_{34}}W(p_3^\mu,p_4^\mu p_1^\mu,p_2^\mu)- \frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\updelta_{34}}W(p_1^\mu,p_2^\mu p_3^\mu,p_4^\mu)\right],
 ```
 with the transition rate ``W`` being given by:
 ```math
@@ -63,4 +63,4 @@ Given a user input of interaction to evaluate and what discretisation to use, th
 !!! warning 
     The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated and stored as `SConverge` and `TConverge` in the output file.
 
-A quick setup guide is provided in the [Getting Started](@ref getting_started) section.  
+An in-depth setup guide is provided in the [Getting Started](@ref getting_started) section.  
