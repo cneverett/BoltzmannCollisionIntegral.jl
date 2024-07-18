@@ -42,6 +42,10 @@ end
 
 returns the total cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4
 
+```math
+\sigma = \frac{\pi}{2}R_{\text{Sph}}^2
+```
+
 # Arguments
 - `sSmol::Float32` : s - sBig
 - `sBig::Float32` : (m1+m2)^2
@@ -64,6 +68,10 @@ const sigmanNorm_SphSphSphSph = Float32(pi)*(2f0*RSph)^2
 
 returns the differential cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.4)
 
+```math
+\frac{d\sigma}{dt} = -\frac{1}{s(s-4)}\left(\left(\frac{1}{t-1}+\frac{1}{u-1}\right)^2+\left(\frac{1}{t-1}+\frac{1}{u-1}\right)-\frac{1}{4}\left(\frac{t-1}{u-1}+\frac{u-1}{t-1}\right)\right)
+```
+
 # Arguments
 - `sSmol::Float32` : s - sBig
 - `sBig::Float32` : (m1+m2)^2 = 4 (normalised units) -> s = sSmol + 4
@@ -85,6 +93,10 @@ end
     sigma_ElePosPhoPho(sSmol,sBig)
 
 returns the total cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.6)
+
+```math
+\sigma = \frac{1}{4s^2(s-4)}\left((s^2+4s-8)\log\left(\frac{\sqrt{s}+\sqrt{s-4}}{\sqrt{s}-\sqrt{s-4}}\right)-(s+4)\sqrt{s(s-4)}\right)
+```
 
 # Arguments
 - `sSmol::Float32` : s - sBig
@@ -110,7 +122,11 @@ const sigmaNorm_ElePosPhoPho = 3*σT;
 """
     dsigmadt_PhoPhoElePos(sSmol,sBig,tSmol,tBig,uSmol,uBig)
 
-returns the differential cross section for photon-photon annihilation to electron-positron pair. 
+returns the differential cross section for photon-photon annihilation to electron-positron pair. (Inverse proceess of electron positron annihilation to two photons) 
+
+```maths
+\frac{d\sigma}{dt} = -\frac{1}{s^2}\left(\left(\frac{1}{t-1}+\frac{1}{u-1}\right)^2+\left(\frac{1}{t-1}+\frac{1}{u-1}\right)-\frac{1}{4}\left(\frac{t-1}{u-1}+\frac{u-1}{t-1}\right)\right)
+```
 
 # Arguments
 - `sSmol::Float32` : s - sBig
@@ -133,13 +149,17 @@ end
 
 returns the total cross section for photon-photon annihilation to electron-positron pair.
 
+```math
+sigma = \frac{1}{2s^3}\left((s^2+4s-8)\log\left(\frac{\sqrt(s)+\sqrt(s-4)}{\sqrt(s)-\sqrt(s-4)}\right)-(s+4)\sqrt{s(s-4)}\right)
+```
+
 # Arguments
 - `sSmol::Float32` : s - sBig
 - `sBig::Float32` : (m1+m2)^2 = 0 (normalised units) -> s = sSmol
 """
 function sigma_PhoPhoElePos(sSmol::Float32,sBig::Float32)
 
-    (1/(2*s^3))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
+    #(1/(2*s^3))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
     s = sSmol+sBig
     (1/(2*s^3))*((s^2+4*s-8)*log((2*s-4+2*sqrt(s*(s-4)))/(4))-(s+4)*sqrt(s*(s-4)))
 
