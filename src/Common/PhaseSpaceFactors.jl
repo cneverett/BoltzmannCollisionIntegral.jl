@@ -1,5 +1,5 @@
 """
-    PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
+    PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val,name1,name2)
 
 Applies phase space volume element factors for 'SMatrix' and 'TMatrix' terms in order to correctly apply 'STSymmetry' corrections. 
 """
@@ -81,7 +81,7 @@ end
 
 
 """
-    STSymmetry!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
+    STSymmetry!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val,mu1,mu2)
 
 To follow 'PhaseSpaceFactors1'. Physical nature of binary interaction has certain symmetries. 'STSymmetry' uses these symmetries to improve MC sampling of 'SMatrix' and 'TMatrix'.
 """

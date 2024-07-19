@@ -4,7 +4,7 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
 =#
 
 """
-    STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax})
+    STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
 
 # Arguments
 - `SAtotal::Array{Float32,6}` : Array of stored integration totals for S matrix
@@ -17,6 +17,11 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
 - `p2v::Vector{Float32}` : Vector of momentum values for species 2
 - `p3Max::Array{Float32,5}` : Array of maximum momentum values for species 3
 - `t3MinMax::Array{Float32,6}` : Array of minimum and maximum theta values for species 3
+- `sigma::Function` : Cross section function for the interaction
+- `dsigmadt::Function` : Differential cross section function for the interaction
+- `Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64}` : Tuple of parameters for the interaction
+- `numTiter::Int64` : Number of T iterations
+- `numSiter::Int64` : Number of S iterations
 
 # Output:
 - Argument arrays SAtotal,TAtotal,SAtally,TAtally are mutated to include the results of the Monte Carlo Integration.
