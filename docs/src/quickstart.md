@@ -17,6 +17,6 @@ The example script `Run_BinaryInteractionSpectra.jl` operates as follows:
 - Define the momentum space discretisation. This includes the upper and lower bounds of momentum for particle species 1,2 and 3 (e.g. `p1l` and `p1u` for species 1) and the number of divisions (bins) for each particles momentum space (e.g. `nump1`).
 - Define the number of divisions for the angular momentum space (i.e. cos(theta) space) for the particle species 1,2 and 3 (e.g. `numt1`). 
 - Deifine the number of Monte-Carlo samples to perform. 
-    - `numTiter` for the number of random sets of ``{\vec{p}_1``,``\vec{p}_2}`` to sample. 
-    - `numSiter` for the number of random ``{\vec{p}_3}`` states to sample per ``{\vec{p}_1``,``\vec{p}_2}``.
+    - `numTiter` for the number of random sets of ${\vec{p}_1,\vec{p}_2}$ to sample. 
+    - `numSiter` for the number of random ${\vec{p}_3}$ states to sample per ${\vec{p}_1,\vec{p}_2}$.
 - If multithreading then define `nThreads` that will be used. This generates `nThreads` workers that perform evaluation in parallel, utilising `locks` to prevent data races.
