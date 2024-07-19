@@ -123,6 +123,8 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
     # ===================================== # 
 
     # ========== Save Arrays ============== #
+
+        OutputParameters = (name1,name2,name3,name4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2)
         
         f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
         write(f,"STotal",SAtotal)
@@ -135,10 +137,7 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
         write(f,"t3MinMax",t3MinMax)
         write(f,"SConverge",SConverge)
         write(f,"TConverge",TConverge)
-        #write(f,"name1Data",eval(Symbol(name1*"Data")))
-        #write(f,"name2Data",eval(Symbol(name2*"Data")))
-        #write(f,"name3Data",eval(Symbol(name3*"Data")))
-        #write(f,"name4Data",eval(Symbol(name4*"Data")))
+        write(f,"Parameters",OutputParameters)
         close(f)
 
     # ===================================== #

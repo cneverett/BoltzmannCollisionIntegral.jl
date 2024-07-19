@@ -10,8 +10,13 @@
 
 Function to run the Monte Carlo integration of the S and T arrays in a multi-threaded environment. The function will run the Monte Carlo integration in parallel across the number of threads specified in the global variable nThreads. The function will then calculate the S and T matricies and save the results to a file.
 """
-function SpectraEvaluateMultiThread()
+function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,String,String,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64,Int64,Int64,String,String})
 
+    # ========= Load user Parameters ======= #
+
+    (name1,name2,name3,name4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2,numTiterPerThread,numSiterPerThread,nThreads,fileLocation,fileName) = userInputMultiThread
+
+    # ====================================== #
 
     # ========= Load/Create Files ========== #
 
@@ -51,6 +56,17 @@ function SpectraEvaluateMultiThread()
 
     # ============================================================================ #
 
+    # ===== Set Particle (normalised) Masses) and Parameters ====== #
+
+        mu1::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name1))
+        mu2::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name2))
+        mu3::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name3))
+        mu4::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name4))
+
+        Parameters = (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2)
+
+    # ============================================================= #
+
     # ======== Set up Array of Locks ====== #
 
         ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump1]    
@@ -60,7 +76,7 @@ function SpectraEvaluateMultiThread()
     # ===== Run MonteCarlo Integration ==== #
 
         # Set up workers
-        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax,sigma,dsigmadt) for _ in 1:nThreads]
+        workers = [STMonteCarloAxi_MultiThread!(SAtotal,TAtotal,SAtally,TAtally,ArrayOfLocks,p3Max,t3MinMax,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread) for _ in 1:nThreads]
         
         wait.(workers) # Allow all workers to finish
    
@@ -93,8 +109,8 @@ function SpectraEvaluateMultiThread()
         p2val = prange(p2l,p2u,nump2)
 
         # Momentum space volume elements and symmetries
-        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)      # applies phase space factors for symmetries                  
-        STSymmetry!(SMatrix,TMatrix)                                            # initial states are symmetric -> apply symmetry of interaction to improve MC values
+        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val,name1,name2)      # applies phase space factors for symmetries                  
+        STSymmetry!(SMatrix,TMatrix,mu1,mu2)                                            # initial states are symmetric -> apply symmetry of interaction to improve MC values
         PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)            # corrects phase space factors for application in kinetic models
                                             
         # correction to better conserve particle number and account for statistical noise of MC method
@@ -110,6 +126,8 @@ function SpectraEvaluateMultiThread()
     # ===================================== # 
 
     # ========== Save Arrays ============== #
+
+        OutputParameters = (name1,name2,name3,name4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2)
         
         f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
         write(f,"STotal",SAtotal)
@@ -122,10 +140,7 @@ function SpectraEvaluateMultiThread()
         write(f,"t3MinMax",t3MinMax)
         write(f,"SConverge",SConverge)
         write(f,"TConverge",TConverge)
-        #write(f,"name1Data",eval(Symbol(name1*"Data")))
-        #write(f,"name2Data",eval(Symbol(name2*"Data")))
-        #write(f,"name3Data",eval(Symbol(name3*"Data")))
-        #write(f,"name4Data",eval(Symbol(name4*"Data")))
+        write(f,"Parameters",OutputParameters)
         close(f)
 
     # ===================================== #

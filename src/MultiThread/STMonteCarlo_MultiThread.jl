@@ -38,7 +38,10 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6},sigma::Function,dsigmadt::Function)
+function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64)
+
+    # Set Parameters
+    (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2) = Parameters
 
     # Set up worker
     Threads.@spawn begin
@@ -71,7 +74,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
         RPointLogMomentum!(p2u,p2l,p2v,nump2)
 
         # Tval
-        Tval = TValue(p1v,p2v,sigma)
+        Tval = TValue(p1v,p2v,sigma,mu1,mu2,mu3,mu4)
         # Calculate T Array Location
         (p1loc,t1loc) = vectorLocation(p1u,p1l,nump1,numt1,p1v)
         (p2loc,t2loc) = vectorLocation(p2u,p2l,nump2,numt2,p2v)
@@ -93,7 +96,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 p3pv .= p3v
 
                 # Calculate p3 value with checks
-                (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v)
+                (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v,mu1,mu2,mu3,mu4)
 
                 # S Array Tallies
                 # For each t3 sampled, p3 will be + or -ve, corresponding to a change in sign of t3. Therefore by sampling one t3 we are actually sampling t3 and -t3 with one or both having valid p3 states.
@@ -108,7 +111,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 if NumStates == 1
                     if p3_physical
                         p3loc = location_p3(p3u,p3l,nump3,p3v[1])
-                        Sval = SValue(p3v,p1v,p2v,dsigmadt)
+                        Sval = SValue(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
                         localSAtotal[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
                         localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
@@ -120,7 +123,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     t3ploc = location_t(numt3,p3pv[2])
                     if p3_physical
                         p3loc = location_p3(p3u,p3l,nump3,p3v[1])
-                        Sval = SValue(p3v,p1v,p2v,dsigmadt)
+                        Sval = SValue(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
                         localSAtotal[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
                         localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
@@ -128,7 +131,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     end
                     if p3p_physical
                         p3ploc = location_p3(p3u,p3l,nump3,p3pv[1])
-                        Svalp = SValue(p3pv,p1v,p2v,dsigmadt)
+                        Svalp = SValue(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3)
                         localSAtotal[p3ploc,t3ploc] += Svalp
                         localp3Max[t3ploc] = max(localp3Max[t3ploc],p3pv[1])
                         localt3Min[p3ploc] = min(localt3Min[p3ploc],p3pv[2])
