@@ -2,7 +2,7 @@
 
 `BinaryInteractionSpectra.jl` is a package for the evaluation of the collision integral from binary interactions of arbitrary momentum and anisotropic particle distributions using a method of discretisation and Monte-Carlo integration. 
 
-The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions ``f(x^a,\boldsymbol{p})`` within such a system is dictated by the collisional relativistic Boltzmann equation:
+The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions ``f(x^\mu,\boldsymbol{p})`` within such a system is dictated by the collisional relativistic Boltzmann equation:
 ```math
 p_1^\nu\partial_\nu f(x^\mu,\boldsymbol{p}_1)+\partial_{p_1^\mu}\left(F^\mu f(x^\mu,\boldsymbol{p}_1)\right)=C(x^\mu,\boldsymbol{p}_1),
 ```
