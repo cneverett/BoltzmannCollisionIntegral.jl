@@ -1,6 +1,6 @@
 # Implemented Particles and Binary Interactions
 
-## [Particles](@id particle_list) 
+## Particles
 Below is a table of the currently implemented particles (i.e. their particle properties are defined within the code)
 | Particle | Abr. String | Notes  | 
 |----------|-------------|--------|
@@ -9,7 +9,7 @@ Below is a table of the currently implemented particles (i.e. their particle pro
 | Positron | `"Pos"`     |          | 
 | Proton   | `"Pro"`     |          |
 
-## [Implemented Interactions](@id implemented_interactions):
+## Implemented Interactions:
 
 These binary interactions have currently been implemented:
 - Collision of hard spheres `SphSphSphSph`

@@ -1,4 +1,4 @@
-# [Getting Started](@id getting_started)
+# Getting Started
 
 First install the package by 
 ... TO BE UPDATED ONCE PACKAGE IS PUBLICLY AVAILABLE

@@ -63,4 +63,4 @@ Given a user input of interaction to evaluate and what discretisation to use, th
 !!! warning 
     The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated (based on comparison to the output of the previous run) and stored as `SConverge` and `TConverge` in the output file.
 
-An in-depth setup guide is provided in the [Getting Started](@ref getting_started) section.  
+An in-depth setup guide is provided in the [Getting Started](@ref) section.  
