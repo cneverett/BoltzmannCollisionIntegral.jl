@@ -16,7 +16,7 @@ For more information see the [Documentation](https://cneverett.github.io/BinaryI
 ## Usage
 ---
 
-See [Getting Started](https://cneverett.github.io/BinaryInteractionSpectra.jl/dev/Getting Started/) for in depth detail. But in brief:
+See [Getting Started](https://cneverett.github.io/BinaryInteractionSpectra.jl/dev/quickstart/) for in depth detail. But in brief:
 
 After installing the package, run 
 ```julia
