@@ -5,3 +5,6 @@
 /src/FunctionTestingGround/
 
 /docs/build/
+
+#Testing branch specific
+/docs/
