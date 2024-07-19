@@ -12,8 +12,8 @@ First install the package by
 
 The example script `Run_BinaryInteractionSpectra.jl` operates as follows:
 - Define the names of the 4 particles involved in the interaction (12->34) as the strings `name1` `name2` `name3` `name4`
-    - These should of the form of three letters, which abbreviate the particles full name (see [Particles](@ref particle_list) for list of currently implemented particles).
-    - They should be ordered to match a currently [Implemented Interaction](@ref implemented_interactions)
+    - These should of the form of three letters, which abbreviate the particles full name (see [Particles](@ref) for list of currently implemented particles).
+    - They should be ordered to match a currently [Implemented Interaction](@ref)
 - Define the momentum space discretisation. This includes the upper and lower bounds of momentum for particle species 1,2 and 3 (e.g. `p1l` and `p1u` for species 1) and the number of divisions (bins) for each particles momentum space (e.g. `nump1`).
 - Define the number of divisions for the angular momentum space (i.e. cos(theta) space) for the particle species 1,2 and 3 (e.g. `numt1`). 
 - Deifine the number of Monte-Carlo samples to perform. 
