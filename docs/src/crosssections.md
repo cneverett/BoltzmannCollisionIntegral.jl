@@ -9,7 +9,7 @@ Below is a table of the currently implimetned particles (i.e. their particle pro
 | Positron | `"Pos"`     |          | 
 | Proton   | `"Pro"`     |          |
 
-## [Implimented Interactions](@id implimented_interactions):
+## [Implimented Interactions](@id implemented_interactions):
 
 These binary interactions have currently been implemented:
 - Collision of hard spheres `SphSphSphSph`
