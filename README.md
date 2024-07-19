@@ -11,15 +11,19 @@ Evaluation is performed by assuming that the distribution function is constant o
 
 Evaluation currently supports both single and multithreaded operation.
 
+For more information see the [Documentation](https://cneverett.github.io/BinaryInteractionSpectra.jl/).
+
 ## Usage
 ---
+
+See [Getting Started](https://cneverett.github.io/BinaryInteractionSpectra.jl/dev/Getting Started) for in depth detail. But in brief:
 
 After installing the package, run 
 ```julia
 using BinaryInteractionSpectra
 ```
 
-To perform an evaluation of the emission and absorption spectra, an example script `Run_BinaryInteractionSpectra.jl` for selecting the binary interaction, discrete phase space bounds and integration conditions is located under the `src/Common` folder of the package. It is recommended to copy this script and place it in your working folder and edit the fields as you require. Then simply run
-```julia
-Run_BinaryInteractionSpectra.jl
+To perform an evaluation of the emission and absorption spectra, an example script `Run_BinaryInteractionSpectra.jl` for selecting the binary interaction, discrete phase space bounds and integration conditions is located under the `src/Common/` folder of the package. It is recommended to copy this script and place it in your working folder and edit the fields as you require. Then simply run
+```julia-repl
+include("Run_BinaryInteractionSpectra.jl")
 ``` 

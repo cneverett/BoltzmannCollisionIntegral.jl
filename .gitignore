@@ -6,9 +6,5 @@
 
 /docs/build/
 
-#Testing branch specific
-/docs/
-/.github/
-
 # Testing version of this file, not stored in \src\Common\
 /Run_BinaryInteractionSpectra.jl
