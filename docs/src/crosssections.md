@@ -2,12 +2,13 @@
 
 ## Particles
 Below is a table of the currently implemented particles (i.e. their particle properties are defined within the code)
-| Particle | Abr. String | Notes  | 
-|----------|-------------|--------|
-| Sphere   | `"Sph"`     |  Mass taken to be the mass of the Proton   | 
-| Electron | `"Ele"`     |          | 
-| Positron | `"Pos"`     |          | 
-| Proton   | `"Pro"`     |          |
+
+| Particle | Abr. String | Notes                                        | 
+| -------- | ----------- | -------------------------------------------- |
+| Sphere   | `"Sph"`     |  Mass taken to be the mass of the Proton     | 
+| Electron | `"Ele"`     |                                              | 
+| Positron | `"Pos"`     |                                              | 
+| Proton   | `"Pro"`     |                                              |
 
 ## Implemented Interactions
 

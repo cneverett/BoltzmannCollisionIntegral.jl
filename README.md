@@ -3,7 +3,6 @@
 [![Build Status](https://github.com/cneverett/BinaryInteractionSpectra.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/cneverett/BinaryInteractionSpectra.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
 ## Overview
----
 
 `BinaryInteractionSpectra.jl` is a [Julia](http://julialang.org/) package for the evaluation of the relativistic collision integral for binary interactions (12->34):
 ```math
@@ -18,7 +17,6 @@ Evaluation currently supports both single and multithreaded operation.
 For more information see the [Documentation](https://cneverett.github.io/BinaryInteractionSpectra.jl/).
 
 ## Usage
----
 
 See [Getting Started](https://cneverett.github.io/BinaryInteractionSpectra.jl/dev/quickstart/) for in depth detail. But in brief:
 

@@ -3,7 +3,7 @@
 First install the package by 
 ... TO BE UPDATED ONCE PACKAGE IS PUBLICLY AVAILABLE
 
-!!! Note
+!!! note
     An example script `Run_BinaryInteractionSpectra.jl` for setting up and running the evaluation of the discrete collision integral can be found under `src/Common/` of the package. It is recommended that you copy this script to your working directory, edit the relevant fields and then running, either using the command 
     ```julia-repl
     include("Run_BinaryInteractionSpectra.jl)
