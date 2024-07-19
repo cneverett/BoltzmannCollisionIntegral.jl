@@ -3,19 +3,17 @@
 
 Applies phase space volume element factors for 'SMatrix' and 'TMatrix' terms in order to correctly apply 'STSymmetry' corrections. 
 """
-function PhaseSpaceFactors1!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32},p2val::Vector{Float32},t2val::Vector{Float32})
+function PhaseSpaceFactors1!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},t3val::Vector{Float32},p1val::Vector{Float32},t1val::Vector{Float32},p2val::Vector{Float32},t2val::Vector{Float32},name1::String,name2::String)
 
     # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays such that the symmetries can be applied.
 
     # Momentum space volume elements
-    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1
-        for mm in 1:numt3
-            for nn in 1:nump3
-                SMatrix[nn,mm,ll,kk,jj,ii] *= t3val[mm+1]-t3val[mm] # dmu3
-                SMatrix[nn,mm,ll,kk,jj,ii] *= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
-                SMatrix[nn,mm,ll,kk,jj,ii] *= (t2val[ii]-t2val[ii+1])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
-                SMatrix[nn,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
-            end
+    for ii in axes(SMatrix,6), jj in axes(SMatrix,5), kk in axes(SMatrix,4), ll in axes(SMatrix,3)
+        for mm in axes(SMatrix,2), nn in 1:size(SMatrix,1)-1
+            SMatrix[nn,mm,ll,kk,jj,ii] *= t3val[mm+1]-t3val[mm] # dmu3
+            SMatrix[nn,mm,ll,kk,jj,ii] *= (t1val[kk]-t1val[kk+1])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
+            SMatrix[nn,mm,ll,kk,jj,ii] *= (t2val[ii]-t2val[ii+1])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
+            SMatrix[nn,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
         end
         TMatrix[ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
         TMatrix[ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
@@ -32,11 +30,11 @@ function PhaseSpaceFactors1!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
     =#
 
     # overflow bin size assumed to be up to 1*maximum p3val 
-    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
-        SMatrix[nump3+1,mm,ll,kk,jj,ii] *= (t3val[mm+1]-t3val[mm]) # dmu3
-        SMatrix[nump3+1,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
-        SMatrix[nump3+1,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
-        SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
+    for ii in axes(SMatrix,6), jj in axes(SMatrix,5), kk in axes(SMatrix,4), ll in axes(SMatrix,3), mm in axes(SMatrix,2)
+        SMatrix[end,mm,ll,kk,jj,ii] *= (t3val[mm+1]-t3val[mm]) # dmu3
+        SMatrix[end,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
+        SMatrix[end,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
+        SMatrix[end,mm,ll,kk,jj,ii] /= (1f0+Float32(name1==name2))
     end
 
     return nothing
@@ -54,14 +52,12 @@ function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
     # Function that divides the S T elements by dp3dmu3 or equivilant to then be used in kinetic models
 
     # Momentum space volume elements
-    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1
-        for mm in 1:numt3
-            for nn in 1:nump3
-                if nn == 1 # must account for underflow values increasing bin size (perhaps not)
-                SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn])# dp3dmu3 
-                else
-                SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn]) # dp3dmu3 
-                end
+    for ii in axes(SMatrix,6), jj in axes(SMatrix,5), kk in axes(SMatrix,4), ll in axes(SMatrix,3)
+        for mm in axes(SMatrix,2), nn in 1:size(SMatrix,1)-1
+            if nn == 1 # must account for underflow values increasing bin size (perhaps not)
+            SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn])# dp3dmu3 
+            else
+            SMatrix[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn]) # dp3dmu3 
             end
         end
         TMatrix[ll,kk,jj,ii] /= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1      
@@ -75,8 +71,8 @@ function PhaseSpaceFactors2!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4}
     =#
 
     # overflow bin size assumed to be up to 1*maximum p3val 
-    for ii in 1:numt2, jj in 1:nump2, kk in 1:numt1, ll in 1:nump1, mm in 1:numt3
-        SMatrix[nump3+1,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nump3+1]) # dp3dmu3
+    for ii in axes(SMatrix,6), jj in axes(SMatrix,5), kk in axes(SMatrix,4), ll in axes(SMatrix,3), mm in axes(SMatrix,2)
+        SMatrix[end,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[end]) # dp3dmu3
     end
 
     return nothing
@@ -89,7 +85,7 @@ end
 
 To follow 'PhaseSpaceFactors1'. Physical nature of binary interaction has certain symmetries. 'STSymmetry' uses these symmetries to improve MC sampling of 'SMatrix' and 'TMatrix'.
 """
-function STSymmetry!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4})
+function STSymmetry!(SMatrix::Array{Float32,6},TMatrix::Array{Float32,4},mu1::Float32,mu2::Float32)
 
     # The S and T matricies are symmetric in two ways. 
     # FIRST: they are ALWAYS symmetric with respect to θ->π-θ for all particle momentum states

@@ -5,7 +5,13 @@
 
 Function to run the Monte Carlo integration of the S and T arrays in a serial environment. The function will run the Monte Carlo integration in serial and then calculate the S and T matricies and save the results to a file.
 """
-function SpectraEvaluateSerial()
+function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,String,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64,Int64,String,String})
+
+    # ========= Load user Parameters ======= #
+
+        (name1,name2,name3,name4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2,numTiter,numSiter,fileLocation,fileName) = userInputSerial
+
+    # ====================================== #
 
     # ========= Load/Create Files ========== #
 
@@ -49,18 +55,29 @@ function SpectraEvaluateSerial()
 
     # ===================================== #
 
-    # ======= Define Cross Section Functions Based on Particle Selections ========= #
+    # ======= Define Cross Section Functions Based on Particle Selections ======== #
 
         name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
-        sigma = getfield(BinaryInteractionSpectra,name_sigma)
+        sigma::Function = getfield(BinaryInteractionSpectra,name_sigma)
         name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
-        dsigmadt = getfield(BinaryInteractionSpectra,name_dsigmadt)
+        dsigmadt::Function = getfield(BinaryInteractionSpectra,name_dsigmadt)
 
     # ============================================================================ #
 
+    # ===== Set Particle (normalised) Masses) and Parameters ====== #
+
+        mu1::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name1))
+        mu2::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name2))
+        mu3::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name3))
+        mu4::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name4))
+
+        Parameters = (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2)
+
+    # ============================================================= #
+
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax,sigma,dsigmadt)
+        STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
 
     # ===================================== #
 
@@ -90,8 +107,8 @@ function SpectraEvaluateSerial()
         p2val = prange(p2l,p2u,nump2)
 
         # Momentum space volume elements and symmetries
-        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)    #applies phase space factors for symmetries
-        STSymmetry!(SMatrix,TMatrix)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
+        PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val,name1,name2)    #applies phase space factors for symmetries
+        STSymmetry!(SMatrix,TMatrix,mu1,mu2)                                        #initial states are symmetric -> apply symmetry of interaction to improve MC values
         PhaseSpaceFactors2!(SMatrix,TMatrix,p3val,t3val,p1val,t1val)    #corrects phase space factors for application in kinetic models
                                  
         # correction to better conserve particle number and account for statistical noise of MC method

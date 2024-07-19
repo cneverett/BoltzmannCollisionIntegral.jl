@@ -1,16 +1,18 @@
 #= Functions for the S and T integation functions =#
 
 """
-    TValue(p1v,p2v,sigma)
+    TValue(p1v,p2v,sigma,mu1,mu2)
 
 returns `Tval` with its Tval from MC integration based on initial momentum states `p1v` and `p2v` and cross section `sigma` based on particle selection. If initial state fails `sCheck`, i.e. cannot generate a physical output state, Tval is set to 0f0. 
 Assumes f(x,p,μ)=constant over bin
 """
-function TValue(p1v::Vector{Float32},p2v::Vector{Float32},sigma::Function)
+function TValue(p1v::Vector{Float32},p2v::Vector{Float32},sigma::Function,mu1::Float32,mu2::Float32,mu3::Float32,mu4::Float32)
 
     # define normalised masses
     m1 = mu1
     m2 = mu2
+    m3 = mu3
+    m4 = mu4
 
     # pre-defining terms for efficiency 
     p1::Float32 = p1v[1]
@@ -43,7 +45,7 @@ function TValue(p1v::Vector{Float32},p2v::Vector{Float32},sigma::Function)
     sBig::Float32 = (m1+m2)^2
     sSmol::Float32 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2+ch1h2*st1*st2))
 
-    if sCheck(sSmol,sBig) # check if s value is valid for interaction
+    if sCheck(sSmol,sBig,m3,m4) # check if s value is valid for interaction
         E1::Float32 = Es1 + m1
         E2::Float32 = Es2 + m2
         
@@ -61,12 +63,12 @@ function TValue(p1v::Vector{Float32},p2v::Vector{Float32},sigma::Function)
 end
 
 """
-    SValue(p3v,p1v,p2v,dsigmadt)
+    SValue(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
 
 Returns `Sval` from MC integration based on initial momentum states `p1v` and `p2v` and final state `p3v` and differential cross section `dsigmadt` based on particle selection.  
 Assumes f(x,p,μ)=constant over bin
 """
-function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},dsigmadt::Function)
+function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},dsigmadt::Function,mu1::Float32,mu2::Float32,mu3::Float32)
 
     # define normalise masses
     m1 = mu1
@@ -152,27 +154,27 @@ end
 
 
 """
-    InvarientFlux(s,mass12,mass22)
+    InvarientFlux(s,mu12,mu22)
 
 returns the value of the invarient flux with 's' mandelstram variable and masses 'mass1' and 'mass2'
 """
-function InvarientFlux(s::Float32,mass12::Float32,mass22::Float32)
+function InvarientFlux(s::Float32,mu12::Float32,mu22::Float32)
 
     # sqrt(lambda(s,m1^2,m2^2))/2 = sqrt(s)|p*|
-    return sqrt(s^2-2*s*(mass12+mass22)+(mass12-mass22)^2)/2
+    return sqrt(s^2-2*s*(mu12+mu22)+(mu12-mu22)^2)/2
 
 end
 
 """
-    InvarientFluxSmall(sSmol,mass12,mass22)
+    InvarientFluxSmall(sSmol,mu12,mu22)
 
 returns the value of the invarient flux with smalled 's' mandelstram variable (sSmol = s - (m1+m2)^2)
 """
-function InvarientFluxSmall(sSmol::Float32,mass1::Float32,mass2::Float32)
+function InvarientFluxSmall(sSmol::Float32,mu1::Float32,mu2::Float32)
     # Better accuracy for small s
 
     # sqrt(lambda(s,m1^2,m2^2))/2 = sqrt(s)|p*|
-    return sqrt(sSmol*(sSmol+4*mass1*mass2))/2
+    return sqrt(sSmol*(sSmol+4*mu1*mu2))/2
 
 end
 
@@ -181,10 +183,10 @@ end
 
 returns the value of the squared invarient flux with 's' mandelstram variable and masses 'mass1' and 'mass2'
 """
-function InvarientFlux2(s::Float32,mass12::Float32,mass22::Float32)
+function InvarientFlux2(s::Float32,mu12::Float32,mu22::Float32)
 
     # lambda(s,m1^2,m2^2)/4 = s|p*|^2
-    return (s^2-2*s*(mass12+mass22)+(mass12-mass22)^2)/4
+    return (s^2-2*s*(mu12+mu22)+(mu12-mu22)^2)/4
 
 end
 
@@ -193,20 +195,14 @@ end
 
 returns the value of the squared invarient flux with smalled 's' mandelstram variable (sSmol = s - (m1+m2)^2)
 """
-function InvarientFlux2Small(sSmol::Float32,mass1::Float32,mass2::Float32)
+function InvarientFlux2Small(sSmol::Float32,mu1::Float32,mu2::Float32)
     # Better accuracy for small s
 
     # lambda(s,m1^2,m2^2)/4 = s|p*|^2
-    return (sSmol*(sSmol+4*mass1*mass2))/4
+    return (sSmol*(sSmol+4*mu1*mu2))/4
 
 end
-function InvarientFlux2Small(sSmol::Float64,mass1::Float64,mass2::Float64)
-    # Better accuracy for small s
 
-    # lambda(s,m1^2,m2^2)/4 = s|p*|^2
-    return (sSmol*(sSmol+4*mass1*mass2))/4
-
-end
 
 
 

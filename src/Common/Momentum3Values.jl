@@ -19,7 +19,7 @@ julia> p2v = [2f0, 0.2f0, 0.7f0]
 julia> p3v = [0f0, 0.3f0, 0.7f0]
 julia> p3pv = zeros(Float32,3)
 julia> p3pv .= p3v
-julia> Momentum3Value!(p3v,p3pv,p1v,p2v)
+julia> Momentum3Value!(p3v,p3pv,p1v,p2v,mu1,mu2,mu3,mu4)
 (true,true,2)
 julia> p3v
  3-element Vector{Float32}:
@@ -33,7 +33,7 @@ julia> p3pv
  1.7
 ```
 """
-function Momentum3Value!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
+function Momentum3Value!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},mu1::Float32,mu2::Float32,mu3::Float32,mu4::Float32)
 
     # set normalised masses (defined in Init.jl)
     m1 = mu1

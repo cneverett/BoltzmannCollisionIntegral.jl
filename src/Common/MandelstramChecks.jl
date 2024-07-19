@@ -1,9 +1,9 @@
 """
-    sCheck(sSmol,sBig)
+    sCheck(sSmol,sBig,mu3,mu4)
 
 Returns 'true' if 's' mandelstram generated from inital system state can generate a physical output state. 
 """
-function sCheck(sSmol::Float32,sBig::Float32)
+function sCheck(sSmol::Float32,sBig::Float32,mu3::Float32,mu4::Float32)
     #returns true/false depending on if s is above minimum value
     # s >= (m1+m2)^2 && s >= (m3+m4)^2
     # sBig = (m1+m2)^2 in code
@@ -11,7 +11,7 @@ function sCheck(sSmol::Float32,sBig::Float32)
 
 end
 
-function tCheck(tSmol::Float32,tBig::Float32)
+function tCheck(tSmol::Float32,tBig::Float32,mu2::Float32,mu4::Float32)
     #returns true/false depending on if t is above minimum value
     # t <= (m1-m3)^2 && t <= (m2-m4)^2
     # tBig = (m3-m1)^2 in code
@@ -20,7 +20,7 @@ function tCheck(tSmol::Float32,tBig::Float32)
 
 end
 
-function uCheck(uSmol::Float32,uBig::Float32)
+function uCheck(uSmol::Float32,uBig::Float32,mu1::Float32,mu4::Float32)
     #returns true/false depending on if t is above minimum value
     # u <= (m1-m4)^2 && u <= (m2-m3)^2
     # uBig = (m2-m3)^2 in code
@@ -29,7 +29,7 @@ function uCheck(uSmol::Float32,uBig::Float32)
 
 end
 
-function stuCheck(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
+function stuCheck(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32,mu1::Float32,mu2::Float32,mu3::Float32,mu4::Float32)
     s = sSmol+sBig
     t = tSmol+tBig
     u = uSmol+uBig

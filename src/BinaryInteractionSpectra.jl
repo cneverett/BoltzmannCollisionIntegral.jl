@@ -1,6 +1,6 @@
 module BinaryInteractionSpectra
 
-export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
+export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, fread, fclose
 
     using JLD2
     using Base.Threads
@@ -10,8 +10,6 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
 
     # include common files
         include("Common/Constants.jl")
-        #include("Common/ParticleData.jl")
-        include("Common/Init.jl")
         include("Common/DifferentialCrossSectionFunctions.jl")
         include("Common/Momentum3Values.jl")
         include("Common/RandomPoints.jl")
@@ -29,7 +27,7 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
         include("MultiThread/STIntegration_MultiThread.jl")
         include("MultiThread/STMonteCarlo_MultiThread.jl")
 
-    function fload()
+    function fload_All(fileLocation::String,fileName::String)
         
         filePath = fileLocation*"\\"*fileName
         fileExist = isfile(filePath)
@@ -52,7 +50,7 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload, fread, fclose
         end
 
         return (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix, p3Max, t3MinMax,SConv,TConv);
-        #run (Stot,Ttot,Stal,Ttal,SMatrix,TMatrix,p3Max,t3MinMax,SConv,TConv) = fload(); in REPL
+        #run (Stot,Ttot,Stal,Ttal,SMatrix,TMatrix,p3Max,t3MinMax,SConv,TConv) = fload_All(fileLocation,fileName); in REPL
 
     end
 
