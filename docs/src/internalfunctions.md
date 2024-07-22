@@ -1,4 +1,4 @@
-# Internal functions
+# Internal Functions
 
 ```@meta
 CurrentModule = BinaryInteractionSpectra

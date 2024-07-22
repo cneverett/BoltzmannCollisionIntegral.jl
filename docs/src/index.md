@@ -33,7 +33,8 @@ dictating the rate of loss of particles of a specific type at a specific momentu
 In order to enable the evaluation of the emission and absorption terms, we make the following set of assumptions (dropping dependence on space-time for notational simplicity):  
 - The system is axisymmetric in momentum space coordinates i.e. only dependant on ``p=|\boldsymbol{p}|`` and the cosine of the angle to the axis of symmetry (``\hat{z}``) ``\mu`` where ``\hat{z}\cdot\boldsymbol{p}=p\cos\theta=p\mu`` 
 - The distribution functions are redefined in an axisymmetric form i.e. ``f(\boldsymbol{p})\equiv\frac{f(p,\mu)}{2\pi p^2}``. This is done such that a single particle is described by the distribution ``f(p,\mu)=\delta(p-p_i)\delta(\mu-\mu_i)``.
-- The axisymmetric distribution functions are averaged over phase space intervals ``\Delta p\Delta\mu``, to generate discrete values i.e. ``f(t,p_i,\mu_j)=\frac{1}{\Delta p_i\Delta\mu_j\int_{\Delta p_i\Delta\mu_j} \mathrm{d}p \mathrm{d}\mu~f(p,\mu)``, such that they act as if they are constant over that interval of phase space.  
+- The axisymmetric distribution functions are averaged over phase space intervals ``\Delta p\Delta\mu``, to generate discrete values i.e. ``f(t,p_i,\mu_j)=\frac{1}{\Delta p_i\Delta\mu_j}\int_{\Delta p_i\Delta\mu_j} \mathrm{d}p \mathrm{d}\mu~f(p,\mu)``, such that they act as if they are constant over that interval of phase space.  
+- Particle masses, momenta and energies are normalised by a factor of the rest mass of the electron ``m_\text{Ele}`` and the speed of light ``c=1``.
 
 ## Discrete Form of the Boltzmann Equation
 Following the assumptions laid out in the previous section. The axisymmetric, momentum-discrete Boltzmann equation is given by (remember the neglect of space and momentum-space advection terms)
@@ -62,5 +63,7 @@ Given a user input of interaction to evaluate and what discretisation to use, th
 
 !!! warning 
     The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated (based on comparison to the output of the previous run) and stored as `SConverge` and `TConverge` in the output file.
+
+Evaluation is performed using `Float32` precision, with all [Internal Functions](@ref) designed to maintain accuracy to this precision.
 
 An in-depth setup guide is provided in the [Getting Started](@ref) section.  
