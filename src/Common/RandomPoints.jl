@@ -11,7 +11,7 @@ Assumes ``f(x,p,μ)=f(x,\\vec{p})*(2πp^2)=const`` in bin, therefore momentum sp
 
 If instead ``f(x,\\vec{p})=const`` in bin, momentum space volume element is ``p^2 \\mathrm{d}p`` and uniform sampling corresponds to ``(10^u)*\\sqrt[3](U+(1-U)*10^{3l-3u})`` where ``U`` is a uniform random number between 0 and 1.
 """
-function RPointLogMomentum!(pu::Float32,pl::Float32,pv::Vector{Float32},num::Int64) 
+function RPointLogMomentum!(pv::Vector{Float32},pu::Float32,pl::Float32,num::Int64) 
     # Inputs a momentum vector and mometum bounds and mutates first of said vector
     bin = rand(1:num)
     l = (pl + (pu-pl)*(bin-1)/num)

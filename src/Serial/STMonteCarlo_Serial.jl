@@ -52,8 +52,8 @@ function STMonteCarloAxi_Serial!(SAtotal::Array{Float32,6},TAtotal::Array{Float3
         RPointSphereCosThetaPhi!(p1v)
         RPointSphereCosThetaPhi!(p2v)
 
-        RPointLogMomentum!(p1u,p1l,p1v,nump1)
-        RPointLogMomentum!(p2u,p2l,p2v,nump2)
+        RPointLogMomentum!(p1v,p1u,p1l,nump1)
+        RPointLogMomentum!(p2v,p2u,p2l,nump2)
   
         # Tval
         Tval = TValue(p1v,p2v,sigma,mu1,mu2,mu3,mu4)
