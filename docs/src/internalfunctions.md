@@ -1,7 +1,7 @@
 # Internal Functions
 
 ```@docs
-BinaryInteractionSpectra.SpectralEvaluateSerial
+SpectralEvaluateSerial(userInputSerial)
 ```
 
 ```@meta
