@@ -5,11 +5,11 @@ Contains functions for generating random points
 """
     RPointLogMomentum!(pu,pl,pv,num)
 
-Edits the first element of 'pv' with a random real-space momentum value between 10^pl and 10^pu. This sample is chosen by first randomly picking a momentum bin in the range 1:num and then uniformly sampling a momentum point in real-space (rather than log10 space) between l and u which are the momentum values at start and end of that bin. Sampling is done such there will be a constant number of points per momentum-space volume. As the momentum space between 10^pl and 10^pu it is a spherical shell hence the correct sampling is p = (U*(10^pu)^3+(1-U)*(10^pl)^3)^1/3 with uniform U ∈ [0 1].
+Edits the first element of 'pv' with a random real-space momentum value between 10^pl and 10^pu. This sample is chosen by first randomly picking a momentum bin in the range 1:num and then uniformly sampling a momentum point in real-space (rather than log10 space) between l and u which are the momentum values at start and end of that bin. Sampling is done such there will be a constant number of points per momentum-space volume. As the momentum space between 10^pl and 10^pu it is a spherical shell hence the correct sampling is p = (U*(10^pu)^3+(1-U)*(10^pl)^3)^{1/3} with uniform ``U ∈ [0 1]``.
 
-Assumes ``f(x,p,μ)=f(x,\\vec{p})*(2pi p^2)=const`` in bin, therefore momentum space volume element is ``dp`` and as such uniform sampling corresponds to ``U*10^(u)+(1-U)*10^(l)`` where U is a uniform random number between 0 and 1.
+Assumes ``f(x,p,μ)=f(x,\\vec{p})*(2πp^2)=const`` in bin, therefore momentum space volume element is ``\\mathrm{d}p`` and as such uniform sampling corresponds to ``U*10^{u}+(1-U)*10^{l}`` where ``U`` is a uniform random number between 0 and 1.
 
-If instead ``f(x,\\vec{p})=const`` in bin, momentum space volume element is ``p^2 dp`` and uniform sampling corresponds to ``(10^u)*cbrt(U+(1-U)*10^(3l-3u))`` where U is a uniform random number between 0 and 1.
+If instead ``f(x,\\vec{p})=const`` in bin, momentum space volume element is ``p^2 \\mathrm{d}p`` and uniform sampling corresponds to ``(10^u)*\\sqrt[3](U+(1-U)*10^{3l-3u})`` where ``U`` is a uniform random number between 0 and 1.
 """
 function RPointLogMomentum!(pu::Float32,pl::Float32,pv::Vector{Float32},num::Int64) 
     # Inputs a momentum vector and mometum bounds and mutates first of said vector
