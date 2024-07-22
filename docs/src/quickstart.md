@@ -21,6 +21,6 @@ The example script `Run_BinaryInteractionSpectra.jl` operates as follows:
     - `numSiter` for the number of random $\{\vec{p}_3\}$ states to sample per $\{\vec{p}_1,\vec{p}_2\}$.
 - If multithreading then define `nThreads` that will be used. This generates `nThreads` workers that perform evaluation in parallel, utilising `locks` to prevent data races. (see [Multi-Threading](https://docs.julialang.org/en/v1/manual/multi-threading/) for how to set up multi-threading in Julia)
 - Define the `fileLocation` where the output file ([JLD2](https://github.com/JuliaIO/JLD2.jl)) named `fileName` is to be written.
-- Evaluate the emission and absorption spectrum using the [`SpectralEvaluateSerial`](@ref) function for serial and SpectralEvaluateSerial(userInputMultiThread) for multithread. 
+- Evaluate the emission and absorption spectrum using the [`SpectraEvaluateSerial`](@ref) function for serial and SpectraEvaluateSerial(userInputMultiThread) for multithread. 
 - Once the user defined number of Monte-Carlo samples have been evaluated and the data has been stored, the data can be loaded back into the workspace as a tuple using the fload_All(fileLocation,fileName) function.
 
