@@ -11,7 +11,7 @@ Modules = [BinaryInteractionSpectra]
 ```
 
 ```@docs
-SpectralEvaluateSerial(userInputSerial)
+BinaryInteractionSpectra.SpectralEvaluateSerial
 ```
 
 ```@docs
