@@ -4,28 +4,29 @@
 
 The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions ``f(x^\mu,\boldsymbol{p})`` within such a system is dictated by the collisional relativistic Boltzmann equation:
 ```math
-p_1^\nu\partial_\nu f(x^\mu,\boldsymbol{p}_1)+\partial_{p_1^\mu}\left(F^\mu f(x^\mu,\boldsymbol{p}_1)\right)=C(x^\mu,\boldsymbol{p}_1),
+p^\nu\partial_\nu f(x^\mu,\boldsymbol{p})+\partial_{p^\mu}\left(F^\mu f(x^\mu,\boldsymbol{p})\right)=C(x^\mu,\boldsymbol{p}),
 ```
 where ``p^\mu=(p^0,\boldsymbol{p})`` is the 4-Momentum and ``C(x^a,\boldsymbol{p})`` is the collision integral. From here we shall neglect the terms involving advection in space and advection on momentum-space (external forcing), as such the dependence on ``x^\mu`` is also dropped. The collision integral is given by 
 ```math
-    C(\boldsymbol{p}_1)=\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\delta_{34}}W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu)- \frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\delta_{34}}W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)\right],
+    C(\boldsymbol{p}_3)=\int\frac{\mathrm{d}^3\boldsymbol{p}_1}{p_1^0}\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\delta_{12}}W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)- \frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\delta_{12}}W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu)\right],
 ```
 with the transition rate ``W`` being given by:
 ```math
-W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)=\frac{sp_{\text{in}}^{*2}}{\pi}\sigma_{12|34}(s,t)\delta^{(4)}(p_1^\mu+p_2^\mu-p_3^\mu-p_4^\mu). 
+W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)=\frac{sp_{\text{in}}^{*2}}{\pi}\frac{\mathrm{d}\sigma_{12|34}}{\mathrm{d}t}(s,t)\delta^{(4)}(p_1^\mu+p_2^\mu-p_3^\mu-p_4^\mu),
 ```
+and ``\frac{\mathrm{d}\sigma_{12|34}}{\mathrm{d}t}(s,t)`` is the Lorentz invariant differential cross section of the forward reaction ``12\to34``.
 
-The Boltzmann equation can then be discretised in momentum space by integrating over a discrete volume element ``\Delta^3\boldsymbol{p}_1`` to yield: 
+The Boltzmann equation can then be discretised in momentum space by integrating over a discrete volume element ``\Delta^3\boldsymbol{p}_3`` to yield: 
 ```math 
-\int_{\Delta^3\boldsymbol{p}_1}\frac{\mathrm{d}^3\boldsymbol{p}_1}{p_1^0}p_1^\mu\partial_\mu f(x^\mu,\boldsymbol{p}_1)=\int_{\Delta^3\boldsymbol{p}_1}\mathrm{d}^3\boldsymbol{p}_1~S_{spe}(x^\mu,\boldsymbol{p}_1)-T_{spe}(x^\mu,\boldsymbol{p}_1),
+\int_{\Delta^3\boldsymbol{p}_3}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}p_3^\mu\partial_\mu f(x^\mu,\boldsymbol{p}_3)=\int_{\Delta^3\boldsymbol{p}_3}\mathrm{d}^3\boldsymbol{p}_3~S_{spe}(x^\mu,\boldsymbol{p}_3)-T_{spe}(x^\mu,\boldsymbol{p}_3),
 ```
 where the collision integral has been split into two parts, an emission spectrum
 ```math
-S_{\text{spe}}(\boldsymbol{p}_1)=\frac{1}{1+\delta_{34}}\frac{1}{p^0_1}\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu),
+S_{\text{spe}}(\boldsymbol{p}_3)=\frac{1}{1+\delta_{12}}\frac{1}{p^0_3}\int\frac{\mathrm{d}^3\boldsymbol{p}_1}{p_1^0}\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu),
 ```math
 dictating the rate of gain of particles of a specific type at a specific momentum from a binary interaction, and an absorption spectrum 
 ```math
-T_{\text{spe}}(\boldsymbol{p}_1)=\frac{1}{1+\delta_{34}}\frac{1}{p^0_1}\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0} f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu),
+T_{\text{spe}}(\boldsymbol{p}_3)=\frac{1}{1+\delta_{12}}\frac{1}{p^0_3}\int\frac{\mathrm{d}^3\boldsymbol{p}_1}{p_1^0}\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0} f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu),
 ```
 dictating the rate of loss of particles of a specific type at a specific momentum from the same interaction.
 
@@ -39,27 +40,35 @@ In order to enable the evaluation of the emission and absorption terms, we make 
 ## Discrete Form of the Boltzmann Equation
 Following the assumptions laid out in the previous section. The axisymmetric, momentum-discrete Boltzmann equation is given by (remember the neglect of space and momentum-space advection terms)
 ```math
-\partial_t f_{1,ij}=f_{3,kl}f_{4,mn}S_{34|12,ijklmn}-f_{1,ij}f_{2,kl}T_{12|34,ijkl}
+\partial_t f_{3,ij}=f_{1,kl}f_{2,mn}S_{12|34,ijklmn}-f_{3,ij}f_{4,kl}T_{34|12,ijkl}
 ```
 The discrete emission spectrum term is a 6D array, given by
 ```math
-f_{3,kl}f_{4,mn}S_{34|12,ijklmn}=f(z,t,p_{3,k},\mu_{3,l})f(z,t,p_{4,m},\mu_{4,n})\frac{\Delta p_{3,k}\Delta \mu_{3,l}\Delta p_{4,m}\Delta \mu_{4,n}}{\Delta p_i}\frac{1}{N}\sum^{N}_{a=1}\left[S_{val}\right](\{\boldsymbol{p}_1,\boldsymbol{p}_3,\boldsymbol{p}_4\}_a), 
+f_{1,kl}f_{2,mn}S_{12|34,ijklmn}=f(p_{1,k},\mu_{1,l})f(p_{2,m},\mu_{2,n})\frac{\Delta p_{1,k}\Delta \mu_{1,l}\Delta p_{2,m}\Delta \mu_{2,n}}{\Delta p_{3,i}}\frac{1}{N}\sum^{N}_{a=1}\left[S_{val}\right](\{\boldsymbol{p}_1,\boldsymbol{p}_2,\boldsymbol{p}_3\}_a), 
 ```
 with 
 ```math
-S_{val}=\frac{1+\delta_{12}}{1+\delta_{34}}\sum_\pm\frac{2p_\pm^2\mathcal{F}_{34}^2}{ p_3^0p_4^0}\frac{\mathrm{d}\sigma_{34|12}}{\mathrm{d}t}(s,t_\pm)\frac{1}{p_3^0p_\pm-p_\pm^0p_3\cos\Theta_{\pm3}+p_4^0p_\pm-p_\pm^0p_4\cos\Theta_{\pm4}},
+S_{val}=\frac{1}{1+\delta_{12}}\sum_\pm\frac{2p_\pm^2\mathcal{F}_{12}^2}{p_1^0p_2^0}\frac{\mathrm{d}\sigma_{12|34}}{\mathrm{d}t}(s,t_\pm)\frac{1}{p_1^0p_\pm-p_\pm^0p_1\cos\Theta_{\pm1}+p_2^0p_\pm-p_\pm^0p_2\cos\Theta_{\pm2}},
 ```
-while the discrete absorption term is a 4D Array, given by
+where ``p_{\pm}`` are the two roots of ``(s+t-m_3^2-m_2^2-2p^\mu_1p_{4\mu})``. 
+
+The discrete absorption term is a 4D Array, given by
 ```math
-f_{1,ij}f_{2,kl}T_{12|34,ijkl}=f(z,t,p_i,\mu_j)f(z,t,p_{2,k},\mu_{2,l})\Delta\boldsymbol{p}_{2,k}\Delta\mu_{2,l}\frac{1}{N}\sum^{N}_{a=1}\left[T_{val}\right](\{\boldsymbol{p}_1,\boldsymbol{p}_2\}_a),
+f_{3,ij}f_{4,kl}T_{34|12,ijkl}=f(p_{3,i},\mu_{3,j})f(p_{4,k},\mu_{4,l})\Delta\boldsymbol{p}_{4,k}\Delta\mu_{4,l}\frac{1}{N}\sum^{N}_{a=1}\left[T_{val}\right](\{\boldsymbol{p}_3,\boldsymbol{p}_4\}_a),
 ```
 with
 ```math
-T_{val}=\frac{1}{1+\delta_{12}}\frac{\mathcal{F}_{12}(s)\sigma_{12|34}(s)}{p^0p_2^0}.
+T_{val}=\frac{1}{1+\delta_{12}}\frac{\mathcal{F}_{34}(s)\sigma_{34|12}(s)}{p_3^0p_4^0}.
 ```
+and ``\sigma_{34|12}(s)`` the lorentz invariant total cross section of the reverse reaction ``34\to12``.
 
 ## Evaluation
-Given a user input of interaction to evaluate and what discretisation to use, the discrete emission spectrum ``S_{12|34,ijklmn}`` (note the change of order of the interaction) and absorption spectrum ``T_{12|34,ijkl}`` are solved simultaneously by Monte-Carlo integration. The evaluation is performed by the functions `SpectraEvaluateSerial()` or `SpectralEvaluateMultiThread()` depending on if the code is to run in serially on a single core or multi-threaded on multiple cores of a single CPU. The code will then save the resulting multidimensional arrays.
+Given a user input of interaction to evaluate and what discretisation to use, the discrete emission spectrum ``S_{12|34,ijklmn}`` and absorption spectrum ``T_{12|34,ijkl}`` are solved simultaneously by Monte-Carlo integration. 
+
+!!! warning
+    Note the change of order of the interaction in the absorption spectrum (``34|12\\to 12|34``). Rather than solving for the forward and reverse reaction, only the forward reaction is solved for. Hence two sets of emission and absorption spectra may need to be generated to describe a single reversible reaction.  
+
+The evaluation is performed by the functions `SpectraEvaluateSerial()` or `SpectralEvaluateMultiThread()` depending on if the code is to run in serially on a single core or multi-threaded on multiple cores of a single CPU. The code will then save the resulting multidimensional arrays.
 
 !!! warning 
     The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated (based on comparison to the output of the previous run) and stored as `SConverge` and `TConverge` in the output file.
