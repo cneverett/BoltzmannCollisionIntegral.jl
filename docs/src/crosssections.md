@@ -14,11 +14,15 @@ Below is a table of the currently implemented particles (i.e. their particle pro
 
 These binary interactions have currently been implemented:
 - Collision of hard spheres `SphSphSphSph`
-    - functions: [`BinaryInteractionSpectra.dsigmadt_SphSphSphSph`](@ref) [`BinaryInteractionSpectra.sigma_SphSphSphSph`](@ref)
+    - functions: [`BoltzmannCollisionIntegral.dsigmadt_SphSphSphSph`](@ref) [`BoltzmannCollisionIntegral.sigma_SphSphSphSph`](@ref)
 - Photon pair production from electron positron annihilation `ElePosPhoPho`
-    - functions: [`BinaryInteractionSpectra.dsigmadt_ElePosPhoPho`](@ref) [`BinaryInteractionSpectra.sigma_ElePosPhoPho`](@ref)
+    - functions: [`BoltzmannCollisionIntegral.dsigmadt_ElePosPhoPho`](@ref) [`BoltzmannCollisionIntegral.sigma_ElePosPhoPho`](@ref)
 - Electron positron pair production from photon pair annihilation `PhoPhoElePos`
-    - functions: [`BinaryInteractionSpectra.dsigmadt_PhoPhoElePos`](@ref) [`BinaryInteractionSpectra.sigma_PhoPhoElePos`](@ref)
+    - functions: [`BoltzmannCollisionIntegral.dsigmadt_PhoPhoElePos`](@ref) [`BoltzmannCollisionIntegral.sigma_PhoPhoElePos`](@ref)
+
+## Adding User Defined Interactions
+
+...
 
 ## Differential and total cross section functions
 
@@ -28,8 +32,8 @@ These binary interactions have currently been implemented:
 All cross sections are to be defined in terms of the Mandelstram variables $s=(p_1^\mu+p_2^\mu)^2$, $t=(p_1^\mu-p_3^\mu)^2$ and $u=(p_2^\mu-p_3^\mu)^2$. To maintain accuracy of cross sections and avoid DivZero issues when momenta is small compared to the mass of the particles (at `Float32` precision), each Mandelstram variable is split into two components e.g. $s=sSmol+sBig$ where $sBig = (m_1+m_2)^2$. The latter part typically cancels with terms in the cross sections, leading to better accuracy. 
 
 ```@meta
-CurrentModule = BinaryInteractionSpectra
-using BinaryInteractionSpectra
+CurrentModule = BoltzmannCollisionIntegral
+using BoltzmannCollisionIntegral
 end
 ```
 
