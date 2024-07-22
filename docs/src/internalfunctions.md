@@ -12,10 +12,7 @@ end
 
 ```@autodocs
 Modules = [BinaryInteractionSpectra]
-```
-
-```@docs
-BinaryInteractionSpectra.SpectralEvaluateSerial
+Private = false
 ```
 
 ```@docs
