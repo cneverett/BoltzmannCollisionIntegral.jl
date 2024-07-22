@@ -20,11 +20,11 @@ returns the differential cross section for the binary interaction of hard sphere
 
 # Arguments
 - `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2``
+- `sBig::Float32` : ``(m_1+m_2)^2=4m_{\\text{Sph}}^2``
 - `tSmol::Float32` : ``t - tBig``
-- `tBig::Float32` : ``(m_3-m_1)^2``
+- `tBig::Float32` : ``(m_3-m_1)^2=0``
 - `uSmol::Float32` : ``u - uBig``
-- `uBig::Float32` : ``(m_2-m_3)^2``
+- `uBig::Float32` : ``(m_2-m_3)^2=0``
 """
 function dsigmadt_SphSphSphSph(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
 

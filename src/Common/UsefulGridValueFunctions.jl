@@ -108,7 +108,7 @@ end
 """
     meanVector(valr)
 
-Inputs a `num+1` `Vector{Float32}` of domain bounds and returns a `num` `Vector{Float32}` of mean value in domain range.
+Inputs a `num+1` long `Vector{Float32}` of domain bounds and returns a `num` long `Vector{Float32}` of mean value in domain range.
 
 # Examples
 ```julia-repl
@@ -137,7 +137,7 @@ end
 """
     deltaEVector(pr,mu)
 
-Inputs a `num+1` `Vector{Float32}` of p grid boundries and the particle `mu` value (normalised mass) and returns a `num` `Vector{Float32}` of average energy values per grid cell.
+Inputs a `num+1` long `Vector{Float32}` of p grid boundries and the particle `mu` value (normalised mass) and returns a `num` long `Vector{Float32}` of average energy values per grid cell.
 
 # Examples
 ```julia-repl

@@ -14,6 +14,7 @@ Below is a table of the currently implemented particles (i.e. their particle pro
 
 These binary interactions have currently been implemented:
 - Collision of hard spheres `SphSphSphSph`
+    - functions: [dsigmadt_SphSphSphSph](@ref)
 - Photon pair production from electron positron annihilation `ElePosPhoPho`
 - Electron positron pair production from photon pair annihilation `PhoPhoElePos`
 
