@@ -9,6 +9,5 @@ end
 
 ```@autodocs
 Modules = [BinaryInteractionSpectra]
-Private = false
 ```
 
