@@ -68,7 +68,7 @@ Given a user input of interaction to evaluate and what discretisation to use, th
 !!! warning
     Note the change of order of the interaction in the absorption spectrum (``34|12\\to 12|34``). Rather than solving for the forward and reverse reaction, only the forward reaction is solved for. Hence two sets of emission and absorption spectra may need to be generated to describe a single reversible reaction.  
 
-The evaluation is performed by the functions `SpectraEvaluateSerial()` or `SpectralEvaluateMultiThread()` depending on if the code is to run in serially on a single core or multi-threaded on multiple cores of a single CPU. The code will then save the resulting multidimensional arrays.
+The evaluation is performed by the functions [SpectraEvaluateSerial](@ref) or [SpectraEvaluateMultiThread](@ref) depending on if the code is to run in serially on a single core or multi-threaded on multiple cores of a single CPU. The code will then save the resulting multidimensional arrays.
 
 !!! warning 
     The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated (based on comparison to the output of the previous run) and stored as `SConverge` and `TConverge` in the output file.

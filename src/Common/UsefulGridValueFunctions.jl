@@ -24,7 +24,7 @@ The "useful quantities" are then used in calculating moments of the distribution
 """
     prange(pl,pu,nump)
 
-Returns a (nump+1) vector{Float32} of p-space grid bounds NOT in Log10 space.
+Returns a `nump+1` long `Vector{Float32}` of p-space grid bounds NOT in Log10 space.
 
 # Examples
 ```julia-repl
@@ -50,7 +50,7 @@ end
 """
     trange(numt)
 
-Returns a (numt+1) vector{Float32} of theta-space grid bounds in terms of cos(theta).
+Returns a `numt+1` long `Vector{Float32}` of theta-space grid bounds in terms of cos(theta).
 Upper and lower bounds [tl tu] are defined as CONST in Init.jl as [-1f0 1f0].
 
 # Examples
@@ -79,7 +79,7 @@ end
 """
     deltaVector(valr)
 
-Inputs a (num+1) vector{Float32} quantitiy values (domain bounds) and returns a (num) vector{Float32} of differeces (domain widths).
+Inputs a `num+1` long `Vector{Float32}` quantitiy values (domain bounds) and returns a `num` long `Vector{Float32}` of differeces (domain widths).
 
 # Examples
 ```julia-repl
@@ -108,7 +108,7 @@ end
 """
     meanVector(valr)
 
-Inputs a (num+1) vector{Float32} of domain bounds and returns a (num) vector{Float32} of mean value in domain range.
+Inputs a `num+1` `Vector{Float32}` of domain bounds and returns a `num` `Vector{Float32}` of mean value in domain range.
 
 # Examples
 ```julia-repl
@@ -137,7 +137,7 @@ end
 """
     deltaEVector(pr,mu)
 
-Inputs a (num+1) vector{Float32} of p grid boundries and the particle mu value and returns a (num) vector{Float32} of average energy values per grid cell.
+Inputs a `num+1` `Vector{Float32}` of p grid boundries and the particle `mu` value (normalised mass) and returns a `num` `Vector{Float32}` of average energy values per grid cell.
 
 # Examples
 ```julia-repl
