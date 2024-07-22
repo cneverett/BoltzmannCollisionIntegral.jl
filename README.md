@@ -10,15 +10,11 @@
 ```
 when the distribution function for the particles involved may be either isotropic (not implemented) or axisymmetric. The collision integral is split into two components, an emission spectra dictating the rate of gain of particles emerging from a given binary interaction and an absorption spectra dictating the rate of loss of particles from the same interaction.
 
-Evaluation is performed by assuming that the distribution function is constant over some set of discrete domains in phase space and then integrating over those domains using a Monte-Carlo method. See documentation (to be added) for more detailed description.
+Evaluation is performed by assuming that the distribution function is constant over some set of discrete domains in phase space and then integrating over those domains using a Monte-Carlo method. For more information see the [Documentation](https://cneverett.github.io/BinaryInteractionSpectra.jl/).
 
 Evaluation currently supports both single and multithreaded operation.
 
-For more information see the [Documentation](https://cneverett.github.io/BinaryInteractionSpectra.jl/).
-
 ## Usage
-
-See [Getting Started](https://cneverett.github.io/BinaryInteractionSpectra.jl/dev/quickstart/) for in depth detail. In brief:
 
 After installing the package, run 
 ```julia
@@ -29,3 +25,5 @@ To perform an evaluation of the emission and absorption spectra, an example scri
 ```julia-repl
 include("Run_BinaryInteractionSpectra.jl")
 ``` 
+
+See [Getting Started](https://cneverett.github.io/BinaryInteractionSpectra.jl/dev/quickstart/) for in depth detail.
