@@ -1,10 +1,10 @@
 # Inside make.jl
 push!(LOAD_PATH,"../src/")
-using BinaryInteractionSpectra
+using BoltzmannCollisionIntegral
 using Documenter
 makedocs(
-         sitename = "BinaryInteractionSpectra.jl",
-         modules  = [BinaryInteractionSpectra],
+         sitename = "BoltzmannCollisionIntegral.jl",
+         modules  = [BoltzmannCollisionIntegral],
          pages=[
                 "Overview" => "index.md",
                 "Getting Started" => "quickstart.md",
@@ -23,5 +23,5 @@ makedocs(
         #),
         )
 deploydocs(;
-    repo="github.com/cneverett/BinaryInteractionSpectra.jl",
+    repo="github.com/cneverett/BoltzmannCollisionIntegral.jl",
 )

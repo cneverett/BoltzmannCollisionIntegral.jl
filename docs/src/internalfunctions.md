@@ -2,12 +2,12 @@
 
 
 ```@meta
-CurrentModule = BinaryInteractionSpectra
-using BinaryInteractionSpectra
+CurrentModule = BoltzmannCollisionIntegral
+using BoltzmannCollisionIntegral
 end
 ```
 
 ```@autodocs
-Modules = [BinaryInteractionSpectra]
+Modules = [BoltzmannCollisionIntegral]
 ```
 
