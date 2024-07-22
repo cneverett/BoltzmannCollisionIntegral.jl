@@ -11,6 +11,10 @@ Modules = [BinaryInteractionSpectra]
 ```
 
 ```@docs
+SpectralEvaluateSerial(userInputSerial)
+```
+
+```@docs
 prange
 trange
 deltaVector
