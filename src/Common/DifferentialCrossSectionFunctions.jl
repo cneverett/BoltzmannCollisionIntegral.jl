@@ -99,8 +99,8 @@ returns the total cross section for electron positron annihilation to two photon
 ```
 
 # Arguments
-- `sSmol::Float32` : s - sBig
-- `sBig::Float32` : (m1+m2)^2 = 4 (normalised units) -> s = sSmol + 4
+- `sSmol::Float32` : ``s - sBig``
+- `sBig::Float32` : ``(m_1+m_2)^2 = 4~~ \text{normalised units}~~ \to s = sSmol + 4``
 """
 function sigma_ElePosPhoPho(sSmol::Float32,sBig::Float32)
 
