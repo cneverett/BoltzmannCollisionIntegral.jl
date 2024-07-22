@@ -1,6 +1,6 @@
 module BinaryInteractionSpectra
 
-export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, fread, fclose
+export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All
 
     using JLD2
     using Base.Threads
@@ -27,44 +27,8 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, fread, fclo
         include("MultiThread/STIntegration_MultiThread.jl")
         include("MultiThread/STMonteCarlo_MultiThread.jl")
 
-    function fload_All(fileLocation::String,fileName::String)
-        
-        filePath = fileLocation*"\\"*fileName
-        fileExist = isfile(filePath)
-
-        if fileExist
-            f = jldopen(filePath,"r+");
-            SAtot = f["STotal"];
-            TAtot = f["TTotal"];
-            AStal = f["STally"];
-            ATtal = f["TTally"];
-            SMatrix = f["SMatrix"];
-            TMatrix = f["TMatrix"];
-            p3Max = f["p3Max"];
-            t3MinMax = f["t3MinMax"];
-            SConv = f["SConverge"];
-            TConv = f["TConverge"]
-            close(f)
-        else
-            error("no file")
-        end
-
-        return (SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix, p3Max, t3MinMax,SConv,TConv);
-        #run (Stot,Ttot,Stal,Ttal,SMatrix,TMatrix,p3Max,t3MinMax,SConv,TConv) = fload_All(fileLocation,fileName); in REPL
-
-    end
-
-    function fread()
-        filePath = fileLocation*"\\"*fileName
-        fileExist = isfile(filePath)
-
-        if fileExist
-            f = jldopen(filePath,"r");
-            return f
-        else
-            error("no file")
-        end
-    end
+    # include data reading functions for export
+        include("Common/DataReading.jl")
 
 end
 
