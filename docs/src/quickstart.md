@@ -24,6 +24,12 @@ The example script `Run_BinaryInteractionSpectra.jl` operates as follows:
 - Evaluate the emission and absorption spectrum using the [`RPointLogMomentum!`](@ref) function for serial and SpectralEvaluateSerial(userInputMultiThread) for multithread. 
 - Once the user defined number of Monte-Carlo samples have been evaluated and the data has been stored, the data can be loaded back into the workspace as a tuple using the fload_All(fileLocation,fileName) function.
 
+```@meta
+CurrentModule = BinaryInteractionSpectra
+using BinaryInteractionSpectra
+end
+```
+
 ```@docs
 RPointLogMomentum!
 ```
