@@ -6,7 +6,11 @@ The evaluation of the collision integral is of great use when studying kinetic s
 ```math
 p^\nu\partial_\nu f(x^\mu,\boldsymbol{p})+\partial_{p^\nu}\left(F^\nu f(x^\mu,\boldsymbol{p})\right)=C(x^\mu,\boldsymbol{p}),
 ```
-where ``p^\mu=(p^0,\boldsymbol{p})`` is the 4-Momentum and ``C(x^a,\boldsymbol{p})`` is the collision integral. From here we shall neglect the terms involving advection in space and advection on momentum-space (external forcing), as such the dependence on ``x^\mu`` is also dropped. The collision integral is given by 
+where ``p^\mu=(p^0,\boldsymbol{p})`` is the 4-Momentum and ``C(x^\mu,\boldsymbol{p})`` is the collision integral at a particular point in spacetime ``x^\mu``. From here we shall neglect the terms involving advection in space and advection on momentum-space (external forcing), as such the dependence on ``x^\mu`` is also dropped. What is left can be written as 
+```math
+    \partial_t f(\boldsymbol{p}) = \frac{1}{p^0}C(\boldsymbol{p})
+```
+The collision integral for a particular particle ``3`` in the interaction ``12\rightleftharpoon34`` is given by 
 ```math
     C(\boldsymbol{p}_3)=\int\frac{\mathrm{d}^3\boldsymbol{p}_1}{p_1^0}\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\delta_{12}}W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)- \frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\delta_{12}}W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu)\right],
 ```
