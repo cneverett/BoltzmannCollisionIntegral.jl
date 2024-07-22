@@ -31,5 +31,5 @@ end
 ```
 
 ```@docs
-RPointLogMomentum!
+SpectralEvaluateSerial(userInputSerial)
 ```
