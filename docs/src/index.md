@@ -4,7 +4,7 @@
 
 The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions ``f(x^\mu,\boldsymbol{p})`` within such a system is dictated by the collisional relativistic Boltzmann equation:
 ```math
-p^\nu\partial_\nu f(x^\mu,\boldsymbol{p})+\partial_{p^\mu}\left(F^\mu f(x^\mu,\boldsymbol{p})\right)=C(x^\mu,\boldsymbol{p}),
+p^\nu\partial_\nu f(x^\mu,\boldsymbol{p})+\partial_{p^\nu}\left(F^\nu f(x^\mu,\boldsymbol{p})\right)=C(x^\mu,\boldsymbol{p}),
 ```
 where ``p^\mu=(p^0,\boldsymbol{p})`` is the 4-Momentum and ``C(x^a,\boldsymbol{p})`` is the collision integral. From here we shall neglect the terms involving advection in space and advection on momentum-space (external forcing), as such the dependence on ``x^\mu`` is also dropped. The collision integral is given by 
 ```math

@@ -12,19 +12,19 @@ This defines the differential/total cross section function and its normalisation
 """
     dsigmadt_SphSphSphSph(sSmol,sBig,tSmol,tBig,uSmol,uBig)
 
-returns the differential cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4. Normalised by ``πR_{Sph}^2``.
+returns the differential cross section for the binary interaction of hard spheres with normalised masses ``m_1,m_2,m_3,m_4=m_{\\text{Sph}}``. Normalised by ``πR_{Sph}^2``.
 
 ```math
-\\frac{dσ}{dt} = \\frac{1}{s-4μ_{\\text{Sph}}^2}
+\\frac{dσ}{dt} = \\frac{1}{s-4m_{\\text{Sph}}^2}
 ```
 
 # Arguments
-- `sSmol::Float32` : s - sBig
-- `sBig::Float32` : (m1+m2)^2
-- `tSmol::Float32` : t - tBig
-- `tBig::Float32` : (m3-m1)^2
-- `uSmol::Float32` : u - uBig
-- `uBig::Float32` : (m2-m3)^2
+- `sSmol::Float32` : ``s - sBig``
+- `sBig::Float32` : ``(m_1+m_2)^2``
+- `tSmol::Float32` : ``t - tBig``
+- `tBig::Float32` : ``(m_3-m_1)^2``
+- `uSmol::Float32` : ``u - uBig``
+- `uBig::Float32` : ``(m_2-m_3)^2``
 """
 function dsigmadt_SphSphSphSph(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
 
@@ -40,7 +40,7 @@ end
 """
     sigma_SphSphSphSph(sSmol,sBig)
 
-returns the total cross section for the binary interaction of hard spheres with normalised masses m1,m2,m3,m4. Normalised by ``πR_{Sph}^2``.
+returns the total cross section for the binary interaction of hard spheres with normalised masses (wrt electron mass) ``m_1,m_2,m_3,m_4=m_\\text{Sph}``. Normalised by ``πR_{Sph}^2``.
 
 ```math
 σ = \\frac{1}{2}
@@ -66,19 +66,19 @@ const sigmanNorm_SphSphSphSph = Float32(pi)*(2f0*RSph)^2
 """
     dsigmadt_ElePosPhoPho(sSmol,sBig,tSmol,tBig,uSmol,uBig)
 
-returns the differential cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.4). Normalised by ``3σ_T``.
+returns the differential cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.4). Masses and momenta are normalised by the rest mass of the electron ``m_{\\text{Ele}}`` and the cross section is normalised by ``3σ_T``.
 
 ```math
 \\frac{dσ}{dt} = -\\frac{1}{s(s-4)}\\left(\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)^2+\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)-\\frac{1}{4}\\left(\\frac{t-1}{u-1}+\\frac{u-1}{t-1}\\right)\\right)
 ```
 
 # Arguments
-- `sSmol::Float32` : s - sBig
-- `sBig::Float32` : (m1+m2)^2 = 4 (normalised units) -> s = sSmol + 4
-- `tSmol::Float32` : t - tBig
-- `tBig::Float32` : (m3-m1)^2 = 1 (normalised units) -> t = tSmol + 1
-- `uSmol::Float32` : u - uBig
-- `uBig::Float32` : (m2-m3)^2 = 1 (normalised units) -> u = uSmol + 1
+- `sSmol::Float32` : ``s - sBig``
+- `sBig::Float32` : ``(m_1+m_2)^2 = 4 ∴ s = sSmol + 4``
+- `tSmol::Float32` : ``t - tBig``
+- `tBig::Float32` : ``(m_3-m_1)^2 = 1 ∴ t = tSmol + 1``
+- `uSmol::Float32` : ``u - uBig``
+- `uBig::Float32` : ``(m2-m3)^2 = 1 ∴ u = uSmol + 1``
 """
 function dsigmadt_ElePosPhoPho(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
 
@@ -92,7 +92,7 @@ end
 """
     sigma_ElePosPhoPho(sSmol,sBig)
 
-returns the total cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.6). Normalised by ``3σ_T``.
+returns the total cross section for electron positron annihilation to two photons. Berestetskii 1982 (88.6). Masses and momenta are normalised by the rest mass of the electron ``m_{\\text{Ele}}`` and the cross section is normalised by ``3σ_T``.
 
 ```math
 σ = \\frac{1}{4s^2(s-4)}\\left((s^2+4s-8)\\log\\left(\\frac{\\sqrt{s}+\\sqrt{s-4}}{\\sqrt{s}-\\sqrt{s-4}}\\right)-(s+4)\\sqrt{s(s-4)}\\right)
@@ -100,7 +100,7 @@ returns the total cross section for electron positron annihilation to two photon
 
 # Arguments
 - `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2 = 4~~ \text{normalised units}~~ \to s = sSmol + 4``
+- `sBig::Float32` : ``(m_1+m_2)^2 = 4 ∴ s = sSmol + 4``
 """
 function sigma_ElePosPhoPho(sSmol::Float32,sBig::Float32)
 
@@ -122,19 +122,19 @@ const sigmaNorm_ElePosPhoPho = 3*σT;
 """
     dsigmadt_PhoPhoElePos(sSmol,sBig,tSmol,tBig,uSmol,uBig)
 
-returns the differential cross section for photon-photon annihilation to electron-positron pair. (Inverse proceess of electron positron annihilation to two photons). Normalised by ``3σ_T``.
+returns the differential cross section for photon-photon annihilation to electron-positron pair. (Inverse proceess of electron positron annihilation to two photons). Masses and momenta are normalised by the rest mass of the electron ``m_{\\text{Ele}}`` and the cross section is normalised by ``3σ_T``.
 
 ```maths
 \\frac{dσ}{dt} = -\\frac{1}{s^2}\\left(\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)^2+\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)-\\frac{1}{4}\\left(\\frac{t-1}{u-1}+\\frac{u-1}{t-1}\\right)\\right)
 ```
 
 # Arguments
-- `sSmol::Float32` : s - sBig
-- `sBig::Float32` : (m1+m2)^2 = 0 (normalised units) -> s = sSmol
-- `tSmol::Float32` : t - tBig
-- `tBig::Float32` : (m3-m1)^2 = 1 (normalised units) -> t = tSmol + 1
-- `uSmol::Float32` : u - uBig
-- `uBig::Float32` : (m2-m3)^2 = 1 (normalised units) -> u = uSmol + 1
+- `sSmol::Float32` : ``s - sBig``
+- `sBig::Float32` : ``(m_1+m_2)^2 = 0 ∴ s = sSmol``
+- `tSmol::Float32` : ``t - tBig``
+- `tBig::Float32` : ``(m_3-m_1)^2 = 1 ∴ t = tSmol + 1``
+- `uSmol::Float32` : ``u - uBig``
+- `uBig::Float32` : ``(m_2-m_3)^2 = 1 ∴ u = uSmol + 1``
 """
 function dsigmadt_PhoPhoElePos(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
 
@@ -147,15 +147,15 @@ end
 """
     sigma_PhoPhoElePos(sSmol,sBig)
 
-returns the total cross section for photon-photon annihilation to electron-positron pair. Normalised by ``3σ_T``.
+returns the total cross section for photon-photon annihilation to electron-positron pair. Masses and momenta are normalised by the rest mass of the electron ``m_{\\text{Ele}}`` and the cross section is normalised by ``3σ_T``.
 
 ```math
 σ = \\frac{1}{2s^3}\\left((s^2+4s-8)\\log\\left(\\frac{\\sqrt(s)+\\sqrt(s-4)}{\\sqrt(s)-\\sqrt(s-4)}\\right)-(s+4)\\sqrt{s(s-4)}\\right)
 ```
 
 # Arguments
-- `sSmol::Float32` : s - sBig
-- `sBig::Float32` : (m1+m2)^2 = 0 (normalised units) -> s = sSmol
+- `sSmol::Float32` : ``s - sBig``
+- `sBig::Float32` : ``(m_1+m_2)^2 = 0 ∴ s = sSmol``
 """
 function sigma_PhoPhoElePos(sSmol::Float32,sBig::Float32)
 
