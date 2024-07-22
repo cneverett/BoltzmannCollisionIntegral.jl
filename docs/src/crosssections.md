@@ -14,11 +14,11 @@ Below is a table of the currently implemented particles (i.e. their particle pro
 
 These binary interactions have currently been implemented:
 - Collision of hard spheres `SphSphSphSph`
-    - functions: [`dsigmadt_SphSphSphSph`](@ref) [`sigma_SphSphSphSph`](@ref)
+    - functions: [`BinaryInteractionSpectra.dsigmadt_SphSphSphSph`](@ref) [`BinaryInteractionSpectra.sigma_SphSphSphSph`](@ref)
 - Photon pair production from electron positron annihilation `ElePosPhoPho`
-    - functions: [`dsigmadt_ElePosPhoPho`](@ref) [`sigma_ElePosPhoPho`](@ref)
+    - functions: [`BinaryInteractionSpectra.dsigmadt_ElePosPhoPho`](@ref) [`BinaryInteractionSpectra.sigma_ElePosPhoPho`](@ref)
 - Electron positron pair production from photon pair annihilation `PhoPhoElePos`
-    - functions: [`dsigmadt_PhoPhoElePos`](@ref) [`sigma_PhoPhoElePos`](@ref)
+    - functions: [`BinaryInteractionSpectra.dsigmadt_PhoPhoElePos`](@ref) [`BinaryInteractionSpectra.sigma_PhoPhoElePos`](@ref)
 
 ## Differential and total cross section functions
 
