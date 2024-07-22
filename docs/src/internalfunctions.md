@@ -1,5 +1,9 @@
 # Internal Functions
 
+```@docs
+BinaryInteractionSpectra.SpectralEvaluateSerial
+```
+
 ```@meta
 CurrentModule = BinaryInteractionSpectra
 using BinaryInteractionSpectra

@@ -4,7 +4,7 @@
 
 ## Overview
 
-`BinaryInteractionSpectra.jl` is a [Julia](http://julialang.org/) package for the evaluation of the relativistic collision integral for binary interactions ``(12\\rightleftharpoons 34)``:
+`BinaryInteractionSpectra.jl` is a [Julia](http://julialang.org/) package for the evaluation of the relativistic collision integral for binary interactions $(12\rightleftharpoons34)$:
 ```math
     C(\boldsymbol{p}_1)=\int\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_3}{p_3^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\delta_{34}}W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu)- \frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\delta_{34}}W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)\right],
 ```
@@ -12,7 +12,7 @@ when the distribution function for the particles involved may be either isotropi
 
 Evaluation is performed by assuming that the distribution function is constant over some set of discrete domains in phase space and then integrating over those domains using a Monte-Carlo method. For more information see the [Documentation](https://cneverett.github.io/BinaryInteractionSpectra.jl/).
 
-Evaluation currently supports both single and multithreaded operation.
+Evaluation currently supports both single and multithreaded operation. Data is exported in the [JLD2](https://github.com/JuliaIO/JLD2.jl) file format.
 
 ## Usage
 
