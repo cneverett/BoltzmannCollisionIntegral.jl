@@ -4,13 +4,13 @@ First install the package by
 ... TO BE UPDATED ONCE PACKAGE IS PUBLICLY AVAILABLE
 
 !!! note
-    An example script `Run_BinaryInteractionSpectra.jl` for setting up and running the evaluation of the discrete collision integral can be found under `src/Common/` of the package. It is recommended that you copy this script to your working directory, edit the relevant fields and then running, either using the command 
+    An example script `Run_Integration.jl` for setting up and running the evaluation of the discrete collision integral can be found under `src/Common/` of the package. It is recommended that you copy this script to your working directory, edit the relevant fields and then running, either using the command 
     ```julia-repl
-    include("Run_BinaryInteractionSpectra.jl)
+    include("Run_Integration.jl)
     ```
     in a julia-repl session, or by running the script line by line in your favourite code editor.
 
-The example script `Run_BinaryInteractionSpectra.jl` operates as follows:
+The example script `Run_Integration.jl` operates as follows:
 - Define the names of the 4 particles involved in the interaction (12->34) as the strings `name1` `name2` `name3` `name4`
     - These should of the form of three letters, which abbreviate the particles full name (see [Particles](@ref) for list of currently implemented particles).
     - They should be ordered to match a currently [Implemented Interactions](@ref)

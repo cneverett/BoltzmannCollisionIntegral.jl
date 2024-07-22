@@ -1,4 +1,4 @@
-module BinaryInteractionSpectra
+module BoltzmannCollisionIntegral
 
 export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All
 

@@ -50,18 +50,18 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
     # ======= Define Cross Section Functions Based on Particle Selections ========= #
 
         name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
-        sigma = getfield(BinaryInteractionSpectra,name_sigma)
+        sigma = getfield(BoltzmannCollisionIntegral,name_sigma)
         name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
-        dsigmadt = getfield(BinaryInteractionSpectra,name_dsigmadt)
+        dsigmadt = getfield(BoltzmannCollisionIntegral,name_dsigmadt)
 
     # ============================================================================ #
 
     # ===== Set Particle (normalised) Masses) and Parameters ====== #
 
-        mu1::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name1))
-        mu2::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name2))
-        mu3::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name3))
-        mu4::Float32 = getfield(BinaryInteractionSpectra,Symbol("mu"*name4))
+        mu1::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
+        mu2::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
+        mu3::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name3))
+        mu4::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name4))
 
         Parameters = (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2)
 

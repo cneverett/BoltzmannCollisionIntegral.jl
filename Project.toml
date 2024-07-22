@@ -1,4 +1,4 @@
-name = "BinaryInteractionSpectra"
+name = "BoltzmannCollisionIntegral"
 uuid = "20179301-8dfd-43f5-a10b-08fddd2c788a"
 authors = ["Christopher Everett <cn.everett@outlook.com> and contributors"]
 version = "1.0.0-DEV"
