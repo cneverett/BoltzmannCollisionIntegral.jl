@@ -8,14 +8,14 @@
    version="1.1"
    id="svg5"
    inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
-   sodipodi:docname="BoltzmannCollisionIntegralLogo.svg"
+   sodipodi:docname="BoltzmannCollisionIntegralLogo-dark.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
      id="namedview7"
-     pagecolor="#ffffff"
+     pagecolor="#292f2f"
      bordercolor="#999999"
      borderopacity="1"
      inkscape:showpageshadow="0"
@@ -25,11 +25,11 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="1.8761364"
-     inkscape:cx="207.0745"
-     inkscape:cy="212.4046"
+     inkscape:cx="146.04482"
+     inkscape:cy="260.90854"
      inkscape:window-width="1278"
      inkscape:window-height="1360"
-     inkscape:window-x="1273"
+     inkscape:window-x="1266"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1" />
@@ -155,7 +155,7 @@
          sodipodi:nodetypes="cc" />
       <path
          style="fill:none;fill-opacity:1;stroke:#969696;stroke-width:2;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#RoundedArrow-8)"
-         d="M 88.53828,78.61645 84.971333,69.358618"
+         d="M 88.53828,78.61645 84.871613,69.308758"
          id="path3460-7"
          sodipodi:nodetypes="cc" />
       <path
