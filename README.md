@@ -1,4 +1,4 @@
-<img align="left" width="90" height="90" src="https://github.com/cneverett/BoltzmannCollisionIntegral.jl/blob/main/docs/src/assets/logo.svg" alt="BoltzmannCollisionIntegral.jl icon">
+<img align="left" width="75" height="75" src="https://github.com/cneverett/BoltzmannCollisionIntegral.jl/blob/main/docs/src/assets/logo.svg" alt="BoltzmannCollisionIntegral.jl icon">
 
 # BoltzmannCollisionIntegral.jl
 
