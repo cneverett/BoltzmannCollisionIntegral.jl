@@ -25,10 +25,10 @@ These binary interactions have currently been implemented:
 Users may add their own binary interaction cross sections to the `/src/commom/DifferentialCrossSectionFunctions.jl` file. Functions should be named in the following format: `"sigma_name1name2name3name4"` and `"dsigmadt_name1name2name3name4"` where the names are three letter abbreviations of the particles involved (see [Particles](#particles) for examples). The named pairs `name1name2` and `name3name4` should be in alphabetical order. Both the total cross section and differential cross sections must be provided for a single interaction.    
 
 All cross sections are to be defined in terms of the Mandelstram variables $s=(p_1^\mu+p_2^\mu)^2$, $t=(p_1^\mu-p_3^\mu)^2$ and $u=(p_2^\mu-p_3^\mu)^2$. To maintain accuracy of cross sections and avoid DivZero issues when momenta is small compared to the mass of the particles (at `Float32` precision), each Mandelstram variable in the cross sections should be split into two components:
-- $s=sSmol+sBig$ where $sBig = (m_1+m_2)^2$
-- $t=tSmol+tBig$ where $tBig = (m_1-m_3)^2$
-- $u=uSmol+uBig$ where $uBig = (m_2-m_3)^2$
-The "big" part typically cancels with terms in the cross sections, leading to better accuracy. Therefore the function should defined as follows:
+- `s=sSmol+sBig` where `sBig = (m_1+m_2)^2`
+- `t=tSmol+tBig` where `tBig = (m_1-m_3)^2`
+- `u=uSmol+uBig` where `uBig = (m_2-m_3)^2`
+The "Big" part typically cancels with terms in the cross sections, leading to better accuracy. Therefore the function should defined as follows:
 ```julia
 function sigma_name1name2name3name4(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
     ... 
