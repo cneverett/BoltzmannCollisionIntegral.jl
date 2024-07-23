@@ -1,6 +1,13 @@
 # BoltzmannCollisionIntegral.jl
 
-[![Build Status](https://github.com/cneverett/BoltzmannCollisionIntegral.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/cneverett/BoltzmannCollisionIntegral.jl/actions/workflows/CI.yml?query=branch%3Amaster)
+[![][docs-latest-img]][docs-latest-url]
+[![Build Status][gha-img]][gha-url]
+
+[docs-latest-img]: https://img.shields.io/badge/Docs-Stable-lightgrey.svg
+[docs-latest-url]: https://cneverett.github.io/BoltzmannCollisionIntegral.jl/dev/
+
+[gha-img]: https://github.com/cneverett/BoltzmannCollisionIntegral.jl/actions/workflows/CI.yml/badge.svg?branch=main
+[gha-url]: https://github.com/cneverett/BoltzmannCollisionIntegral.jl/actions/workflows/CI.yml?query=branch%3Amain
 
 ## Overview
 
