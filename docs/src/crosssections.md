@@ -40,6 +40,9 @@ end
 ```
 where all of `sSmol`, `sBig`, `tSmol`, `tBig`, `uSmol`, and `uBig` must be included in the function definition irrespective of if they actually appear in the cross section. It is also important to define a normalisation for the cross sections to avoid emission and absorption terms becoming small compared to the `Float32` minimum.
 
+!!! warning
+    Total cross sections may typically be defined/derived in textbooks and other sources to include division by $1/2$ if output states are identical. This factor should NOT be included here as this factor is included separably in the code. 
+
 ## Differential and Total Cross Section Functions
 
 !!! warning
