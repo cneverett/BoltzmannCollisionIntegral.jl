@@ -17,11 +17,11 @@
 ```math
     C(\boldsymbol{p}_3)=\int\frac{\mathrm{d}^3\boldsymbol{p}_1}{p_1^0}\frac{\mathrm{d}^3\boldsymbol{p}_2}{p_2^0}\frac{\mathrm{d}^3\boldsymbol{p}_4}{p_4^0}\left[\frac{f(\boldsymbol{p}_1)f(\boldsymbol{p}_2)}{1+\delta_{12}}W(p_1^\mu,p_2^\mu|p_3^\mu,p_4^\mu)- \frac{f(\boldsymbol{p}_3)f(\boldsymbol{p}_4)}{1+\delta_{12}}W(p_3^\mu,p_4^\mu|p_1^\mu,p_2^\mu)\right],
 ```
-via momentum discretisation and Monte-Carlo sampling. The distribution functions $f(\boldsymbol{p})$ for the particles involved are assumed to be anisotropic (currently only axisymmetric is implemented). The collision integral is split into two components, an emission spectra dictating the rate of gain of particles emerging from a given binary interaction and an absorption spectra dictating the rate of loss of particles from the same interaction.
+via momentum discretisation and Monte-Carlo sampling. The distribution functions $f(\boldsymbol{p})$ for the particles involved are assumed to be anisotropic (only axisymmetric is currently implemented). The collision integral is split into two components, an emission spectra dictating the rate of gain of particles emerging from a given binary interaction and an absorption spectra dictating the rate of loss of particles from the same interaction.
 
 Evaluation is performed by assuming that the distribution function is constant over some set of discrete domains in phase space and then integrating over those domains using a Monte-Carlo method. For more information see the [Documentation](https://cneverett.github.io/BoltzmannCollisionIntegral.jl/).
 
-Evaluation currently supports both single and multithreaded operation. Data is exported in the [JLD2](https://github.com/JuliaIO/JLD2.jl) file format.
+Evaluation currently supports both single and multithreaded operation (with GPU acceleration planned). Data is exported in the [JLD2](https://github.com/JuliaIO/JLD2.jl) file format.
 
 ## Usage
 
