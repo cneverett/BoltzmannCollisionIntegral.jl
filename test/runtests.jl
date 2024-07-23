@@ -1,4 +1,4 @@
-using BinaryInteractionSpectra
+#using BinaryInteractionSpectra
 using Test
 
 @testset "BinaryInteractionSpectra.jl" begin
