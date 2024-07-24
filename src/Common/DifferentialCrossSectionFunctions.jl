@@ -124,7 +124,7 @@ const sigmaNorm_ElePosPhoPho = 3*σT;
 
 returns the differential cross section for photon-photon annihilation to electron-positron pair. (Inverse proceess of electron positron annihilation to two photons). Masses and momenta are normalised by the rest mass of the electron ``m_{\\text{Ele}}`` and the cross section is normalised by ``3σ_T``.
 
-```maths
+```math
 \\frac{dσ}{dt} = -\\frac{1}{s^2}\\left(\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)^2+\\left(\\frac{1}{t-1}+\\frac{1}{u-1}\\right)-\\frac{1}{4}\\left(\\frac{t-1}{u-1}+\\frac{u-1}{t-1}\\right)\\right)
 ```
 
