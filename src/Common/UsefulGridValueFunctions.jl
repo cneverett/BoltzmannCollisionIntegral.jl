@@ -154,18 +154,27 @@ function deltaEVector(pr::Vector{Float32},mu::Float32)
     E = zeros(Float32,num+1)
     ΔE = zeros(Float32,num)
 
-    for ii in 1:num+1 
-        E[ii] = mu + pr[ii]^2/(sqrt(mu^2+pr[ii]^2)+mu)
-    end 
-
-    for ii in 1:num 
-        ΔE[ii] = (pr[ii+1]-pr[ii])*mu
-        ΔE[ii] += pr[ii+1]^3/(E[ii+1]+mu) - pr[ii]^3/(E[ii]+mu) 
-        ΔE[ii] += mu^2*(asinh(pr[ii+1]/mu)-asinh(pr[ii]/mu))
-        ΔE[ii] /= 2f0
+    if mu == 0f0
+        for ii in 1:num 
+            ΔE[ii] = pr[ii+1]^2-pr[ii]^2
+            ΔE[ii] /= 2f0
+        end
+    else 
+        for ii in 1:num+1 
+            E[ii] = mu + pr[ii]^2/(sqrt(mu^2+pr[ii]^2)+mu)
         end 
+        for ii in 1:num 
+            ΔE[ii] = (pr[ii+1]-pr[ii])*mu
+            ΔE[ii] += pr[ii+1]^3/(E[ii+1]+mu) - pr[ii]^3/(E[ii]+mu) 
+            ΔE[ii] += mu^2*(asinh(pr[ii+1]/mu)-asinh(pr[ii]/mu))
+            ΔE[ii] /= 2f0
+        end
+    end 
 
     return ΔE
 end
 
 # ================================================================ #
+
+deltaEVector(prange(-5f0,4f0,72),1800f0)
+deltaEVector(prange(-5f0,4f0,72),0f0)
