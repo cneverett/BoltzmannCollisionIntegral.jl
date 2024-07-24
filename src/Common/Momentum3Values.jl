@@ -204,3 +204,45 @@ function Momentum3Value!(p3v::Vector{Float32},p3pv::Vector{Float32},p1v::Vector{
     return p3_physical, p3p_physical, NumStates
 
 end
+
+
+"""
+    p4Vector!(p4v,p3v,p1v,p2v)
+
+Returns the p4 vector (in standard form [p,cos(theta),phi/pi]) given the p1, p2 and p3 vectors using conservation of momentum.
+"""
+function p4Vector!(p4v::Vector{Float32},p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32})
+
+    p1::Float32 = p1v[1]
+    p2::Float32 = p2v[1]
+    p3::Float32 = p3v[1]
+
+    ct1::Float32 = p1v[2] 
+    ct2::Float32 = p2v[2]  
+    ct3::Float32 = p3v[2] 
+
+    st1::Float32 = sqrt(1f0-p1v[2]^2)
+    st2::Float32 = sqrt(1f0-p2v[2]^2) 
+    st3::Float32 = sqrt(1f0-p3v[2]^2) 
+
+    ch1::Float32 = cospi(p1v[3])
+    ch2::Float32 = cospi(p2v[3])
+    ch3::Float32 = cospi(p3v[3])
+
+    sh1::Float32 = sqrt(1f0-ch1^2) 
+    sh2::Float32 = sqrt(1f0-ch2^2) 
+    sh3::Float32 = sqrt(1f0-ch3^2) 
+
+    p3xyz = [p3*st3*ch3,p3*st3*sh3,p3*ct3]
+    p1xyz = [p1*st1*ch1,p1*st1*sh1,p1*ct1]
+    p2xyz = [p2*st2*ch2,p2*st2*sh2,p2*ct2]
+
+    p4xyz = p1xyz + p2xyz - p3xyz
+
+    p4v[1] = sqrt(p4xyz[1]^2+p4xyz[2]^2+p4xyz[3]^2)
+    p4v[2] = p4xyz[3]/p4v[1]
+    p4v[3] = atan(p4xyz[2],p4xyz[1])/pi
+
+    return nothing
+
+end
