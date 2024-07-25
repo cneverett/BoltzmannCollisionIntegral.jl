@@ -19,6 +19,8 @@ These binary interactions have currently been implemented:
     - functions: [`BoltzmannCollisionIntegral.dsigmadt_ElePosPhoPho`](@ref) [`BoltzmannCollisionIntegral.sigma_ElePosPhoPho`](@ref)
 - Electron positron pair production from photon pair annihilation `PhoPhoElePos`
     - functions: [`BoltzmannCollisionIntegral.dsigmadt_PhoPhoElePos`](@ref) [`BoltzmannCollisionIntegral.sigma_PhoPhoElePos`](@ref)
+- Electron(or Positron)-Photon scattering (Compton Scattering) `ElePhoElePho`
+    - functions: [`BoltzmannCollisionIntegral.dsigmadt_ElePhoElePho`](@ref) [`BoltzmannCollisionIntegral.sigma_ElePhoElePho`](@ref)
 
 ## Adding User Defined Interactions
 
@@ -63,4 +65,7 @@ dsigmadt_ElePosPhoPho
 
 sigma_PhoPhoElePos
 dsigmadt_PhoPhoElePos
+
+sigma_ElePhoElePho
+dsigmadt_ElePhoElePho
 ```
