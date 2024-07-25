@@ -241,12 +241,14 @@ uSmol = -1000f0
 
 425440.9#850878.4#1.0#-850881.94#0.0#3.8998935#1.0#Float32[5719.873, 0.18377423, 1.0450137]#Float32[5719.476, 0.18395984, 1.0450138]#Float32[91.98793, -0.23729122, 0.6241733]
 
-p3v = Float32[4239.24, 0.78002834, 0.37422585]
+4861.224#9726.689#1.0#-9723.102#0.0#0.4210949#1.0#Float32[4822.6353, -0.71620655, 0.26905596]#Float32[0.009878719, 0.936355, 0.99949396]#Float32[4823.4194, -0.7161987, 0.26895058]
+
+p3v = Float32[4822.6353, -0.71620655, 0.26905596]
 
 p4v = Float32[5719.873, 0.18377423, 1.0450137]
 
-p1v = Float32[5719.476, 0.18395984, 1.0450138]
-p2v = Float32[91.98793, -0.23729122, 0.6241733]
+p1v = Float32[0.009878719, 0.936355, 0.99949396]
+p2v = Float32[4823.4194, -0.7161987, 0.26895058]
 
 sSmol::Float32 = 850878.4
 sBig::Float32 = 1.0
@@ -281,8 +283,8 @@ ch3h2 = cospi(p3v[3]-p2v[3])
 Es3::Float32 = m3 != 0f0 ? (p3^2)/(sqrt(m3^2+p3^2)+m3) : p3
 Es3s::Float32 = Es3/p3
 E3::Float32 = m3 + Es3
-tSmol::Float32 = -2*(m1*Es3 + m3*Es1 + p3*p1*(Es3s*Es1s-(ct3*ct1+ch3h1*st3*st1))) 
-uSmol::Float32 = -2*(m3*Es2 + m2*Es3 + p2*p3*(Es2s*Es3s-(ct2*ct3+ch3h2*st2*st3)))
+tSmol::Float32 = -2*p3*p1*(-ct3*ct1 -ch3h1*st3*st1 + Es3s*Es1s + m1*Es3s/p1 + m3*Es1s/p3) 
+uSmol::Float32 = -2*p2*p3*(-ct2*ct3 -ch3h2*st2*st3 + Es2s*Es3s + m3*(Es2s/p3) + m2*(Es3s/p2))
 
 p4::Float32 = p4v[1]
 ct4::Float32 = p4v[2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
@@ -292,9 +294,6 @@ ch4h2::Float32 = cospi(p4v[3]-p2v[3])
 Es4::Float32 = m4 != 0f0 ? (p4^2)/(sqrt(m42+p4^2)+m4) : p4
 Es4s::Float32 = Es4/p4
 E4::Float32 = Es4 + m4
-uSmol::Float32 = -2*(m1*Es4 + m4*Es1 + p4*p1*(p4/(sqrt(m4^2+p4^2)+m4)*p1/(sqrt(m1^2+p1^2)+m1) - (ct4*ct1+ch4h1*st4*st1)))
-tSmol::Float32 = -2*(m4*Es2 + m2*Es4 + p2*p4*(p4/(sqrt(m4^2+p4^2)+m4)*p2/(sqrt(m2^2+p2^2)+m2) - (ct2*ct4+ch4h2*st2*st4)))
-
 uSmol::Float32 = -2*p4*p1*( - ct4*ct1 - ch4h1*st4*st1 + Es4s*Es1s + m1*Es4s/p1 + m4*Es1s/p4 )
 tSmol::Float32 = -2*p2*p4*(- ct2*ct4 - ch4h2*st2*st4 + Es2s*Es4s + m4*Es2s/p4 + m2*Es4s/p2 )
 
@@ -313,7 +312,7 @@ u = uBig+uSmol
 s+t+u
 
 sigma_ElePhoElePho(sSmol,sBig)
-dsigmadt_ElePhoElePho(sSmol,sBig,tSmol,tBig,-5.9f0,uBig)
+dsigmadt_ElePhoElePho(sSmol,sBig,tSmol,tBig,-1.3f0,uBig)
 dsigmadt_ElePhoElePho(sSmol,sBig,tSmol,tBig,uSmol,uBig)
 
 p3v_test = (copy(p3v))
@@ -591,5 +590,5 @@ function InvarientFlux2Small(sSmol::Float64,mu1::Float32,mu2::Float32)
 
 end
 
-=#
 
+=#

@@ -121,7 +121,7 @@ function SValue3(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},
     # t = tBig + tSmol
     tBig::Float32 = (m3-m1)^2
     #tSmol::Float32 = -2*(m1*Es3 + m3*Es1 + Es3*Es1 - p3*p1*(ct3*ct1+ch3h1*st3*st1))
-    tSmol::Float32 = -2*p3*p1*(- ct3*ct1 - ch3h1*st3*st1 + Es3s*Es1s + m1*Es3s/p1 + m3*Es1s/p3)
+    tSmol::Float32 = -2*p3*p1*(-ct3*ct1 -ch3h1*st3*st1 + Es3s*Es1s + m1*Es3s/p1 + m3*Es1s/p3)
     # u = uBig + uSmol
     uBig::Float32 = (m2-m3)^2
     #uSmol::Float32 = m12+m22+m32+m42 - sBig - tBig - uBig - sSmol - tSmol  # this leads to Float32 issues better to calculate directly
