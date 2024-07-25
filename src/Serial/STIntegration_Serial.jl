@@ -5,7 +5,7 @@
 
 Function to run the Monte Carlo integration of the S and T arrays in a serial environment. The function will run the Monte Carlo integration in serial and then calculate the S and T matricies and save the results to a file.
 """
-function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,String,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64,Int64,Int64,String,String})
+function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,String,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,String,String})
 
     # ========= Load user Parameters ======= #
 
@@ -43,20 +43,20 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
             TMatrix2 = f["TMatrix2"];
             close(f)
         else
-            SAtotal3 = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
-            SAtotal4 = zeros(Float32,(nump4+1),numt4,nump1,numt1,nump2,numt2); 
-            TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
+            SAtotal3 = zeros(Float64,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
+            SAtotal4 = zeros(Float64,(nump4+1),numt4,nump1,numt1,nump2,numt2); 
+            TAtotal = zeros(Float64,nump1,numt1,nump2,numt2);
             SAtally3 = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
             SAtally4 = zeros(UInt32,numt4,nump1,numt1,nump2,numt2)
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
-            SMatrix3 = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2);
-            TMatrix1 = zeros(Float32,nump1,numt1,nump2,numt2);
-            TMatrix2 = zeros(Float32,nump2,numt2,nump1,numt1);
-            p3Max = zeros(Float32,numt3,nump1,numt1,nump2,numt2);
-            t3MinMax = zeros(Float32,2,(nump3+1),nump1,numt1,nump2,numt2);
-            SMatrix4 = zeros(Float32,(nump4+1),numt4,nump1,numt1,nump2,numt2);
-            p4Max = zeros(Float32,numt4,nump1,numt1,nump2,numt2);
-            t4MinMax = zeros(Float32,2,(nump4+1),nump1,numt1,nump2,numt2);
+            SMatrix3 = zeros(Float64,(nump3+1),numt3,nump1,numt1,nump2,numt2);
+            TMatrix1 = zeros(Float64,nump1,numt1,nump2,numt2);
+            TMatrix2 = zeros(Float64,nump2,numt2,nump1,numt1);
+            p3Max = zeros(Float64,numt3,nump1,numt1,nump2,numt2);
+            t3MinMax = zeros(Float64,2,(nump3+1),nump1,numt1,nump2,numt2);
+            SMatrix4 = zeros(Float64,(nump4+1),numt4,nump1,numt1,nump2,numt2);
+            p4Max = zeros(Float64,numt4,nump1,numt1,nump2,numt2);
+            t4MinMax = zeros(Float64,2,(nump4+1),nump1,numt1,nump2,numt2);
         end
 
     # ====================================== #
@@ -72,10 +72,10 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
 
     # ===== Set Particle (normalised) Masses) and Parameters ====== #
 
-        mu1::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
-        mu2::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
-        mu3::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name3))
-        mu4::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name4))
+        mu1::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
+        mu2::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
+        mu3::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name3))
+        mu4::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name4))
 
         Parameters = (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p4l,p4u,nump4,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt4,numt1,numt2)
 

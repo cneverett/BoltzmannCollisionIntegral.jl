@@ -19,14 +19,14 @@ returns the differential cross section for the binary interaction of hard sphere
 ```
 
 # Arguments
-- `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2=4m_{\\text{Sph}}^2``
-- `tSmol::Float32` : ``t - tBig``
-- `tBig::Float32` : ``(m_3-m_1)^2=0``
-- `uSmol::Float32` : ``u - uBig``
-- `uBig::Float32` : ``(m_2-m_3)^2=0``
+- `sSmol::Float64` : ``s - sBig``
+- `sBig::Float64` : ``(m_1+m_2)^2=4m_{\\text{Sph}}^2``
+- `tSmol::Float64` : ``t - tBig``
+- `tBig::Float64` : ``(m_3-m_1)^2=0``
+- `uSmol::Float64` : ``u - uBig``
+- `uBig::Float64` : ``(m_2-m_3)^2=0``
 """
-function dsigmadt_SphSphSphSph(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
+function dsigmadt_SphSphSphSph(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
 
     #=
         1f0/(s-4*muSph^2)
@@ -47,17 +47,17 @@ returns the total cross section for the binary interaction of hard spheres with 
 ```
 
 # Arguments
-- `sSmol::Float32` : s - sBig
-- `sBig::Float32` : (m1+m2)^2
+- `sSmol::Float64` : s - sBig
+- `sBig::Float64` : (m1+m2)^2
 """
-function sigma_SphSphSphSph(sSmol::Float32,sBig::Float32)
+function sigma_SphSphSphSph(sSmol::Float64,sBig::Float64)
     
     1f0/2f0 # factor of 2 accounts for identical final states
 
 end
 
-const dsigmadtNorm_SphSphSphSph = Float32(pi)*(2f0*RSph)^2
-const sigmanNorm_SphSphSphSph = Float32(pi)*(2f0*RSph)^2
+const dsigmadtNorm_SphSphSphSph = Float64(pi)*(2f0*RSph)^2
+const sigmanNorm_SphSphSphSph = Float64(pi)*(2f0*RSph)^2
 
 # ======================================================================= #
 
@@ -73,14 +73,14 @@ returns the differential cross section for electron positron annihilation to two
 ```
 
 # Arguments
-- `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2 = 4 ∴ s = sSmol + 4``
-- `tSmol::Float32` : ``t - tBig``
-- `tBig::Float32` : ``(m_3-m_1)^2 = 1 ∴ t = tSmol + 1``
-- `uSmol::Float32` : ``u - uBig``
-- `uBig::Float32` : ``(m2-m3)^2 = 1 ∴ u = uSmol + 1``
+- `sSmol::Float64` : ``s - sBig``
+- `sBig::Float64` : ``(m_1+m_2)^2 = 4 ∴ s = sSmol + 4``
+- `tSmol::Float64` : ``t - tBig``
+- `tBig::Float64` : ``(m_3-m_1)^2 = 1 ∴ t = tSmol + 1``
+- `uSmol::Float64` : ``u - uBig``
+- `uBig::Float64` : ``(m2-m3)^2 = 1 ∴ u = uSmol + 1``
 """
-function dsigmadt_ElePosPhoPho(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
+function dsigmadt_ElePosPhoPho(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
 
     # -(1/(s(s-4)))*((1/(t-1)+1/(1-s-t))^2+(1/(t-1)+1/(1-s-t))-(1/4)*((t-1)/(1-s-t)+(1-s-t)/(t-1)))
     
@@ -99,10 +99,10 @@ returns the total cross section for electron positron annihilation to two photon
 ```
 
 # Arguments
-- `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2 = 4 ∴ s = sSmol + 4``
+- `sSmol::Float64` : ``s - sBig``
+- `sBig::Float64` : ``(m_1+m_2)^2 = 4 ∴ s = sSmol + 4``
 """
-function sigma_ElePosPhoPho(sSmol::Float32,sBig::Float32)
+function sigma_ElePosPhoPho(sSmol::Float64,sBig::Float64)
 
     #(1/(4*s^2*(s-4)))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
 
@@ -129,14 +129,14 @@ returns the differential cross section for photon-photon annihilation to electro
 ```
 
 # Arguments
-- `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2 = 0 ∴ s = sSmol``
-- `tSmol::Float32` : ``t - tBig``
-- `tBig::Float32` : ``(m_3-m_1)^2 = 1 ∴ t = tSmol + 1``
-- `uSmol::Float32` : ``u - uBig``
-- `uBig::Float32` : ``(m_2-m_3)^2 = 1 ∴ u = uSmol + 1``
+- `sSmol::Float64` : ``s - sBig``
+- `sBig::Float64` : ``(m_1+m_2)^2 = 0 ∴ s = sSmol``
+- `tSmol::Float64` : ``t - tBig``
+- `tBig::Float64` : ``(m_3-m_1)^2 = 1 ∴ t = tSmol + 1``
+- `uSmol::Float64` : ``u - uBig``
+- `uBig::Float64` : ``(m_2-m_3)^2 = 1 ∴ u = uSmol + 1``
 """
-function dsigmadt_PhoPhoElePos(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
+function dsigmadt_PhoPhoElePos(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
 
     # -(1/(s^2))*((1/(t-1)+1/(1-s-t))^2+(1/(t-1)+1/(1-s-t))-(1/4)*((t-1)/(1-s-t)+(1-s-t)/(t-1)))
     
@@ -154,10 +154,10 @@ returns the total cross section for photon-photon annihilation to electron-posit
 ```
 
 # Arguments
-- `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2 = 0 ∴ s = sSmol``
+- `sSmol::Float64` : ``s - sBig``
+- `sBig::Float64` : ``(m_1+m_2)^2 = 0 ∴ s = sSmol``
 """
-function sigma_PhoPhoElePos(sSmol::Float32,sBig::Float32)
+function sigma_PhoPhoElePos(sSmol::Float64,sBig::Float64)
 
     #(1/(2*s^3))*((s^2+4*s-8)*log((sqrt(s)+sqrt(s-4))/(sqrt(s)-sqrt(s-4)))-(s+4)*sqrt(s*(s-4)))
     s = sSmol+sBig
@@ -183,14 +183,14 @@ returns the differential cross section for electron-photon scattering (Compton) 
 ```
 
 # Arguments
-- `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2 = 1 ∴ s = sSmol + 1``
-- `tSmol::Float32` : ``t - tBig``
-- `tBig::Float32` : ``(m_3-m_1)^2 = 0 ∴ t = tSmol``
-- `uSmol::Float32` : ``u - uBig``
-- `uBig::Float32` : ``(m_2-m_3)^2 = 1 ∴ u = uSmol + 1``
+- `sSmol::Float64` : ``s - sBig``
+- `sBig::Float64` : ``(m_1+m_2)^2 = 1 ∴ s = sSmol + 1``
+- `tSmol::Float64` : ``t - tBig``
+- `tBig::Float64` : ``(m_3-m_1)^2 = 0 ∴ t = tSmol``
+- `uSmol::Float64` : ``u - uBig``
+- `uBig::Float64` : ``(m_2-m_3)^2 = 1 ∴ u = uSmol + 1``
 """
-function dsigmadt_ElePhoElePho(sSmol::Float32,sBig::Float32,tSmol::Float32,tBig::Float32,uSmol::Float32,uBig::Float32)
+function dsigmadt_ElePhoElePho(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
 
     # -(1/(s-1)^2)*((1/(s-1)+1/(u-1))^2+(1/(s-1)+1/(u-1))-(1/4)*((s-1)/(u-1)+(u-1)/(s-1)))
     
@@ -208,10 +208,10 @@ returns the total cross section for electron-photon (Compton) scattering. Berest
 ```
 
 # Arguments
-- `sSmol::Float32` : ``s - sBig``
-- `sBig::Float32` : ``(m_1+m_2)^2 = 1 ∴ s = sSmol + 1``
+- `sSmol::Float64` : ``s - sBig``
+- `sBig::Float64` : ``(m_1+m_2)^2 = 1 ∴ s = sSmol + 1``
 """
-function sigma_ElePhoElePho(sSmol::Float32,sBig::Float32)
+function sigma_ElePhoElePho(sSmol::Float64,sBig::Float64)
 
     #(1/(4*(s-1)))*((1-4/(s-1)-8/(s-1)^2)*log(1+1/(s-1))+1/2+8/(s-1)-1/(2*s^2))
     s = sBig+sSmol
@@ -237,23 +237,23 @@ s = sSmol+sBig
 2-s-1
 uSmol = -1000f0
 
-1.892324e6#3.7846492e6#1.0#-3.784648e6#0.0#0.8574219#1.0#Float32[4239.24, 0.78002834, 0.37422585]#Float32[262.28375, -0.28028643, 1.5766257]#Float32[4239.385, 0.7800194, 0.37416828]
+1.892324e6#3.7846492e6#1.0#-3.784648e6#0.0#0.8574219#1.0#Float64[4239.24, 0.78002834, 0.37422585]#Float64[262.28375, -0.28028643, 1.5766257]#Float64[4239.385, 0.7800194, 0.37416828]
 
-425440.9#850878.4#1.0#-850881.94#0.0#3.8998935#1.0#Float32[5719.873, 0.18377423, 1.0450137]#Float32[5719.476, 0.18395984, 1.0450138]#Float32[91.98793, -0.23729122, 0.6241733]
+425440.9#850878.4#1.0#-850881.94#0.0#3.8998935#1.0#Float64[5719.873, 0.18377423, 1.0450137]#Float64[5719.476, 0.18395984, 1.0450138]#Float64[91.98793, -0.23729122, 0.6241733]
 
-p3v = Float32[4239.24, 0.78002834, 0.37422585]
+p3v = Float64[4239.24, 0.78002834, 0.37422585]
 
-p4v = Float32[5719.873, 0.18377423, 1.0450137]
+p4v = Float64[5719.873, 0.18377423, 1.0450137]
 
-p1v = Float32[5719.476, 0.18395984, 1.0450138]
-p2v = Float32[91.98793, -0.23729122, 0.6241733]
+p1v = Float64[5719.476, 0.18395984, 1.0450138]
+p2v = Float64[91.98793, -0.23729122, 0.6241733]
 
-sSmol::Float32 = 850878.4
-sBig::Float32 = 1.0
-tSmol::Float32 = -850881.9
-tBig::Float32 = 0.0
-uSmol::Float32 = 3.8998935
-uBig::Float32 = 1.0
+sSmol::Float64 = 850878.4
+sBig::Float64 = 1.0
+tSmol::Float64 = -850881.9
+tBig::Float64 = 0.0
+uSmol::Float64 = 3.8998935
+uBig::Float64 = 1.0
 
 m3 = 1f0
 m2 = 0f0
@@ -266,37 +266,37 @@ ct1 = p1v[2]
 ct2 = p2v[2]
 st1 = sqrt(1f0-ct1^2)
 st2 = sqrt(1f0-ct2^2)
-Es2::Float32 = m2 != 0f0 ? (p2^2)/(sqrt(m2^2+p2^2)+m2) : p2
-Es2s::Float32 = Es2/p2
-Es1::Float32 = m1 != 0f0 ? (p1^2)/(sqrt(m1^2+p1^2)+m1) : p1
-Es1s::Float32 = Es1/p1
-E1::Float32 = m1 + Es1
-E2::Float32 = m2 + Es2
+Es2::Float64 = m2 != 0f0 ? (p2^2)/(sqrt(m2^2+p2^2)+m2) : p2
+Es2s::Float64 = Es2/p2
+Es1::Float64 = m1 != 0f0 ? (p1^2)/(sqrt(m1^2+p1^2)+m1) : p1
+Es1s::Float64 = Es1/p1
+E1::Float64 = m1 + Es1
+E2::Float64 = m2 + Es2
 
 p3 = p3v[1]
 ct3 = p3v[2]
 st3 = sqrt(1f0-ct3^2)
 ch3h1 = cospi(p3v[3]-p1v[3])
 ch3h2 = cospi(p3v[3]-p2v[3])
-Es3::Float32 = m3 != 0f0 ? (p3^2)/(sqrt(m3^2+p3^2)+m3) : p3
-Es3s::Float32 = Es3/p3
-E3::Float32 = m3 + Es3
-tSmol::Float32 = -2*(m1*Es3 + m3*Es1 + p3*p1*(Es3s*Es1s-(ct3*ct1+ch3h1*st3*st1))) 
-uSmol::Float32 = -2*(m3*Es2 + m2*Es3 + p2*p3*(Es2s*Es3s-(ct2*ct3+ch3h2*st2*st3)))
+Es3::Float64 = m3 != 0f0 ? (p3^2)/(sqrt(m3^2+p3^2)+m3) : p3
+Es3s::Float64 = Es3/p3
+E3::Float64 = m3 + Es3
+tSmol::Float64 = -2*(m1*Es3 + m3*Es1 + p3*p1*(Es3s*Es1s-(ct3*ct1+ch3h1*st3*st1))) 
+uSmol::Float64 = -2*(m3*Es2 + m2*Es3 + p2*p3*(Es2s*Es3s-(ct2*ct3+ch3h2*st2*st3)))
 
-p4::Float32 = p4v[1]
-ct4::Float32 = p4v[2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
-st4::Float32 = sqrt(1f0-p4v[2]^2)
-ch4h1::Float32 = cospi(p4v[3]-p1v[3])
-ch4h2::Float32 = cospi(p4v[3]-p2v[3])
-Es4::Float32 = m4 != 0f0 ? (p4^2)/(sqrt(m42+p4^2)+m4) : p4
-Es4s::Float32 = Es4/p4
-E4::Float32 = Es4 + m4
-uSmol::Float32 = -2*(m1*Es4 + m4*Es1 + p4*p1*(p4/(sqrt(m4^2+p4^2)+m4)*p1/(sqrt(m1^2+p1^2)+m1) - (ct4*ct1+ch4h1*st4*st1)))
-tSmol::Float32 = -2*(m4*Es2 + m2*Es4 + p2*p4*(p4/(sqrt(m4^2+p4^2)+m4)*p2/(sqrt(m2^2+p2^2)+m2) - (ct2*ct4+ch4h2*st2*st4)))
+p4::Float64 = p4v[1]
+ct4::Float64 = p4v[2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
+st4::Float64 = sqrt(1f0-p4v[2]^2)
+ch4h1::Float64 = cospi(p4v[3]-p1v[3])
+ch4h2::Float64 = cospi(p4v[3]-p2v[3])
+Es4::Float64 = m4 != 0f0 ? (p4^2)/(sqrt(m42+p4^2)+m4) : p4
+Es4s::Float64 = Es4/p4
+E4::Float64 = Es4 + m4
+uSmol::Float64 = -2*(m1*Es4 + m4*Es1 + p4*p1*(p4/(sqrt(m4^2+p4^2)+m4)*p1/(sqrt(m1^2+p1^2)+m1) - (ct4*ct1+ch4h1*st4*st1)))
+tSmol::Float64 = -2*(m4*Es2 + m2*Es4 + p2*p4*(p4/(sqrt(m4^2+p4^2)+m4)*p2/(sqrt(m2^2+p2^2)+m2) - (ct2*ct4+ch4h2*st2*st4)))
 
-uSmol::Float32 = -2*p4*p1*( - ct4*ct1 - ch4h1*st4*st1 + Es4s*Es1s + m1*Es4s/p1 + m4*Es1s/p4 )
-tSmol::Float32 = -2*p2*p4*(- ct2*ct4 - ch4h2*st2*st4 + Es2s*Es4s + m4*Es2s/p4 + m2*Es4s/p2 )
+uSmol::Float64 = -2*p4*p1*( - ct4*ct1 - ch4h1*st4*st1 + Es4s*Es1s + m1*Es4s/p1 + m4*Es1s/p4 )
+tSmol::Float64 = -2*p2*p4*(- ct2*ct4 - ch4h2*st2*st4 + Es2s*Es4s + m4*Es2s/p4 + m2*Es4s/p2 )
 
 p4*p1
 m1*Es4s/p1 
@@ -335,7 +335,7 @@ SValue4(p4v64,p1v64,p2v64,dsigmadt_ElePhoElePho64,m1,m2,m3,m4)
 SValue4(p4v,p1v,p2v,dsigmadt_ElePhoElePho,m1,m2,m3,m4)
 
 
-function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},mu1::Float32,mu2::Float32,mu3::Float32,mu4::Float32)
+function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64)
 
     # set normalised masses (defined in Init.jl)
     m1::Float64 = mu1
@@ -507,7 +507,7 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
 
 end
 
-function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},dsigmadt::Function,mu1::Float32,mu2::Float32,mu3::Float32,mu4::Float32)
+function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},dsigmadt::Function,mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64)
 
     # define normalise masses
     m1 = mu1
@@ -583,7 +583,7 @@ function dsigmadt_ElePhoElePho64(sSmol::Float64,sBig::Float64,tSmol::Float64,tBi
 
 end
 
-function InvarientFlux2Small(sSmol::Float64,mu1::Float32,mu2::Float32)
+function InvarientFlux2Small(sSmol::Float64,mu1::Float64,mu2::Float64)
     # Better accuracy for small s
 
     # lambda(s,m1^2,m2^2)/4 = s|p*|^2
