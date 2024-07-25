@@ -29,23 +29,34 @@ function fload_All(fileLocation::String,fileName::String)
     if fileExist
         f = jldopen(filePath,"r+");
         Run_Parameters = f["Parameters"]
-        SAtot = f["STotal"];
-        TAtot = f["TTotal"];
-        AStal = f["STally"];
-        ATtal = f["TTally"];
-        SMatrix = f["SMatrix"];
-        TMatrix = f["TMatrix"];
+
+        SAtot3 = f["STotal3"];
+        SAtal3 = f["STally3"];
+        SMatrix3 = f["SMatrix3"];
+        SConv3 = f["SConverge3"];
         p3Max = f["p3Max"];
         t3MinMax = f["t3MinMax"];
-        SConv = f["SConverge"];
-        TConv = f["TConverge"]
-        close(f)
+
+        SAtot4 = f["STotal4"];
+        SAtal4 = f["STally4"];
+        SMatrix4 = f["SMatrix4"];
+        SConv4 = f["SConverge4"];
+        p4Max = f["p4Max"];
+        t4MinMax = f["t4MinMax"];
+
+        TAtot = f["TTotal"];
+        TAtal = f["TTally"];
+        TMatrix1 = f["TMatrix1"];
+        TMatrix2 = f["TMatrix2"];
+        TConv = f["TConverge"];
+
+        close(f)  
     else
         error("no file with name $fileName found at location $fileLocation")
     end
 
-    return (Run_Parameters, SAtot, TAtot, AStal, ATtal, SMatrix, TMatrix, p3Max, t3MinMax, SConv, TConv);
-    #run (Run_Parameters, Stot,Ttot,Stal,Ttal,SMatrix,TMatrix,p3Max,t3MinMax,SConv,TConv) = fload_All(fileLocation,fileName); in REPL
+    return (Run_Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,t3MinMax,t4MinMax,SConv3,SConv4,TConv);
+    #run (Run_Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,t3MinMax,t4MinMax,SConv3,SConv4,TConv) = fload_All(fileLocation,fileName); in REPL
 
 end
 
@@ -54,13 +65,14 @@ end
 
 Function prints the ratio of the sum of the S and T matricies and their differences as to check number and energy conservation for a particular interaction. Arguments are as outputted by the `fload_All` function. 
 """
-function DoesConserve(SMatrix,TMatrix,Run_Parameters)
+function DoesConserve(SMatrix3,SMatrix4,TMatrix1,TMatrix2,Run_Parameters)
 
-    (name1,name2,name3,name4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2) = Run_Parameters
+    (name1,name2,name3,name4,p3l,p3u,nump3,p4l,p4u,nump4,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt4,numt1,numt2) = Run_Parameters
 
     mu1 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
     mu2 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
     mu3 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name3))
+    mu4 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name4))
 
     pr3 = prange(p3l,p3u,nump3);
     dp3 = deltaVector(pr3);
@@ -69,6 +81,14 @@ function DoesConserve(SMatrix,TMatrix,Run_Parameters)
     ΔE3full = [ΔE3; deltaEVector([pr3[end], 2*pr3[end]],mu3)];
     tr3 = trange(numt3);
     dμ3 = deltaVector(tr3);
+
+    pr4 = prange(p4l,p4u,nump4);
+    dp4 = deltaVector(pr4);
+    dp4full = [dp4; deltaVector([pr4[end]; 2*pr4[end]])];
+    ΔE4 = deltaEVector(pr4,mu4);
+    ΔE4full = [ΔE4; deltaEVector([pr4[end], 2*pr4[end]],mu4)];
+    tr4 = trange(numt4);
+    dμ4 = deltaVector(tr4);
 
     pr1 = prange(p1l,p1u,nump1);
     dp1 = deltaVector(pr1);
@@ -86,36 +106,61 @@ function DoesConserve(SMatrix,TMatrix,Run_Parameters)
     tr2 = trange(numt2);
     dμ2 = deltaVector(tr2);
 
-    SsumN = 0f0
-    TsumN = 0f0
-    SsumE = 0f0
-    TsumE = 0f0
+    SsumN3 = 0f0
+    TsumN1 = 0f0
+    SsumE3 = 0f0
+    TsumE1 = 0f0
 
-    for k in axes(SMatrix,3), l in axes(SMatrix, 4), m in axes(SMatrix,5), n in axes(SMatrix,6)
-        for i in axes(SMatrix,1), j in axes(SMatrix,2) 
-        SsumN += SMatrix[i,j,k,l,m,n]*dp3full[i]*dμ3[j]
-        SsumE += SMatrix[i,j,k,l,m,n]*ΔE3full[i]*dμ3[j]
+    SsumN4 = 0f0
+    TsumN2 = 0f0
+    SsumE4 = 0f0
+    TsumE2 = 0f0
+
+    for k in axes(SMatrix3,3), l in axes(SMatrix3, 4), m in axes(SMatrix3,5), n in axes(SMatrix3,6)
+        for i in axes(SMatrix3,1), j in axes(SMatrix3,2) 
+        SsumN3 += SMatrix3[i,j,k,l,m,n]*dp3full[i]*dμ3[j]
+        SsumE3 += SMatrix3[i,j,k,l,m,n]*ΔE3full[i]*dμ3[j]
         end
     end
 
-    for k in axes(TMatrix,1), l in axes(TMatrix, 2), m in axes(TMatrix,3), n in axes(TMatrix,4)
-        TsumN += TMatrix[k,l,m,n]*dp1full[k]*dμ1[l]
-        TsumE += TMatrix[k,l,m,n]*ΔE1full[k]*dμ1[l]
-        if name1!=name2 # total absorption if particles are not the same
-        #    TsumN += TMatrix[k,l,m,n]*dp2full[m]*dμ2[n]
-        #    TsumE += TMatrix[k,l,m,n]*ΔE2full[m]*dμ2[n]
+    for k in axes(SMatrix4,3), l in axes(SMatrix4, 4), m in axes(SMatrix4,5), n in axes(SMatrix4,6)
+        for i in axes(SMatrix4,1), j in axes(SMatrix4,2) 
+        SsumN4 += SMatrix4[i,j,k,l,m,n]*dp4full[i]*dμ4[j]
+        SsumE4 += SMatrix4[i,j,k,l,m,n]*ΔE4full[i]*dμ4[j]
         end
     end
 
+    for k in axes(TMatrix1,1), l in axes(TMatrix1, 2), m in axes(TMatrix1,3), n in axes(TMatrix1,4)
+        TsumN1 += TMatrix1[k,l,m,n]*dp1full[k]*dμ1[l]
+        TsumE1 += TMatrix1[k,l,m,n]*ΔE1full[k]*dμ1[l]
+        TsumN2 += TMatrix2[m,n,k,l]*dp2full[m]*dμ2[n]
+        TsumE2 += TMatrix2[m,n,k,l]*ΔE2full[m]*dμ2[n]
+    end
+
+    println("sumSN3 = "*string(SsumN3))
+    println("sumSN4 = "*string(SsumN4))
+    println("sumTN1 = "*string(TsumN1))    
+    println("sumTN2 = "*string(TsumN2)) 
+    SsumN = SsumN3 + SsumN4
     println("sumSN = "*string(SsumN))
-    println("sumTN = "*string(TsumN))    
+    TsumN = TsumN1 + TsumN2
+    println("sumTN = "*string(TsumN))
 
+    println("#")
+
+    println("sumSE3 = "*string(SsumE3))
+    println("sumSE4 = "*string(SsumE4))
+    println("sumTE1 = "*string(TsumE1))  
+    println("sumTE2 = "*string(TsumE2))
+    SsumE = SsumE3 + SsumE4
     println("sumSE = "*string(SsumE))
-    println("sumTE = "*string(TsumE))  
+    TsumE = TsumE1 + TsumE2
+    println("sumTE = "*string(TsumE))
+
+    println("#")
 
     println("errN = "*string(SsumN-TsumN))
     println("errE = "*string((SsumE-TsumE)))
-
     println("ratioN = "*string(SsumN/TsumN))
     println("ratioE = "*string(SsumE/TsumE))
 

@@ -152,7 +152,6 @@ function SValue(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},d
 
 end
 
-
 """
     InvarientFlux(s,mu12,mu22)
 

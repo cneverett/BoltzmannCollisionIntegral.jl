@@ -43,10 +43,10 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{Float32,4},SAtally::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},t3MinMax::Array{Float32,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64)
+function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float32,6},SAtotal4::Array{Float32,6},TAtotal::Array{Float32,4},SAtally3::Array{UInt32,5},SAtally4::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},p4Max::Array{Float32,5},t3MinMax::Array{Float32,6},t4MinMax::Array{Float32,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64)
 
     # Set Parameters
-    (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt1,numt2) = Parameters
+    (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p4l,p4u,nump4,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt4,numt1,numt2) = Parameters
 
     # Set up worker
     Threads.@spawn begin
@@ -56,18 +56,27 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
     p2v::Vector{Float32} = zeros(Float32,3)
     p3v::Vector{Float32} = zeros(Float32,3)
     p3pv::Vector{Float32} = zeros(Float32,3)
+    p4v::Vector{Float32} = zeros(Float32,3)
+    p4pv::Vector{Float32} = zeros(Float32,3)
     Sval::Float32 = 0f0
     Svalp::Float32 = 0f0
     Tval::Float32 = 0f0
     p3_physical::Bool = true
     p3p_physical::Bool = true
+    p4_physical::Bool = true
+    p4p_physical::Bool = true
     NumStates::Int64 = 2
 
-    localSAtotal = zeros(Float32,size(SAtotal)[1:2])
-    localSAtally = zeros(UInt32,size(SAtally)[1])
+    localSAtotal3 = zeros(Float32,size(SAtotal3)[1:2])
+    localSAtally3 = zeros(UInt32,size(SAtally3)[1])
+    localSAtotal4 = zeros(Float32,size(SAtotal4)[1:2])
+    localSAtally4 = zeros(UInt32,size(SAtally4)[1])
     localp3Max = zeros(Float32,size(p3Max)[1])
     localt3Min = zeros(Float32,size(t3MinMax)[2])
     localt3Max = zeros(Float32,size(t3MinMax)[2])
+    localp4Max = zeros(Float32,size(p4Max)[1])
+    localt4Min = zeros(Float32,size(t4MinMax)[2])
+    localt4Max = zeros(Float32,size(t4MinMax)[2])
 
     for _ in 1:numTiterPerThread
 
@@ -85,16 +94,23 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
         (p2loc,t2loc) = vectorLocation(p2u,p2l,nump2,numt2,p2v)
         loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
 
-        fill!(localSAtally,UInt32(0))
+        fill!(localSAtally3,UInt32(0))
+        fill!(localSAtally4,UInt32(0))
 
         if Tval != 0f0 # i.e. it is a valid interaction state
 
-            fill!(localSAtotal,0f0)
+            fill!(localSAtotal3,0f0)
             fill!(localp3Max,Float32(0))
             fill!(localt3Min,Float32(0))
             fill!(localt3Max,Float32(0))
+            fill!(localSAtotal4,0f0)
+            fill!(localp4Max,Float32(0))
+            fill!(localt4Min,Float32(0))
+            fill!(localt4Max,Float32(0))
                     
             @inbounds for _ in 1:numSiterPerThread
+
+            # ========= p3 ========= #
 
                 #generate random p3 direction 
                 RPointSphereCosThetaPhi!(p3v)
@@ -108,8 +124,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                 #if NumStates != 0
                     t3loc = location_t(numt3,p3v[2])
                     t3locMirror = location_t(numt3,-p3v[2])
-                    localSAtally[t3loc] += UInt32(1)
-                    localSAtally[t3locMirror] += UInt32(1)
+                    localSAtally3[t3loc] += UInt32(1)
+                    localSAtally3[t3locMirror] += UInt32(1)
                 #end
 
                 # Calculate S Array totals
@@ -117,7 +133,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     if p3_physical
                         p3loc = location_p3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
-                        localSAtotal[p3loc,t3loc] += Sval
+                        localSAtotal3[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
                         localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
                         localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
@@ -129,7 +145,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     if p3_physical
                         p3loc = location_p3(p3u,p3l,nump3,p3v[1])
                         Sval = SValue(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
-                        localSAtotal[p3loc,t3loc] += Sval
+                        localSAtotal3[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
                         localt3Min[p3loc] = min(localt3Min[p3loc],p3v[2])
                         localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
@@ -137,10 +153,61 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
                     if p3p_physical
                         p3ploc = location_p3(p3u,p3l,nump3,p3pv[1])
                         Svalp = SValue(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3)
-                        localSAtotal[p3ploc,t3ploc] += Svalp
+                        localSAtotal3[p3ploc,t3ploc] += Svalp
                         localp3Max[t3ploc] = max(localp3Max[t3ploc],p3pv[1])
                         localt3Min[p3ploc] = min(localt3Min[p3ploc],p3pv[2])
                         localt3Max[p3ploc] = max(localt3Max[p3ploc],p3pv[2])
+                    end
+                end
+
+            # ========= p4 ========= #
+                # only need to swap mu3 for mu4
+
+                #generate random p4 direction 
+                RPointSphereCosThetaPhi!(p4v)
+                p4pv .= p4v
+
+                # Calculate p3 value with checks
+                (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p1v,p2v,mu1,mu2,mu4,mu3)
+
+                # S Array Tallies
+                # For each t3 sampled, p3 will be + or -ve, corresponding to a change in sign of t3. Therefore by sampling one t3 we are actually sampling t3 and -t3 with one or both having valid p3 states.
+                #if NumStates != 0
+                    t4loc = location_t(numt4,p4v[2])
+                    t4locMirror = location_t(numt4,-p4v[2])
+                    localSAtally4[t4loc] += UInt32(1)
+                    localSAtally4[t4locMirror] += UInt32(1)
+                #end
+
+                # Calculate S Array totals
+                if NumStates == 1
+                    if p4_physical
+                        p4loc = location_p3(p4u,p4l,nump4,p4v[1])
+                        Sval = SValue(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu4)
+                        localSAtotal4[p4loc,t4loc] += Sval
+                        localp4Max[t4loc] = max(localp4Max[t4loc],p4v[1])
+                        localt4Min[p4loc] = min(localt4Min[p4loc],p4v[2])
+                        localt4Max[p4loc] = max(localt4Max[p4loc],p4v[2])
+                    end
+                end
+
+                if NumStates == 2
+                    t4ploc = location_t(numt4,p4pv[2])
+                    if p4_physical
+                        p4loc = location_p3(p4u,p4l,nump4,p4v[1])
+                        Sval = SValue(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu4)
+                        localSAtotal4[p4loc,t4loc] += Sval
+                        localp4Max[t4loc] = max(localp4Max[t4loc],p4v[1])
+                        localt4Min[p4loc] = min(localt4Min[p4loc],p4v[2])
+                        localt4Max[p4loc] = max(localt4Max[p4loc],p4v[2])
+                    end
+                    if p4p_physical
+                        p4ploc = location_p3(p4u,p4l,nump4,p4pv[1])
+                        Svalp = SValue(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu4)
+                        localSAtotal4[p4ploc,t4ploc] += Svalp
+                        localp4Max[t4ploc] = max(localp4Max[t4ploc],p4pv[1])
+                        localt4Min[p4ploc] = min(localt4Min[p4ploc],p4pv[2])
+                        localt4Max[p4ploc] = max(localt4Max[p4ploc],p4pv[2])
                     end
                 end
 
@@ -148,19 +215,25 @@ function STMonteCarloAxi_MultiThread!(SAtotal::Array{Float32,6},TAtotal::Array{F
 
         else # no valid interaction state
             # add one to tally of all relavant S tallies i.e. all momenta and all angles as no emission states are possible
-            localSAtally .+= UInt32(1)
+            localSAtally3 .+= UInt32(1)
+            localSAtally4 .+= UInt32(1)
         end
 
         # assign values to arrays
         @lock ArrayOfLocks[p1loc] begin
             TAtotal[loc12] += Tval
             TAtally[loc12] += UInt32(1)
-            @view(SAtotal[:,:,loc12]) .+= localSAtotal
-            @view(SAtally[:,loc12]) .+= localSAtally
+            @view(SAtotal3[:,:,loc12]) .+= localSAtotal3
+            @view(SAtally3[:,loc12]) .+= localSAtally3
+            @view(SAtotal4[:,:,loc12]) .+= localSAtotal4
+            @view(SAtally4[:,loc12]) .+= localSAtally4
             if Tval != 0f0
                 @view(p3Max[:,loc12]) .= max.(@view(p3Max[:,loc12]),localp3Max)
                 @view(t3MinMax[1,:,loc12]) .= min.(@view(t3MinMax[1,:,loc12]),localt3Min)
                 @view(t3MinMax[2,:,loc12]) .= max.(@view(t3MinMax[2,:,loc12]),localt3Max)
+                @view(p4Max[:,loc12]) .= max.(@view(p4Max[:,loc12]),localp4Max)
+                @view(t4MinMax[1,:,loc12]) .= min.(@view(t4MinMax[1,:,loc12]),localt4Min)
+                @view(t4MinMax[2,:,loc12]) .= max.(@view(t4MinMax[2,:,loc12]),localt4Max)
             end 
         end 
 
