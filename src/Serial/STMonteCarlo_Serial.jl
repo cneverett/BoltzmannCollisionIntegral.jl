@@ -7,39 +7,33 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
     STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
 
 # Arguments
-- `SAtotal::Array{Float32,6}` : Array of stored integration totals for S matrix
+- `SAtotal3::Array{Float32,6}` : Array of stored integration totals for S matrix for 12->34 interaction
+- `SAtotal4::Array{Float32,6}` : Array of stored integration totals for S matrix for 12->43 interaction
 - `TAtotal::Array{Float32,4}` : Array of stored integration totals for T matrix
-- `SAtally::Array{UInt32,5}` : Array of stored integration tallies for S matrix
+- `SAtally3::Array{UInt32,5}` : Array of stored integration tallies for S matrix for 12->34 interaction
+- `SAtally4::Array{UInt32,5}` : Array of stored integration tallies for S matrix for 12->43 interaction
 - `TAtally::Array{UInt32,4}` : Array of stored integration tallies for T matrix
-- `p3v::Vector{Float32}` : Vector of momentum values for species 3
-- `p3pv::Vector{Float32}` : Second Vector of momentum values for species 3 for when two states are possible
-- `p1v::Vector{Float32}` : Vector of momentum values for species 1
-- `p2v::Vector{Float32}` : Vector of momentum values for species 2
 - `p3Max::Array{Float32,5}` : Array of maximum momentum values for species 3
 - `t3MinMax::Array{Float32,6}` : Array of minimum and maximum theta values for species 3
+- `p4Max::Array{Float32,5}` : Array of maximum momentum values for species 4
+- `t4MinMax::Array{Float32,6}` : Array of minimum and maximum theta values for species 4
 - `sigma::Function` : Cross section function for the interaction
 - `dsigmadt::Function` : Differential cross section function for the interaction
-- `Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64}` : Tuple of parameters for the interaction
+- `Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64}` : Tuple of parameters for the interaction
 - `numTiter::Int64` : Number of T iterations
 - `numSiter::Int64` : Number of S iterations
 
 # Output:
 - Argument arrays SAtotal,TAtotal,SAtally,TAtally are mutated to include the results of the Monte Carlo Integration.
 
-# Hidden Inputs (defined in Init.jl)
-- Domain Boundaries (defined as CONST)
-        - p bounds and divisions for species 1,3,4
-        - theta divisions for species 1,3,4 ( bounds not needed as assumed [-1,1] )
-        - phi divisions for species 1,3,4 ( bounds not needed as assumed [0,2] )
-- Particle Masses (defined as CONST)
-- numTiter and numSiter as the number of T and S integrations to perform.
-
 # Calculation In Breif
 - Random Sample points in each of these domains
-    - RandomPointSphere for theta and phi (for species 1,2,3)
-    - RandomPointMomentum for p ( species 1,2 only )
-- Take random points (t3,h1,p1,p2,t1,t2,h3,h4) and calculate valid p3 point/points 
-- Find position in S and T arrays and allocated tallies and totals accordingly.
+    - RandomPointSphere for theta and phi (for species 1,2,3,4)
+    - RandomPointMomentum for p ( species 1,2 only)
+- Take random points (t3,h3,p1,p2,t1,t2,h1,h2) and calculate valid p3 point/points 
+- Find position in local S and T arrays and allocated tallies and totals accordingly.
+- Take random points (t4,h3,p1,p2,t1,t2,h1,h2) and calculate valid p4 point/points 
+- Find position in local S and T arrays and allocated tallies and totals accordingly.
 """
 function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Float32,6},TAtotal::Array{Float32,4},SAtally3::Array{UInt32,5},SAtally4::Array{UInt32,5},TAtally::Array{UInt32,4},p3Max::Array{Float32,5},p4Max::Array{Float32,5},t3MinMax::Array{Float32,6},t4MinMax::Array{Float32,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64},numTiter::Int64,numSiter::Int64)
 

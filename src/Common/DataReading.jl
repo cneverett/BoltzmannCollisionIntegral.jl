@@ -5,19 +5,26 @@ Loads all the data stored in `fileName` stored at `fileLocation`.
 
 # Example
 ```julia-repl
-    (Run_Parameters, Stot,Ttot,Stal,Ttal,SMatrix,TMatrix,p3Max,t3MinMax,SConv,TConv) = fload_All(fileLocation,fileName);
+    (Run_Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,t3MinMax,t4MinMax,SConv3,SConv4,TConv) = fload_All(fileLocation,fileName);
 ```
 Returns a tuple of the data stored in the file. The fields are as follows:
 - `Run_Parameters` : A tuple of the parameters used in the evaluation.
-- `Stot` : A 6D matrix totalling all the emission spectrum values sampled.
+- `Stot3` : A 6D matrix totalling all the emission spectrum values sampled for 12->34 interaction.
+- `Stot4` : A 6D matrix totalling all the emission spectrum values sampled for 12->43 interaction.
 - `Ttot` : A 4D matrix totalling all the absorption spectrum values sampled.
-- `Stal` : A 5D matrix of tallies of the number of emission spectrum values sampled.
+- `Stal3` : A 5D matrix of tallies of the number of emission spectrum values sampled for 12->34 interaction.
+- `Stal4` : A 5D matrix of tallies of the number of emission spectrum values sampled for 12->43 interaction.
 - `Ttal` : A 4D matrix of tallies of the number of absorption spectrum values sampled.
-- `SMatrix` : A 6D matrix of the emission spectrum.
-- `TMatrix` : A 4D matrix of the absorption spectrum.
+- `SMatrix3` : A 6D matrix of the emission spectrum for 12->34 interaction.
+- `SMatrix4` : A 6D matrix of the emission spectrum for 12->43 interaction.
+- `TMatrix1` : A 4D matrix of the absorption spectrum for 12->34 interaction.
+- `TMatrix2` : A 4D matrix of the absorption spectrum for 21->34 interaction i.e. by permutation of TMaterix1 and correct application of phase space factors if species 1 != species 2.
 - `p3Max` : The maximum value of the momentum space variable p3 sampled for each bin. (Useful for correcting numerical diffusion)
 - `t3MinMax` : The minimum and maximum values of the momentum space variable t3 sampled for each bin. (Useful for correcting numerical diffusion)
-- `SConv` : A 6D matrix of the convergence of the emission spectrum compaired to the previous run with given `Run_Parameters`.
+- `p4Max` : The maximum value of the momentum space variable p4 sampled for each bin. (Useful for correcting numerical diffusion)
+- `t4MinMax` : The minimum and maximum values of the momentum space variable t4 sampled for each bin. (Useful for correcting numerical diffusion)
+- `SConv3` : A 6D matrix of the convergence of the emission spectrum compaired to the previous run with given `Run_Parameters` for 12->34 interaction.
+- `SConv4` : A 6D matrix of the convergence of the emission spectrum compaired to the previous run with given `Run_Parameters` for 12->43 interaction.
 - `TConv` : A 4D matrix of the convergence of the absorption spectrum compaired to the previous run with given `Run_Parameters`.
 
 """
@@ -56,14 +63,13 @@ function fload_All(fileLocation::String,fileName::String)
     end
 
     return (Run_Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,t3MinMax,t4MinMax,SConv3,SConv4,TConv);
-    #run (Run_Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,t3MinMax,t4MinMax,SConv3,SConv4,TConv) = fload_All(fileLocation,fileName); in REPL
 
 end
 
 """
     DoesConserve(SMatrix,TMatrix,Parameters)
 
-Function prints the ratio of the sum of the S and T matricies and their differences as to check number and energy conservation for a particular interaction. Arguments are as outputted by the `fload_All` function. 
+Function prints the ratio of the sum of the S and T matricies and their differences, for all interaction paths, as to check number and energy conservation for a particular interaction. Arguments are as outputted by the `fload_All` function. 
 """
 function DoesConserve(SMatrix3,SMatrix4,TMatrix1,TMatrix2,Run_Parameters)
 

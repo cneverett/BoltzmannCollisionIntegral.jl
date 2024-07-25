@@ -1,5 +1,5 @@
 """
-    PhaseSpaceFactors1!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val,name1,name2)
+    PhaseSpaceFactors1!(SMatrix3,SMatrix4,TMatrix,t3val,t4val,p1val,t1val,p2val,t2val,Indeistinguishable_12)
 
 Applies phase space volume element factors for 'SMatrix' and 'TMatrix' terms in order to correctly apply 'STSymmetry' corrections. 
 """
@@ -35,7 +35,7 @@ function PhaseSpaceFactors1!(SMatrix3::Array{Float32,6},SMatrix4::Array{Float32,
 end
 
 """
-    PhaseSpaceFactors2!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val)
+    PhaseSpaceFactors2!(SMatrix3,SMatrix4,TMatrix,p3val,t3val,p4val,t4val,p1val,t1val,p2val,t2val)
 
 To follow 'PhaseSpaceFactors1' and 'STSymmetry'. Corrects phase space factors on 'SMatrix' and 'TMatrix' for use in kinetic codes.
 Assumes f(x,p,μ)= constant
@@ -86,7 +86,7 @@ end
 
 
 """
-    STSymmetry!(SMatrix,TMatrix,t3val,p1val,t1val,p2val,t2val,mu1,mu2)
+    STSymmetry!(SMatrix3,SMatrix4,TMatrix,t3val,mu1,mu2)
 
 To follow 'PhaseSpaceFactors1'. Physical nature of binary interaction has certain symmetries. 'STSymmetry' uses these symmetries to improve MC sampling of 'SMatrix' and 'TMatrix'.
 """
