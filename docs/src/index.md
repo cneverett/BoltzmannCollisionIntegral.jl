@@ -67,10 +67,10 @@ T_{val}=\frac{1}{1+\delta_{12}}\frac{\mathcal{F}_{34}(s)\sigma_{34|12}(s)}{p_3^0
 and ``\sigma_{34|12}(s)`` the lorentz invariant total cross section of the reverse reaction ``34\to12``.
 
 ## Evaluation
-Given a user input of interaction to evaluate and what discretisation to use, the discrete emission spectrum ``S_{12|34,ijklmn}`` and absorption spectrum ``T_{12|34,ijkl}`` are solved simultaneously by Monte-Carlo integration. 
+Given a user input of interaction to evaluate and what discretisation to use, the discrete emission spectra ``S_{12|34,ijklmn}``, ``S_{12|43,ijklmn}`` and absorption spectra ``T_{12|34,ijkl}``, ``T_{21|34,ijkl}`` are solved simultaneously by Monte-Carlo integration. This provides all matricies required to self consistently model the evolution of particles due to the forward interaction ``12\to34``. 
 
 !!! note
-    The order of the interaction in the absorption spectrum (``34|12 \to 12|34``) is changed for easier evaluation as sampled points can be used for both emission and absorption terms. Rather than solving for the forward and reverse reaction, only the forward reaction is solved for. Hence two sets of emission and absorption spectra may need to be generated to describe a single reversible reaction.  
+    The order of the interaction in the absorption spectrum (``34|12 \to 12|34``) is changed for easier evaluation as sampled points can be used for both emission and absorption terms. Rather than solving for the forward and reverse reaction, only the forward reaction is solved for. Hence two sets of emission and absorption spectra are need to be generated in general to describe a single reversible reaction.  
 
 The evaluation is performed by the functions [SpectraEvaluateSerial](@ref) or [SpectraEvaluateMultiThread](@ref) depending on if the code is to run in serially on a single core or multi-threaded on multiple cores of a single CPU. The code will then save the resulting multidimensional arrays.
 
