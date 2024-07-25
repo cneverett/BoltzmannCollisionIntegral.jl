@@ -175,6 +175,3 @@ function deltaEVector(pr::Vector{Float32},mu::Float32)
 end
 
 # ================================================================ #
-
-deltaEVector(prange(-5f0,4f0,72),1800f0)
-deltaEVector(prange(-5f0,4f0,72),0f0)

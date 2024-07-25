@@ -126,7 +126,7 @@ function SValue3(p3v::Vector{Float32},p1v::Vector{Float32},p2v::Vector{Float32},
     uBig::Float32 = (m2-m3)^2
     #uSmol::Float32 = m12+m22+m32+m42 - sBig - tBig - uBig - sSmol - tSmol  # this leads to Float32 issues better to calculate directly
     #uSmol::Float32 = -2*(m3*Es2 + m2*Es3 + Es2*Es3 - p2*p3*(ct2*ct3+ch3h2*st2*st3))
-    uSmol::Float32 = -2*p2*p3*(- ct2*ct3 + ch3h2*st2*st3 + Es2s*Es3s + m3*Es2s/p3 + m2*Es3s/p2)
+    uSmol::Float32 = -2*p2*p3*(-ct2*ct3 -ch3h2*st2*st3 + Es2s*Es3s + m3*Es2s/p3 + m2*Es3s/p2)
 
     deltacorrect::Float32 = (Es1*p3 - Es3*p1*(ct3*ct1+ch3h1*st3*st1) + Es2*p3 - Es3*p2*(ct3*ct2+ch3h2*st3*st2)) + (m1*p3 - m3*p1*(ct3*ct1+ch3h1*st3*st1) + m2*p3 - m3*p2*(ct3*ct2+ch3h2*st3*st2))
     # more Float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
