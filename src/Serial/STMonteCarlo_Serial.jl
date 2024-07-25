@@ -108,7 +108,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Floa
                 if NumStates == 1
                     if p3_physical
                         p3loc = location_p3(p3u,p3l,nump3,p3v[1])
-                        Sval = SValue(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
+                        Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView3[p3loc,t3loc] += Sval
                         p3MaxView[t3loc] = max(p3MaxView[t3loc],p3v[1])
                         t3MinView[p3loc] = min(t3MinView[p3loc],p3v[2])
@@ -120,7 +120,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Floa
                     t3ploc = location_t(numt3,p3pv[2])
                     if p3_physical
                         p3loc = location_p3(p3u,p3l,nump3,p3v[1])
-                        Sval = SValue(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
+                        Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView3[p3loc,t3loc] += Sval
                         p3MaxView[t3loc] = max(p3MaxView[t3loc],p3v[1])
                         t3MinView[p3loc] = min(t3MinView[p3loc],p3v[2])
@@ -128,7 +128,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Floa
                     end
                     if p3p_physical
                         p3ploc = location_p3(p3u,p3l,nump3,p3pv[1])
-                        Svalp = SValue(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3)
+                        Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView3[p3ploc,t3ploc] += Svalp
                         p3MaxView[t3ploc] = max(p3MaxView[t3ploc],p3pv[1])
                         t3MinView[p3ploc] = min(t3MinView[p3ploc],p3pv[2])
@@ -157,7 +157,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Floa
                 if NumStates == 1
                     if p4_physical
                         p4loc = location_p3(p4u,p4l,nump4,p4v[1])
-                        Sval = SValue(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu4)
+                        Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu4,mu4)
                         SAtotalView4[p4loc,t4loc] += Sval
                         p4MaxView[t4loc] = max(p4MaxView[t4loc],p4v[1])
                         t4MinView[p4loc] = min(t4MinView[p4loc],p4v[2])
@@ -169,7 +169,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Floa
                     t4ploc = location_t(numt4,p4pv[2])
                     if p4_physical
                         p4loc = location_p3(p4u,p4l,nump4,p4v[1])
-                        Sval = SValue(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu4)
+                        Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView4[p4loc,t4loc] += Sval
                         p4MaxView[t4loc] = max(p4MaxView[t4loc],p4v[1])
                         t4MinView[p4loc] = min(t4MinView[p4loc],p4v[2])
@@ -177,7 +177,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Floa
                     end
                     if p4p_physical
                         p4ploc = location_p3(p4u,p4l,nump4,p4pv[1])
-                        Svalp = SValue(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu4)
+                        Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView4[p4ploc,t4ploc] += Svalp
                         p4MaxView[t4ploc] = max(p4MaxView[t4ploc],p4pv[1])
                         t4MinView[p4ploc] = min(t4MinView[p4ploc],p4pv[2])
