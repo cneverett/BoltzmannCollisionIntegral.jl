@@ -14,7 +14,7 @@ The example script `Run_Integration.jl` operates as follows:
 - Define the names of the 4 particles involved in the interaction (12->34) as the strings `name1` `name2` `name3` `name4`
     - These should of the form of three letters, which abbreviate the particles full name (see [Particles](@ref) for list of currently implemented particles).
     - They should be ordered to match a currently [Implemented Interactions](@ref)
-- Define the momentum space discretisation. This includes the upper and lower bounds of momentum for particle species 1,2 and 3 (e.g. `p1l` and `p1u` for species 1) and the number of divisions (bins) for each particles momentum space (e.g. `nump1`).
+- Define the momentum space discretisation. This includes the upper and lower bounds of momentum (log10) for particle species 1,2 and 3 (e.g. `p1l` and `p1u` for species 1) and the number of divisions (bins) for each particles momentum space (e.g. `nump1`).
 - Define the number of divisions for the angular momentum space (i.e. cos(theta) space) for the particle species 1,2 and 3 (e.g. `numt1`). 
 - Define the number of Monte-Carlo samples to perform (as a rule of thumb, on a modern CPU it takes approximately 200ns per sample).
     - `numTiter` for the number of random sets of $\{\vec{p}_1,\vec{p}_2\}$ to sample. 
@@ -26,4 +26,5 @@ The example script `Run_Integration.jl` operates as follows:
 ## Output
 - The data stored in an output file can be loaded back into the workspace as a tuple using the [fload_All](@ref) function.
 - Conservation of particle number and energy can be checked using the [DoesConserve](@ref) function.
+    - The key statistic is `ratioN` and `ratioE` which dictate the ratio of particle number and energy before and after the interaction and should be close to 1.
 
