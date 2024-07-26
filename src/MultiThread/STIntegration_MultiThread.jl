@@ -116,9 +116,7 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
         # divide element wise by tallys
         if Indistinguishable_34 == true
             @. SAtally3 = SAtally3 + SAtally4
-            #fill!(SAtally4,0) # reset to avoid overcounting when multiple runs are made
             @. SAtotal3 = SAtotal3 + SAtotal4
-            fill!(SAtotal4,0)
             for i in axes(SMatrix3,1)
                 @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
             end
@@ -127,11 +125,11 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])
             # reset arrays to avoid overcounting when multiple runs are made
-                fill!(SAtally4,0)
-                fill!(SAtotal4,0)
-                fill!(p4Max,0f0)
-                fill!(t4MinMax,0f0)
-        elseif mu3 == mu4 # system symmetric in 34 interchange
+            fill!(SAtally4,0)
+            fill!(SAtotal4,0)
+            fill!(p4Max,0f0)
+            fill!(t4MinMax,0f0)
+        elseif mu3 == mu4 && Indistinguishable_34 == false  # system symmetric in 34 interchange
             @. SAtally3 = SAtally3 + SAtally4
             @. SAtally4 = SAtally3
             @. SAtotal3 = SAtotal3 + SAtotal4
