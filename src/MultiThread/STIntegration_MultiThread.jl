@@ -130,7 +130,6 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
             fill!(p4Max,0e0)
             fill!(@view(t4MinMax[1,:,:,:,:,:]),1e0)
             fill!(@view(t4MinMax[2,:,:,:,:,:]),-1e0)
-            println("here")
         end
         
         if (Indistinguishable_34 == false) && (mu3 == mu4)  # system symmetric in 34 interchange but particles not identical
@@ -143,7 +142,6 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])
             @. t4MinMax = t3MinMax
-            println("there")
         end
 
         for i in axes(SMatrix3,1)
