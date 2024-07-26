@@ -20,8 +20,8 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
 
     # ===== Are states Distinguishable ===== #
 
-        Indistinguishable_12 = name1 == name2
-        Indistinguishable_34 = name3 == name4
+        Indistinguishable_12::Bool = name1 == name2
+        Indistinguishable_34::Bool = name3 == name4
 
     # ====================================== #
 
@@ -62,6 +62,10 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
             t3MinMax = zeros(Float64,2,(nump3+1),nump1,numt1,nump2,numt2);
             p4Max = zeros(Float64,numt4,nump1,numt1,nump2,numt2);
             t4MinMax = zeros(Float64,2,(nump4+1),nump1,numt1,nump2,numt2);
+            fill!(@view(t3MinMax[1,:,:,:,:,:]),1e0);
+            fill!(@view(t3MinMax[2,:,:,:,:,:]),-1e0);
+            fill!(@view(t4MinMax[1,:,:,:,:,:]),1e0);
+            fill!(@view(t4MinMax[2,:,:,:,:,:]),-1e0);
         end
 
     # ====================================== #
@@ -114,46 +118,43 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
         fill!(TMatrix1,0e0);
 
         # divide element wise by tallys
-        if Indistinguishable_34 == true
+        if Indistinguishable_34 == true # 34 are identical
             @. SAtally3 = SAtally3 + SAtally4
             @. SAtotal3 = SAtotal3 + SAtotal4
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
-            end
-            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
-            p3Max .= max.(p3Max,p4Max)
+            @. p3Max = max(p3Max,p4Max)
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])
             # reset arrays to avoid overcounting when multiple runs are made
-            fill!(SAtally4,0)
-            fill!(SAtotal4,0)
+            fill!(SAtally4,UInt32(0))
+            fill!(SAtotal4,0e0)
             fill!(p4Max,0e0)
-            fill!(t4MinMax,0e0)
-        elseif mu3 == mu4 && Indistinguishable_34 == false  # system symmetric in 34 interchange
+            fill!(@view(t4MinMax[1,:,:,:,:,:]),1e0)
+            fill!(@view(t4MinMax[2,:,:,:,:,:]),-1e0)
+            println("here")
+        end
+        
+        if (Indistinguishable_34 == false) && (mu3 == mu4)  # system symmetric in 34 interchange but particles not identical
             @. SAtally3 = SAtally3 + SAtally4
             @. SAtally4 = SAtally3
             @. SAtotal3 = SAtotal3 + SAtotal4
             @. SAtotal4 = SAtotal3
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
-            end
-            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
-            @. SMatrix4 = SMatrix3
-            p3Max .= max.(p3Max,p4Max)
+            @. p3Max = max(p3Max,p4Max)
             @. p4Max = p3Max
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])
             @. t4MinMax = t3MinMax
-        else
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
-            end
-            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
-            for i in axes(SMatrix4,1)
-                @. @view(SMatrix4[i,:,:,:,:,:]) = @view(SAtotal4[i,:,:,:,:,:]) / SAtally4
-            end
-            replace!(SMatrix4,NaN=>0e0); # remove NaN caused by /0e0
+            println("there")
         end
+
+        for i in axes(SMatrix3,1)
+            @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
+        end
+        replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
+        for i in axes(SMatrix4,1)
+            @. @view(SMatrix4[i,:,:,:,:,:]) = @view(SAtotal4[i,:,:,:,:,:]) / SAtally4
+        end
+        replace!(SMatrix4,NaN=>0e0); # remove NaN caused by /0e0
+    
         TMatrix1 = TAtotal ./ TAtally;
         replace!(TMatrix1,NaN=>0e0);
 

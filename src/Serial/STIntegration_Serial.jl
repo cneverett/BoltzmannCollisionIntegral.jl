@@ -57,6 +57,10 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
             SMatrix4 = zeros(Float64,(nump4+1),numt4,nump1,numt1,nump2,numt2);
             p4Max = zeros(Float64,numt4,nump1,numt1,nump2,numt2);
             t4MinMax = zeros(Float64,2,(nump4+1),nump1,numt1,nump2,numt2);
+            fill!(@view(t3MinMax[1,:,:,:,:,:]),1e0);
+            fill!(@view(t3MinMax[2,:,:,:,:,:]),-1e0);
+            fill!(@view(t4MinMax[1,:,:,:,:,:]),1e0);
+            fill!(@view(t4MinMax[2,:,:,:,:,:]),-1e0);
         end
 
     # ====================================== #
@@ -107,14 +111,15 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
                 @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
             end
             replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
-            p3Max .= max.(p3Max,p4Max)
+            @. p3Max = max(p3Max,p4Max)
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])
             # reset arrays to avoid overcounting when multiple runs are made
-                fill!(SAtally4,0)
-                fill!(SAtotal4,0)
+                fill!(SAtally4,UInt32(0))
+                fill!(SAtotal4,0e0)
                 fill!(p4Max,0e0)
-                fill!(t4MinMax,0e0)
+                fill!(@view(t4MinMax[1,:,:,:,:,:]),1e0);
+                fill!(@view(t4MinMax[2,:,:,:,:,:]),-1e0);
         elseif mu3 == mu4 # system symmetric in 34 interchange
             @. SAtally3 = SAtally3 + SAtally4
             @. SAtally4 = SAtally3
@@ -125,7 +130,7 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
             end
             replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
             @. SMatrix4 = SMatrix3
-            p3Max .= max.(p3Max,p4Max)
+            @. p3Max = max(p3Max,p4Max)
             @. p4Max = p3Max
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])

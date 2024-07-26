@@ -217,11 +217,11 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
         @lock ArrayOfLocks[p1loc] begin
             TAtotal[loc12] += Tval
             TAtally[loc12] += UInt32(1)
-            @view(SAtotal3[:,:,loc12]) .+= localSAtotal3
             @view(SAtally3[:,loc12]) .+= localSAtally3
-            @view(SAtotal4[:,:,loc12]) .+= localSAtotal4
             @view(SAtally4[:,loc12]) .+= localSAtally4
             if Tval != 0e0
+                @view(SAtotal3[:,:,loc12]) .+= localSAtotal3
+                @view(SAtotal4[:,:,loc12]) .+= localSAtotal4
                 @view(p3Max[:,loc12]) .= max.(@view(p3Max[:,loc12]),localp3Max)
                 @view(t3MinMax[1,:,loc12]) .= min.(@view(t3MinMax[1,:,loc12]),localt3Min)
                 @view(t3MinMax[2,:,loc12]) .= max.(@view(t3MinMax[2,:,loc12]),localt3Max)
