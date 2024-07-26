@@ -29,7 +29,7 @@ manager](https://pkgdocs.julialang.org/v1/). Inside a Julia session, enter the p
 ```julia 
 pkg> add BoltzmannCollisionIntegral
 ```
-then load the package by running
+finally load the package by running
 ```julia
 using BoltzmannCollisionIntegral
 ```
