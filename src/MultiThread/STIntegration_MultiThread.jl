@@ -55,11 +55,11 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
             SAtally4 = zeros(UInt32,numt4,nump1,numt1,nump2,numt2)
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
             SMatrix3 = zeros(Float64,(nump3+1),numt3,nump1,numt1,nump2,numt2);
+            SMatrix4 = zeros(Float64,(nump4+1),numt4,nump1,numt1,nump2,numt2);
             TMatrix1 = zeros(Float64,nump1,numt1,nump2,numt2);
             TMatrix2 = zeros(Float64,nump2,numt2,nump1,numt1);
             p3Max = zeros(Float64,numt3,nump1,numt1,nump2,numt2);
             t3MinMax = zeros(Float64,2,(nump3+1),nump1,numt1,nump2,numt2);
-            SMatrix4 = zeros(Float64,(nump4+1),numt4,nump1,numt1,nump2,numt2);
             p4Max = zeros(Float64,numt4,nump1,numt1,nump2,numt2);
             t4MinMax = zeros(Float64,2,(nump4+1),nump1,numt1,nump2,numt2);
         end

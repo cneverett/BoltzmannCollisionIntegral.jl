@@ -18,14 +18,14 @@ Returns a tuple of the data stored in the file. The fields are as follows:
 - `SMatrix3` : A 6D matrix of the emission spectrum for 12->34 interaction.
 - `SMatrix4` : A 6D matrix of the emission spectrum for 12->43 interaction.
 - `TMatrix1` : A 4D matrix of the absorption spectrum for 12->34 interaction.
-- `TMatrix2` : A 4D matrix of the absorption spectrum for 21->34 interaction i.e. by permutation of TMaterix1 and correct application of phase space factors if species 1 != species 2.
+- `TMatrix2` : A 4D matrix of the absorption spectrum for 21->34 interaction i.e. by permutation of TMatrix1 and correct application of phase space factors if species 1 != species 2.
 - `p3Max` : The maximum value of the momentum space variable p3 sampled for each bin. (Useful for correcting numerical diffusion)
 - `t3MinMax` : The minimum and maximum values of the momentum space variable t3 sampled for each bin. (Useful for correcting numerical diffusion)
 - `p4Max` : The maximum value of the momentum space variable p4 sampled for each bin. (Useful for correcting numerical diffusion)
 - `t4MinMax` : The minimum and maximum values of the momentum space variable t4 sampled for each bin. (Useful for correcting numerical diffusion)
-- `SConv3` : A 6D matrix of the convergence of the emission spectrum compaired to the previous run with given `Run_Parameters` for 12->34 interaction.
-- `SConv4` : A 6D matrix of the convergence of the emission spectrum compaired to the previous run with given `Run_Parameters` for 12->43 interaction.
-- `TConv` : A 4D matrix of the convergence of the absorption spectrum compaired to the previous run with given `Run_Parameters`.
+- `SConv3` : A 6D matrix of the convergence of the emission spectrum compared to the previous run with given `Run_Parameters` for 12->34 interaction.
+- `SConv4` : A 6D matrix of the convergence of the emission spectrum compared to the previous run with given `Run_Parameters` for 12->43 interaction.
+- `TConv` : A 4D matrix of the convergence of the absorption spectrum compared to the previous run with given `Run_Parameters`.
 
 """
 function fload_All(fileLocation::String,fileName::String)

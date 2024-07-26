@@ -21,7 +21,7 @@ via momentum discretisation and Monte-Carlo sampling. The distribution functions
 
 Evaluation is performed by assuming that the distribution function is constant over some set of discrete domains in phase space and then integrating over those domains using a Monte-Carlo method. For more information see the [Documentation](https://cneverett.github.io/BoltzmannCollisionIntegral.jl/).
 
-Evaluation currently supports both single and multithreaded operation (with GPU acceleration planned). Data is exported in the [JLD2](https://github.com/JuliaIO/JLD2.jl) file format.
+Evaluation currently supports both single and multithreaded operation (with multi-CPU acceleration planned). Data is exported in the [JLD2](https://github.com/JuliaIO/JLD2.jl) file format.
 
 ## Usage
 
