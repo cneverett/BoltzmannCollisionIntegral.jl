@@ -11,8 +11,8 @@ This script is provided as an example of how to run the BinaryInteractionSpectra
 
 # Define the Momentum space discretisations for each particle species named. This includes the upper and lower momentum bounds and the number of bins for momentum magnitude and cos(theta) and must be of the format `pl_name`, pl_name`, `nump_name` and `numt_name` where `name` is the abreviated three letter name of the particle species. 
 
-    pl_Sph = -5f0
-    pu_Sph = 4f0
+    pl_Sph = Float64(-5)
+    pu_Sph = Float64(4)
     nump_Sph = 72
     numt_Sph = 8
 
@@ -21,20 +21,20 @@ This script is provided as an example of how to run the BinaryInteractionSpectra
 
     # This section takes all the information above, and geneartes a tuple of the parameters to be passed to the evaluation functions.
 
-    p1l::Float32 = getfield(Main,Symbol("pl_"*name1))
-    p1u::Float32 = getfield(Main,Symbol("pu_"*name1))
+    p1l::Float64 = getfield(Main,Symbol("pl_"*name1))
+    p1u::Float64 = getfield(Main,Symbol("pu_"*name1))
     nump1::Int64 = getfield(Main,Symbol("nump_"*name1))
     numt1::Int64 = getfield(Main,Symbol("numt_"*name1))
-    p2l::Float32 = getfield(Main,Symbol("pl_"*name2))
-    p2u::Float32 = getfield(Main,Symbol("pu_"*name2))
+    p2l::Float64 = getfield(Main,Symbol("pl_"*name2))
+    p2u::Float64 = getfield(Main,Symbol("pu_"*name2))
     nump2::Int64 = getfield(Main,Symbol("nump_"*name2))
     numt2::Int64 = getfield(Main,Symbol("numt_"*name2))
-    p3l::Float32 = getfield(Main,Symbol("pl_"*name3))
-    p3u::Float32 = getfield(Main,Symbol("pu_"*name3))
+    p3l::Float64 = getfield(Main,Symbol("pl_"*name3))
+    p3u::Float64 = getfield(Main,Symbol("pu_"*name3))
     nump3::Int64 = getfield(Main,Symbol("nump_"*name3))
     numt3::Int64 = getfield(Main,Symbol("numt_"*name3))
-    p4l::Float32 = getfield(Main,Symbol("pl_"*name4))
-    p4u::Float32 = getfield(Main,Symbol("pu_"*name4))
+    p4l::Float64 = getfield(Main,Symbol("pl_"*name4))
+    p4u::Float64 = getfield(Main,Symbol("pu_"*name4))
     nump4::Int64 = getfield(Main,Symbol("nump_"*name4))
     numt4::Int64 = getfield(Main,Symbol("numt_"*name4))
 

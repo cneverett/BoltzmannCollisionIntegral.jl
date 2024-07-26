@@ -10,7 +10,7 @@
 
 Function to run the Monte Carlo integration of the S and T arrays in a multi-threaded environment. The function will run the Monte Carlo integration in parallel across the number of threads specified in the global variable nThreads. The function will then calculate the S and T matricies and save the results to a file.
 """
-function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,String,String,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,String,String})
+function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,String,String,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,String,String})
 
     # ========= Load user Parameters ======= #
 
@@ -20,8 +20,8 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
 
     # ===== Are states Distinguishable ===== #
 
-        Indistinguishable_12 = name1 == name2
-        Indistinguishable_34 = name3 == name4
+        Indistinguishable_12::Bool = name1 == name2
+        Indistinguishable_34::Bool = name3 == name4
 
     # ====================================== #
 
@@ -48,20 +48,24 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
             TMatrix2 = f["TMatrix2"];
             close(f)
         else
-            SAtotal3 = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
-            SAtotal4 = zeros(Float32,(nump4+1),numt4,nump1,numt1,nump2,numt2); 
-            TAtotal = zeros(Float32,nump1,numt1,nump2,numt2);
+            SAtotal3 = zeros(Float64,(nump3+1),numt3,nump1,numt1,nump2,numt2); 
+            SAtotal4 = zeros(Float64,(nump4+1),numt4,nump1,numt1,nump2,numt2); 
+            TAtotal = zeros(Float64,nump1,numt1,nump2,numt2);
             SAtally3 = zeros(UInt32,numt3,nump1,numt1,nump2,numt2);
             SAtally4 = zeros(UInt32,numt4,nump1,numt1,nump2,numt2)
             TAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
-            SMatrix3 = zeros(Float32,(nump3+1),numt3,nump1,numt1,nump2,numt2);
-            TMatrix1 = zeros(Float32,nump1,numt1,nump2,numt2);
-            TMatrix2 = zeros(Float32,nump2,numt2,nump1,numt1);
-            p3Max = zeros(Float32,numt3,nump1,numt1,nump2,numt2);
-            t3MinMax = zeros(Float32,2,(nump3+1),nump1,numt1,nump2,numt2);
-            SMatrix4 = zeros(Float32,(nump4+1),numt4,nump1,numt1,nump2,numt2);
-            p4Max = zeros(Float32,numt4,nump1,numt1,nump2,numt2);
-            t4MinMax = zeros(Float32,2,(nump4+1),nump1,numt1,nump2,numt2);
+            SMatrix3 = zeros(Float64,(nump3+1),numt3,nump1,numt1,nump2,numt2);
+            SMatrix4 = zeros(Float64,(nump4+1),numt4,nump1,numt1,nump2,numt2);
+            TMatrix1 = zeros(Float64,nump1,numt1,nump2,numt2);
+            TMatrix2 = zeros(Float64,nump2,numt2,nump1,numt1);
+            p3Max = zeros(Float64,numt3,nump1,numt1,nump2,numt2);
+            t3MinMax = zeros(Float64,2,(nump3+1),nump1,numt1,nump2,numt2);
+            p4Max = zeros(Float64,numt4,nump1,numt1,nump2,numt2);
+            t4MinMax = zeros(Float64,2,(nump4+1),nump1,numt1,nump2,numt2);
+            fill!(@view(t3MinMax[1,:,:,:,:,:]),1e0);
+            fill!(@view(t3MinMax[2,:,:,:,:,:]),-1e0);
+            fill!(@view(t4MinMax[1,:,:,:,:,:]),1e0);
+            fill!(@view(t4MinMax[2,:,:,:,:,:]),-1e0);
         end
 
     # ====================================== #
@@ -77,10 +81,10 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
 
     # ===== Set Particle (normalised) Masses) and Parameters ====== #
 
-        mu1::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
-        mu2::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
-        mu3::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name3))
-        mu4::Float32 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name4))
+        mu1::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
+        mu2::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
+        mu3::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name3))
+        mu4::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name4))
 
         Parameters = (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p4l,p4u,nump4,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt4,numt1,numt2)
 
@@ -107,57 +111,52 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{String,String,St
 
         # preallocate
         SMatrixOldSum3 = dropdims(sum(SMatrix3,dims=(3,4,5,6)),dims=(3,4,5,6));
-        fill!(SMatrix3,0f0);
+        fill!(SMatrix3,0e0);
         SMatrixOldSum4 = dropdims(sum(SMatrix4,dims=(3,4,5,6)),dims=(3,4,5,6));
-        fill!(SMatrix4,0f0);
+        fill!(SMatrix4,0e0);
         TMatrixOldSum = dropdims(sum(TMatrix1,dims=(3,4)),dims=(3,4));
-        fill!(TMatrix1,0f0);
+        fill!(TMatrix1,0e0);
 
         # divide element wise by tallys
-        if Indistinguishable_34 == true
+        if Indistinguishable_34 == true # 34 are identical
             @. SAtally3 = SAtally3 + SAtally4
-            #fill!(SAtally4,0) # reset to avoid overcounting when multiple runs are made
             @. SAtotal3 = SAtotal3 + SAtotal4
-            fill!(SAtotal4,0)
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
-            end
-            replace!(SMatrix3,NaN=>0f0); # remove NaN caused by /0f0
-            p3Max .= max.(p3Max,p4Max)
+            @. p3Max = max(p3Max,p4Max)
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])
             # reset arrays to avoid overcounting when multiple runs are made
-                fill!(SAtally4,0)
-                fill!(SAtotal4,0)
-                fill!(p4Max,0f0)
-                fill!(t4MinMax,0f0)
-        elseif mu3 == mu4 # system symmetric in 34 interchange
+            fill!(SAtally4,UInt32(0))
+            fill!(SAtotal4,0e0)
+            fill!(p4Max,0e0)
+            fill!(@view(t4MinMax[1,:,:,:,:,:]),1e0)
+            fill!(@view(t4MinMax[2,:,:,:,:,:]),-1e0)
+            println("here")
+        end
+        
+        if (Indistinguishable_34 == false) && (mu3 == mu4)  # system symmetric in 34 interchange but particles not identical
             @. SAtally3 = SAtally3 + SAtally4
             @. SAtally4 = SAtally3
             @. SAtotal3 = SAtotal3 + SAtotal4
             @. SAtotal4 = SAtotal3
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
-            end
-            replace!(SMatrix3,NaN=>0f0); # remove NaN caused by /0f0
-            @. SMatrix4 = SMatrix3
-            p3Max .= max.(p3Max,p4Max)
+            @. p3Max = max(p3Max,p4Max)
             @. p4Max = p3Max
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])
             @. t4MinMax = t3MinMax
-        else
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
-            end
-            replace!(SMatrix3,NaN=>0f0); # remove NaN caused by /0f0
-            for i in axes(SMatrix4,1)
-                @. @view(SMatrix4[i,:,:,:,:,:]) = @view(SAtotal4[i,:,:,:,:,:]) / SAtally4
-            end
-            replace!(SMatrix4,NaN=>0f0); # remove NaN caused by /0f0
+            println("there")
         end
+
+        for i in axes(SMatrix3,1)
+            @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
+        end
+        replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
+        for i in axes(SMatrix4,1)
+            @. @view(SMatrix4[i,:,:,:,:,:]) = @view(SAtotal4[i,:,:,:,:,:]) / SAtally4
+        end
+        replace!(SMatrix4,NaN=>0e0); # remove NaN caused by /0e0
+    
         TMatrix1 = TAtotal ./ TAtally;
-        replace!(TMatrix1,NaN=>0f0);
+        replace!(TMatrix1,NaN=>0e0);
 
         # Angle / Momentum Ranges
         t3val = trange(numt3)

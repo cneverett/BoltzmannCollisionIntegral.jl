@@ -11,15 +11,15 @@ Assumes ``f(x,p,μ)=f(x,\\vec{p})*(2πp^2)=const`` in bin, therefore momentum sp
 
 If instead ``f(x,\\vec{p})=const`` in bin, momentum space volume element is ``p^2 \\mathrm{d}p`` and uniform sampling corresponds to ``(10^pu)*\\sqrt[3]{U+(1-U)*10^{3pl-3pu}}`` where ``U`` is a uniform random number between 0 and 1.
 """
-function RPointLogMomentum!(pv::Vector{Float32},pu::Float32,pl::Float32,num::Int64) 
+function RPointLogMomentum!(pv::Vector{Float64},pu::Float64,pl::Float64,num::Int64) 
     # Inputs a momentum vector and mometum bounds and mutates first of said vector
     bin = rand(1:num)
     l = (pl + (pu-pl)*(bin-1)/num)
     u = (pl + (pu-pl)*(bin)/num)
 
-    U = rand(Float32)
-    #pv[1] = (1f1^u)*cbrt(U+(1f0-U)*1f3^(l-u)) 
-    pv[1] = U*1f1^(u)+(1f0-U)*10^(l)  # if instead want to sample space uniformly.
+    U = rand(Float64)
+    #pv[1] = (10^u)*cbrt(U+(1-U)*1f3^(l-u)) 
+    pv[1] = U*10^(u)+(1-U)*10^(l)  # if instead want to sample space uniformly.
 
     return nothing
     
@@ -30,12 +30,12 @@ end
 
 Assigns the second (cos(theta)) and third (phi) elements of 'a' with a randomly, uniformly sampled values of spherical angles cos(theta) and phi (phi normalised by pi). 
 """
-function RPointSphereCosThetaPhi!(a::Vector{Float32}) 
+function RPointSphereCosThetaPhi!(a::Vector{Float64}) 
     # Inputs a 3 element vector [p, cos(theta), phi] and mutates said vector with new random values using form given in https://mathworld.wolfram.com/SpherePointPicking.html (with theta and phi changed places)
     # phi points are normalised by pi
 
-    u::Float32 = rand(Float32)
-    v::Float32 = rand(Float32)
+    u::Float64 = rand(Float64)
+    v::Float64 = rand(Float64)
 
     a[2] = 2*v-1     # cos(theta) bound by [1,-1]
     a[3] = 2*u       # phi bound by [0,2) 

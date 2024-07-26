@@ -24,12 +24,12 @@ The "useful quantities" are then used in calculating moments of the distribution
 """
     prange(pl,pu,nump)
 
-Returns a `nump+1` long `Vector{Float32}` of p-space grid bounds NOT in Log10 space.
+Returns a `nump+1` long `Vector{Float}` of p-space grid bounds NOT in Log10 space.
 
 # Examples
 ```julia-repl
-julia> prange(-5f0,4f0,9)
-10-element Vector{Float32}:
+julia> prange(-5e0,4e0,9)
+10-element Vector{Float64}:
  1.0e-5
  1.0e-4
  1.0e-3
@@ -42,21 +42,21 @@ julia> prange(-5f0,4f0,9)
  10000.0
 ```
 """
-function prange(pl::Float32,pu::Float32,nump::Int64)
-    # returns a vector{Float32} of p grid bounds NOT in Log10 space
+function prange(pl::T,pu::T,nump::Int64) where T <: Union{Float32,Float64}
+    # returns a vector{T} of p grid bounds NOT in Log10 space
     return 10 .^[range(pl,pu,nump+1);]
 end
 
 """
     trange(numt)
 
-Returns a `numt+1` long `Vector{Float32}` of theta-space grid bounds in terms of cos(theta).
-Upper and lower bounds [tl tu] are defined as CONST in Init.jl as [-1f0 1f0].
+Returns a `numt+1` long `Vector{Float}` of theta-space grid bounds in terms of cos(theta).
+Upper and lower bounds [tl tu] are defined as CONST in Init.jl as [-1 1], type returned is that of tl, tu.
 
 # Examples
 ```julia-repl
 julia> trange(8)
-9-element Vector{Float32}:
+9-element Vector{Float64}:
  -1.0
  -0.75
  -0.5
@@ -79,20 +79,20 @@ end
 """
     deltaVector(valr)
 
-Inputs a `num+1` long `Vector{Float32}` quantitiy values (domain bounds) and returns a `num` long `Vector{Float32}` of differeces (domain widths).
+Inputs a `num+1` long `Vector{Float}` quantitiy values (domain bounds) and returns a `num` long `Vector{Float}` of differeces (domain widths).
 
 # Examples
 ```julia-repl
-julia> deltaVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0])
-3-element Vector{Float32}:
+julia> deltaVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0])
+3-element Vector{Float64}:
  9.0
  90.0
  900.0
 ```
 """
-function deltaVector(valr::Vector{Float32})
+function deltaVector(valr::Vector{T}) where T <: Union{Float32,Float64}
     num = size(valr)[1]-1  # number of grid cells
-    Δ = zeros(Float32,num)
+    Δ = zeros(T,num)
     
     for ii in 1:num 
         Δ[ii] += abs(valr[ii+1] - valr[ii]) # abs accounts for Δμ = Δcosθ = cospi(t i) - cospi(t 1+1)
@@ -108,20 +108,20 @@ end
 """
     meanVector(valr)
 
-Inputs a `num+1` long `Vector{Float32}` of domain bounds and returns a `num` long `Vector{Float32}` of mean value in domain range.
+Inputs a `num+1` long `Vector{Float}` of domain bounds and returns a `num` long `Vector{Float}` of mean value in domain range.
 
 # Examples
 ```julia-repl
-julia> meanVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0])
-3-element Vector{Float32}:
+julia> meanVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0])
+3-element Vector{Float64}:
  5.5
  55.0
  550.0
 ```
 """
-function meanVector(valr::Vector{Float32})
+function meanVector(valr::Vector{T}) where T <: Union{Float32,Float64}
     num = size(valr)[1]-1  # number of grid cells
-    mean = zeros(Float32,num)
+    mean = zeros(T,num)
     
     for ii in 1:num 
         mean[ii] = (valr[ii+1] + valr[ii])/2
@@ -137,27 +137,27 @@ end
 """
     deltaEVector(pr,mu)
 
-Inputs a `num+1` long `Vector{Float32}` of p grid boundries and the particle `mu` value (normalised mass) and returns a `num` long `Vector{Float32}` of average energy values per grid cell.
+Inputs a `num+1` long `Vector{Float}` of p grid boundries and the particle `mu` value (normalised mass) and returns a `num` long `Vector{Float}` of average energy values per grid cell.
 
 # Examples
 ```julia-repl
-julia> deltaEVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0], 1.0f0)
-3-element Vector{Float32}:
+julia> deltaEVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0], 1.0e0)
+3-element Vector{Float64}:
  50.600693
  4951.15
  495001.16
 ```
 """
-function deltaEVector(pr::Vector{Float32},mu::Float32)
+function deltaEVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
 
     num = size(pr)[1]-1  # number of grid cells
-    E = zeros(Float32,num+1)
-    ΔE = zeros(Float32,num)
+    E = zeros(T,num+1)
+    ΔE = zeros(T,num)
 
-    if mu == 0f0
+    if mu == zero(T)
         for ii in 1:num 
             ΔE[ii] = pr[ii+1]^2-pr[ii]^2
-            ΔE[ii] /= 2f0
+            ΔE[ii] /= 2
         end
     else 
         for ii in 1:num+1 
@@ -167,7 +167,7 @@ function deltaEVector(pr::Vector{Float32},mu::Float32)
             ΔE[ii] = (pr[ii+1]-pr[ii])*mu
             ΔE[ii] += pr[ii+1]^3/(E[ii+1]+mu) - pr[ii]^3/(E[ii]+mu) 
             ΔE[ii] += mu^2*(asinh(pr[ii+1]/mu)-asinh(pr[ii]/mu))
-            ΔE[ii] /= 2f0
+            ΔE[ii] /= 2
         end
     end 
 

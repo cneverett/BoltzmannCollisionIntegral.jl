@@ -5,13 +5,13 @@ Returns the index of the bin in which 'val' is contatined based on the 'num' of 
 
 # Examples
 ```julia-repl
-julia> location(10f0,0f0,9,2f0)
+julia> location(10e0,0e0,9,2e0)
 2
 ```
 """
-function location(u::Float32,l::Float32,num::Int64,val::Float32)
+function location(u::Float64,l::Float64,num::Int64,val::Float64)
     # function for generating poisition in array. Bins MUST be uniform
-    return val != l ? ceil(Int64,Float32(num)*(val-l)/(u-l)) : Int64(1) 
+    return val != l ? ceil(Int64,Float64(num)*(val-l)/(u-l)) : Int64(1) 
 end
 
 """
@@ -21,13 +21,13 @@ Returns the index of the bin in which the costheta 'val' is contatined based on 
 
 # Examples
 ```julia-repl
-julia> location_t(8,0.5f0)
+julia> location_t(8,0.5e0)
 6
 ```
 """
-function location_t(numt::Int64,val::Float32)
+function location_t(numt::Int64,val::Float64)
     # function for generating poisition in array. Bins MUST be uniform
-    return val != tl ? ceil(Int64,Float32(numt)*(val-tl)/(tu-tl)) : Int64(1) 
+    return val != tl ? ceil(Int64,Float64(numt)*(val-tl)/(tu-tl)) : Int64(1) 
 end
 
 """
@@ -37,18 +37,18 @@ Returns the index of the bin in which 'val' is contatined based on the 'num' of 
 
 # Examples
 ```julia-repl
-julia> location_p3(10f0,1f0,9,2f0)
+julia> location_p3(10e0,1e0,9,2e0)
 2
-julia> location_p3(10f0,1f0,9,11f0) # overflow
+julia> location_p3(10e0,1e0,9,11e0) # overflow
 10
-julia> location_p3(10f0,1f0,9,0.5f0) # underflow
+julia> location_p3(10e0,1e0,9,0.5e0) # underflow
 1
 ```
 """
-function location_p3(u::Float32,l::Float32,num::Int64,val::Float32)
+function location_p3(u::Float64,l::Float64,num::Int64,val::Float64)
     # function for generating poisition in array. Bins MUST be uniform
     logp = log10(val)
-    loc = logp != l ? ceil(Int64,Float32(num)*(logp-l)/(u-l)) : Int64(1) 
+    loc = logp != l ? ceil(Int64,Float64(num)*(logp-l)/(u-l)) : Int64(1) 
     return 1 <= loc <= num ? loc : loc>num ? num+1 : 1 # assignes 1 for under, num+1 for over and loc for in range
 end
 
@@ -60,16 +60,16 @@ costheta bounds [tl tu] are defined as CONST in Init.jl
 
 # Examples
 ```julia-repl
-julia> vectorLocation(4f0,-5f0,9,8,[1f0,0.5f0,1.5f0])
+julia> vectorLocation(4e0,-5e0,9,8,[1e0,0.5e0,1.5e0])
 (5,6)
 """
-function vectorLocation(pu::Float32,pl::Float32,nump::Int64,numt::Int64,vector::Vector{Float32})
+function vectorLocation(pu::Float64,pl::Float64,nump::Int64,numt::Int64,vector::Vector{Float64})
 
     logp = log10(vector[1])
     ctheta = vector[2]
 
-    logploc = (logp != pl ? ceil(Int64,Float32(nump)*(logp-pl)/(pu-pl)) : Int64(1))
-    cthetaloc = (ctheta != tl ? ceil(Int64,Float32(numt)*(ctheta-tl)/(tu-tl)) : Int64(1))
+    logploc = (logp != pl ? ceil(Int64,Float64(nump)*(logp-pl)/(pu-pl)) : Int64(1))
+    cthetaloc = (ctheta != tl ? ceil(Int64,Float64(numt)*(ctheta-tl)/(tu-tl)) : Int64(1))
     
     return (logploc,cthetaloc)
     

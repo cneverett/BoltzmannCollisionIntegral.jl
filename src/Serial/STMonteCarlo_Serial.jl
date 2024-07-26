@@ -7,19 +7,19 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
     STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
 
 # Arguments
-- `SAtotal3::Array{Float32,6}` : Array of stored integration totals for S matrix for 12->34 interaction
-- `SAtotal4::Array{Float32,6}` : Array of stored integration totals for S matrix for 12->43 interaction
-- `TAtotal::Array{Float32,4}` : Array of stored integration totals for T matrix
+- `SAtotal3::Array{Float64,6}` : Array of stored integration totals for S matrix for 12->34 interaction
+- `SAtotal4::Array{Float64,6}` : Array of stored integration totals for S matrix for 12->43 interaction
+- `TAtotal::Array{Float64,4}` : Array of stored integration totals for T matrix
 - `SAtally3::Array{UInt32,5}` : Array of stored integration tallies for S matrix for 12->34 interaction
 - `SAtally4::Array{UInt32,5}` : Array of stored integration tallies for S matrix for 12->43 interaction
 - `TAtally::Array{UInt32,4}` : Array of stored integration tallies for T matrix
-- `p3Max::Array{Float32,5}` : Array of maximum momentum values for species 3
-- `t3MinMax::Array{Float32,6}` : Array of minimum and maximum theta values for species 3
-- `p4Max::Array{Float32,5}` : Array of maximum momentum values for species 4
-- `t4MinMax::Array{Float32,6}` : Array of minimum and maximum theta values for species 4
+- `p3Max::Array{Float64,5}` : Array of maximum momentum values for species 3
+- `t3MinMax::Array{Float64,6}` : Array of minimum and maximum theta values for species 3
+- `p4Max::Array{Float64,5}` : Array of maximum momentum values for species 4
+- `t4MinMax::Array{Float64,6}` : Array of minimum and maximum theta values for species 4
 - `sigma::Function` : Cross section function for the interaction
 - `dsigmadt::Function` : Differential cross section function for the interaction
-- `Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64}` : Tuple of parameters for the interaction
+- `Parameters::Tuple{Float64,Float64,Float64,Float64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64,Int64,Int64}` : Tuple of parameters for the interaction
 - `numTiter::Int64` : Number of T iterations
 - `numSiter::Int64` : Number of S iterations
 
@@ -35,21 +35,21 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
 - Take random points (t4,h3,p1,p2,t1,t2,h1,h2) and calculate valid p4 point/points 
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 """
-function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Float32,6},TAtotal::Array{Float32,4},SAtally3::Array{UInt32,5},SAtally4::Array{UInt32,5},TAtally::Array{UInt32,4},p3Max::Array{Float32,5},p4Max::Array{Float32,5},t3MinMax::Array{Float32,6},t4MinMax::Array{Float32,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64},numTiter::Int64,numSiter::Int64)
+function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Float64,6},TAtotal::Array{Float64,4},SAtally3::Array{UInt32,5},SAtally4::Array{UInt32,5},TAtally::Array{UInt32,4},p3Max::Array{Float64,5},p4Max::Array{Float64,5},t3MinMax::Array{Float64,6},t4MinMax::Array{Float64,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{Float64,Float64,Float64,Float64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64,Int64,Int64},numTiter::Int64,numSiter::Int64)
 
     # Set Parameters
     (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p4l,p4u,nump4,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt4,numt1,numt2) = Parameters
 
     # allocate arrays
-    p1v::Vector{Float32} = zeros(Float32,3)
-    p2v::Vector{Float32} = zeros(Float32,3)
-    p3v::Vector{Float32} = zeros(Float32,3)
-    p3pv::Vector{Float32} = zeros(Float32,3)
-    p4v::Vector{Float32} = zeros(Float32,3)
-    p4pv::Vector{Float32} = zeros(Float32,3)
-    Sval::Float32 = 0f0
-    Svalp::Float32 = 0f0
-    Tval::Float32 = 0f0
+    p1v::Vector{Float64} = zeros(Float64,3)
+    p2v::Vector{Float64} = zeros(Float64,3)
+    p3v::Vector{Float64} = zeros(Float64,3)
+    p3pv::Vector{Float64} = zeros(Float64,3)
+    p4v::Vector{Float64} = zeros(Float64,3)
+    p4pv::Vector{Float64} = zeros(Float64,3)
+    Sval::Float64 = 0e0
+    Svalp::Float64 = 0e0
+    Tval::Float64 = 0e0
     p3_physical::Bool = true
     p3p_physical::Bool = true
     p4_physical::Bool = true
@@ -83,7 +83,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float32,6},SAtotal4::Array{Floa
         t4MinView = @view t4MinMax[1,:,loc12]
         t4MaxView = @view t4MinMax[2,:,loc12]
         
-        if Tval != 0f0 # i.e. it is a valid interaction state
+        if Tval != 0e0 # i.e. it is a valid interaction state
 
             for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 

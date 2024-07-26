@@ -77,6 +77,6 @@ The evaluation is performed by the functions [SpectraEvaluateSerial](@ref) or [S
 !!! warning 
     The evaluation does not guarantee convergence of the Monte-Carlo integration, instead it will sample only a user defined number of points. A rough measure of convergence is calculated (based on comparison to the output of the previous run) and stored as `SConverge` and `TConverge` in the output file.
 
-Evaluation is performed using `Float32` precision, with all [Internal Functions](@ref) designed to maintain accuracy to this precision.
+Evaluation is performed using `Float64` precision, with all [Internal Functions](@ref) designed to maintain accuracy to this precision.
 
 An in-depth setup guide is provided in the [Getting Started](@ref) section.  

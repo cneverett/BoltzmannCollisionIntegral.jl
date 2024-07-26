@@ -7,19 +7,19 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
     STMonteCarloAxi_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,p3Max,t3MinMax,p4Max,t4MinMax,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread)
 
 # Arguments
-- `SAtotal3::Array{Float32,6}` : Array of stored integration totals for S matrix for 12->34 interaction
-- `SAtotal4::Array{Float32,6}` : Array of stored integration totals for S matrix for 12->43 interaction
-- `TAtotal::Array{Float32,4}` : Array of stored integration totals for T matrix
+- `SAtotal3::Array{Float64,6}` : Array of stored integration totals for S matrix for 12->34 interaction
+- `SAtotal4::Array{Float64,6}` : Array of stored integration totals for S matrix for 12->43 interaction
+- `TAtotal::Array{Float64,4}` : Array of stored integration totals for T matrix
 - `SAtally3::Array{UInt32,5}` : Array of stored integration tallies for S matrix for 12->34 interaction
 - `SAtally4::Array{UInt32,5}` : Array of stored integration tallies for S matrix for 12->43 interaction
 - `TAtally::Array{UInt32,4}` : Array of stored integration tallies for T matrix
-- `p3Max::Array{Float32,5}` : Array of maximum momentum values for species 3
-- `t3MinMax::Array{Float32,6}` : Array of minimum and maximum theta values for species 3
-- `p4Max::Array{Float32,5}` : Array of maximum momentum values for species 4
-- `t4MinMax::Array{Float32,6}` : Array of minimum and maximum theta values for species 4
+- `p3Max::Array{Float64,5}` : Array of maximum momentum values for species 3
+- `t3MinMax::Array{Float64,6}` : Array of minimum and maximum theta values for species 3
+- `p4Max::Array{Float64,5}` : Array of maximum momentum values for species 4
+- `t4MinMax::Array{Float64,6}` : Array of minimum and maximum theta values for species 4
 - `sigma::Function` : Cross section function for the interaction
 - `dsigmadt::Function` : Differential cross section function for the interaction
-- `Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64}` : Tuple of parameters for the interaction
+- `Parameters::Tuple{Float64,Float64,Float64,Float64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64,Int64,Int64}` : Tuple of parameters for the interaction
 - `numTiterPerThread::Int64` : Number of T iterations per thread
 - `numSiterPerThread::Int64` : Number of S iterations per thread
 
@@ -37,7 +37,7 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float32,6},SAtotal4::Array{Float32,6},TAtotal::Array{Float32,4},SAtally3::Array{UInt32,5},SAtally4::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float32,5},p4Max::Array{Float32,5},t3MinMax::Array{Float32,6},t4MinMax::Array{Float32,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{Float32,Float32,Float32,Float32,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Float32,Float32,Int64,Int64,Int64,Int64,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64)
+function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array{Float64,6},TAtotal::Array{Float64,4},SAtally3::Array{UInt32,5},SAtally4::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float64,5},p4Max::Array{Float64,5},t3MinMax::Array{Float64,6},t4MinMax::Array{Float64,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{Float64,Float64,Float64,Float64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64,Int64,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64)
 
     # Set Parameters
     (mu1,mu2,mu3,mu4,p3l,p3u,nump3,p4l,p4u,nump4,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt4,numt1,numt2) = Parameters
@@ -46,31 +46,31 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float32,6},SAtotal4::Array
     Threads.@spawn begin
 
     # allocate arrays for each thread
-    p1v::Vector{Float32} = zeros(Float32,3)
-    p2v::Vector{Float32} = zeros(Float32,3)
-    p3v::Vector{Float32} = zeros(Float32,3)
-    p3pv::Vector{Float32} = zeros(Float32,3)
-    p4v::Vector{Float32} = zeros(Float32,3)
-    p4pv::Vector{Float32} = zeros(Float32,3)
-    Sval::Float32 = 0f0
-    Svalp::Float32 = 0f0
-    Tval::Float32 = 0f0
+    p1v::Vector{Float64} = zeros(Float64,3)
+    p2v::Vector{Float64} = zeros(Float64,3)
+    p3v::Vector{Float64} = zeros(Float64,3)
+    p3pv::Vector{Float64} = zeros(Float64,3)
+    p4v::Vector{Float64} = zeros(Float64,3)
+    p4pv::Vector{Float64} = zeros(Float64,3)
+    Sval::Float64 = 0e0
+    Svalp::Float64 = 0e0
+    Tval::Float64 = 0e0
     p3_physical::Bool = true
     p3p_physical::Bool = true
     p4_physical::Bool = true
     p4p_physical::Bool = true
     NumStates::Int64 = 2
 
-    localSAtotal3 = zeros(Float32,size(SAtotal3)[1:2])
+    localSAtotal3 = zeros(Float64,size(SAtotal3)[1:2])
     localSAtally3 = zeros(UInt32,size(SAtally3)[1])
-    localSAtotal4 = zeros(Float32,size(SAtotal4)[1:2])
+    localSAtotal4 = zeros(Float64,size(SAtotal4)[1:2])
     localSAtally4 = zeros(UInt32,size(SAtally4)[1])
-    localp3Max = zeros(Float32,size(p3Max)[1])
-    localt3Min = zeros(Float32,size(t3MinMax)[2])
-    localt3Max = zeros(Float32,size(t3MinMax)[2])
-    localp4Max = zeros(Float32,size(p4Max)[1])
-    localt4Min = zeros(Float32,size(t4MinMax)[2])
-    localt4Max = zeros(Float32,size(t4MinMax)[2])
+    localp3Max = zeros(Float64,size(p3Max)[1])
+    localt3Min = zeros(Float64,size(t3MinMax)[2])
+    localt3Max = zeros(Float64,size(t3MinMax)[2])
+    localp4Max = zeros(Float64,size(p4Max)[1])
+    localt4Min = zeros(Float64,size(t4MinMax)[2])
+    localt4Max = zeros(Float64,size(t4MinMax)[2])
 
     for _ in 1:numTiterPerThread
 
@@ -91,16 +91,16 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float32,6},SAtotal4::Array
         fill!(localSAtally3,UInt32(0))
         fill!(localSAtally4,UInt32(0))
 
-        if Tval != 0f0 # i.e. it is a valid interaction state
+        if Tval != 0e0 # i.e. it is a valid interaction state
 
-            fill!(localSAtotal3,0f0)
-            fill!(localp3Max,Float32(0))
-            fill!(localt3Min,Float32(0))
-            fill!(localt3Max,Float32(0))
-            fill!(localSAtotal4,0f0)
-            fill!(localp4Max,Float32(0))
-            fill!(localt4Min,Float32(0))
-            fill!(localt4Max,Float32(0))
+            fill!(localSAtotal3,0e0)
+            fill!(localp3Max,Float64(0))
+            fill!(localt3Min,Float64(0))
+            fill!(localt3Max,Float64(0))
+            fill!(localSAtotal4,0e0)
+            fill!(localp4Max,Float64(0))
+            fill!(localt4Min,Float64(0))
+            fill!(localt4Max,Float64(0))
                     
             @inbounds for _ in 1:numSiterPerThread
 
@@ -217,11 +217,11 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float32,6},SAtotal4::Array
         @lock ArrayOfLocks[p1loc] begin
             TAtotal[loc12] += Tval
             TAtally[loc12] += UInt32(1)
-            @view(SAtotal3[:,:,loc12]) .+= localSAtotal3
             @view(SAtally3[:,loc12]) .+= localSAtally3
-            @view(SAtotal4[:,:,loc12]) .+= localSAtotal4
             @view(SAtally4[:,loc12]) .+= localSAtally4
-            if Tval != 0f0
+            if Tval != 0e0
+                @view(SAtotal3[:,:,loc12]) .+= localSAtotal3
+                @view(SAtotal4[:,:,loc12]) .+= localSAtotal4
                 @view(p3Max[:,loc12]) .= max.(@view(p3Max[:,loc12]),localp3Max)
                 @view(t3MinMax[1,:,loc12]) .= min.(@view(t3MinMax[1,:,loc12]),localt3Min)
                 @view(t3MinMax[2,:,loc12]) .= max.(@view(t3MinMax[2,:,loc12]),localt3Max)
