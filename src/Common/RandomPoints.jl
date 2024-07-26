@@ -18,8 +18,8 @@ function RPointLogMomentum!(pv::Vector{Float64},pu::Float64,pl::Float64,num::Int
     u = (pl + (pu-pl)*(bin)/num)
 
     U = rand(Float64)
-    #pv[1] = (1f1^u)*cbrt(U+(1f0-U)*1f3^(l-u)) 
-    pv[1] = U*1f1^(u)+(1f0-U)*10^(l)  # if instead want to sample space uniformly.
+    #pv[1] = (10^u)*cbrt(U+(1-U)*1f3^(l-u)) 
+    pv[1] = U*10^(u)+(1-U)*10^(l)  # if instead want to sample space uniformly.
 
     return nothing
     

@@ -3,7 +3,7 @@
 """
     TValue(p1v,p2v,sigma,mu1,mu2)
 
-returns `Tval` with its Tval from MC integration based on initial momentum states `p1v` and `p2v` and cross section `sigma` based on particle selection. If initial state fails `sCheck`, i.e. cannot generate a physical output state, Tval is set to 0f0. 
+returns `Tval` with its Tval from MC integration based on initial momentum states `p1v` and `p2v` and cross section `sigma` based on particle selection. If initial state fails `sCheck`, i.e. cannot generate a physical output state, Tval is set to 0e0. 
 Assumes f(x,p,μ)=constant over bin
 """
 function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64)
@@ -21,8 +21,8 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::F
     ct1::Float64 = p1v[2] #cospi(p1v[2])
     ct2::Float64 = p2v[2] #cospi(p2v[2]) 
 
-    st1::Float64 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
-    st2::Float64 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
+    st1::Float64 = sqrt(1e0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float64 = sqrt(1e0-p2v[2]^2) #sinpi(p2v[2])
 
     ch1h2::Float64 = cospi(p1v[3]-p2v[3])
 
@@ -57,7 +57,7 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::F
             error("ST1 Inf#"*string(sSmol)*"#"*string(sBig))
         end
     else # if not valid set T value to zero
-        Tval = 0f0
+        Tval = 0e0
     end
 
     return Tval
@@ -85,8 +85,8 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     ct1::Float64 = p1v[2] #cospi(p1v[2])
     ct2::Float64 = p2v[2] #cospi(p2v[2]) 
 
-    st1::Float64 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
-    st2::Float64 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
+    st1::Float64 = sqrt(1e0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float64 = sqrt(1e0-p2v[2]^2) #sinpi(p2v[2])
 
     ch1h2::Float64 = cospi(p1v[3]-p2v[3])
 
@@ -95,11 +95,11 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     m12 = m1^2
     m22 = m2^2
     
-    Es1::Float64 = m1 != 0f0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
+    Es1::Float64 = m1 != 0e0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
     Es1s::Float64 = Es1/p1
     E1::Float64 = Es1 + m1
  
-    Es2::Float64 = m2 != 0f0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
+    Es2::Float64 = m2 != 0e0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
     Es2s::Float64 = Es2/p2
     E2::Float64 = Es2 + m2
 
@@ -112,10 +112,10 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
 
     p3::Float64 = p3v[1]
     ct3::Float64 = p3v[2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
-    st3::Float64 = sqrt(1f0-p3v[2]^2)
+    st3::Float64 = sqrt(1e0-p3v[2]^2)
     ch3h1::Float64 = cospi(p3v[3]-p1v[3])
     ch3h2::Float64 = cospi(p3v[3]-p2v[3])
-    Es3::Float64 = m3 != 0f0 ? (p3^2)/(sqrt(m32+p3^2)+m3) : p3
+    Es3::Float64 = m3 != 0e0 ? (p3^2)/(sqrt(m32+p3^2)+m3) : p3
     Es3s::Float64 = Es3/p3
 
     # t = tBig + tSmol
@@ -135,7 +135,7 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
 
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
 
-    if (Sval==Inf || Sval == -Inf || Sval < 0f0)
+    if (Sval==Inf || Sval == -Inf || Sval < 0e0)
         error("ST1 Inf#$deltacorrect#$sSmol#$sBig#$tSmol#$tBig#$uSmol#$uBig#$p3v#$p1v#$p2v")  
     end
 
@@ -164,8 +164,8 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     ct1::Float64 = p1v[2] #cospi(p1v[2])
     ct2::Float64 = p2v[2] #cospi(p2v[2]) 
 
-    st1::Float64 = sqrt(1f0-p1v[2]^2) #sinpi(p1v[2])
-    st2::Float64 = sqrt(1f0-p2v[2]^2) #sinpi(p2v[2])
+    st1::Float64 = sqrt(1e0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float64 = sqrt(1e0-p2v[2]^2) #sinpi(p2v[2])
 
     ch1h2::Float64 = cospi(p1v[3]-p2v[3])
 
@@ -174,11 +174,11 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     m12 = m1^2
     m22 = m2^2
 
-    Es1::Float64 = m1 != 0f0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
+    Es1::Float64 = m1 != 0e0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
     Es1s::Float64 = Es1/p1
     E1::Float64 = Es1 + m1
  
-    Es2::Float64 = m2 != 0f0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
+    Es2::Float64 = m2 != 0e0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
     Es2s::Float64 = Es2/p2
     E2::Float64 = Es2 + m2
 
@@ -191,10 +191,10 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
 
     p4::Float64 = p4v[1]
     ct4::Float64 = p4v[2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
-    st4::Float64 = sqrt(1f0-p4v[2]^2)
+    st4::Float64 = sqrt(1e0-p4v[2]^2)
     ch4h1::Float64 = cospi(p4v[3]-p1v[3])
     ch4h2::Float64 = cospi(p4v[3]-p2v[3])
-    Es4::Float64 = m4 != 0f0 ? (p4^2)/(sqrt(m42+p4^2)+m4) : p4
+    Es4::Float64 = m4 != 0e0 ? (p4^2)/(sqrt(m42+p4^2)+m4) : p4
     Es4s::Float64 = Es4/p4
     E4::Float64 = Es4 + m4
 
@@ -215,7 +215,7 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
 
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p4^2/(deltacorrect*sign(deltacorrect)))
 
-    if (Sval==Inf || Sval == -Inf || Sval < 0f0)
+    if (Sval==Inf || Sval == -Inf || Sval < 0e0)
         error("ST1 Inf#$deltacorrect#$sSmol#$sBig#$tSmol#$tBig#$uSmol#$uBig#$p4v#$p1v#$p2v")  
     end
 

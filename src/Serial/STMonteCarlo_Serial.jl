@@ -47,9 +47,9 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
     p3pv::Vector{Float64} = zeros(Float64,3)
     p4v::Vector{Float64} = zeros(Float64,3)
     p4pv::Vector{Float64} = zeros(Float64,3)
-    Sval::Float64 = 0f0
-    Svalp::Float64 = 0f0
-    Tval::Float64 = 0f0
+    Sval::Float64 = 0e0
+    Svalp::Float64 = 0e0
+    Tval::Float64 = 0e0
     p3_physical::Bool = true
     p3p_physical::Bool = true
     p4_physical::Bool = true
@@ -83,7 +83,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
         t4MinView = @view t4MinMax[1,:,loc12]
         t4MaxView = @view t4MinMax[2,:,loc12]
         
-        if Tval != 0f0 # i.e. it is a valid interaction state
+        if Tval != 0e0 # i.e. it is a valid interaction state
 
             for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 

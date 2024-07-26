@@ -91,11 +91,11 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
 
         # preallocate
         SMatrixOldSum3 = dropdims(sum(SMatrix3,dims=(3,4,5,6)),dims=(3,4,5,6));
-        fill!(SMatrix3,0f0);
+        fill!(SMatrix3,0e0);
         SMatrixOldSum4 = dropdims(sum(SMatrix4,dims=(3,4,5,6)),dims=(3,4,5,6));
-        fill!(SMatrix4,0f0);
+        fill!(SMatrix4,0e0);
         TMatrixOldSum = dropdims(sum(TMatrix1,dims=(3,4)),dims=(3,4));
-        fill!(TMatrix1,0f0);
+        fill!(TMatrix1,0e0);
 
         # divide element wise by tallys
         if Indistinguishable_34 == true
@@ -106,15 +106,15 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
             for i in axes(SMatrix3,1)
                 @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
             end
-            replace!(SMatrix3,NaN=>0f0); # remove NaN caused by /0f0
+            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
             p3Max .= max.(p3Max,p4Max)
             @view(t3MinMax[1,:,:,:,:,:]) .= min.(t3MinMax[1,:,:,:,:,:],t4MinMax[1,:,:,:,:,:])
             @view(t3MinMax[2,:,:,:,:,:]) .= max.(t3MinMax[2,:,:,:,:,:],t4MinMax[2,:,:,:,:,:])
             # reset arrays to avoid overcounting when multiple runs are made
                 fill!(SAtally4,0)
                 fill!(SAtotal4,0)
-                fill!(p4Max,0f0)
-                fill!(t4MinMax,0f0)
+                fill!(p4Max,0e0)
+                fill!(t4MinMax,0e0)
         elseif mu3 == mu4 # system symmetric in 34 interchange
             @. SAtally3 = SAtally3 + SAtally4
             @. SAtally4 = SAtally3
@@ -123,7 +123,7 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
             for i in axes(SMatrix3,1)
                 @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
             end
-            replace!(SMatrix3,NaN=>0f0); # remove NaN caused by /0f0
+            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
             @. SMatrix4 = SMatrix3
             p3Max .= max.(p3Max,p4Max)
             @. p4Max = p3Max
@@ -134,14 +134,14 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
             for i in axes(SMatrix3,1)
                 @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
             end
-            replace!(SMatrix3,NaN=>0f0); # remove NaN caused by /0f0
+            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
             for i in axes(SMatrix4,1)
                 @. @view(SMatrix4[i,:,:,:,:,:]) = @view(SAtotal4[i,:,:,:,:,:]) / SAtally4
             end
-            replace!(SMatrix4,NaN=>0f0); # remove NaN caused by /0f0
+            replace!(SMatrix4,NaN=>0e0); # remove NaN caused by /0e0
         end
         TMatrix1 = TAtotal ./ TAtally;
-        replace!(TMatrix1,NaN=>0f0);
+        replace!(TMatrix1,NaN=>0e0);
 
         # Angle / Momentum Ranges
         t3val = trange(numt3)

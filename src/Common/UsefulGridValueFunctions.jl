@@ -28,8 +28,8 @@ Returns a `nump+1` long `Vector{Float}` of p-space grid bounds NOT in Log10 spac
 
 # Examples
 ```julia-repl
-julia> prange(-5f0,4f0,9)
-10-element Vector{Float32}:
+julia> prange(-5e0,4e0,9)
+10-element Vector{Float64}:
  1.0e-5
  1.0e-4
  1.0e-3
@@ -56,7 +56,7 @@ Upper and lower bounds [tl tu] are defined as CONST in Init.jl as [-1 1], type r
 # Examples
 ```julia-repl
 julia> trange(8)
-9-element Vector{Float32}:
+9-element Vector{Float64}:
  -1.0
  -0.75
  -0.5
@@ -83,8 +83,8 @@ Inputs a `num+1` long `Vector{Float}` quantitiy values (domain bounds) and retur
 
 # Examples
 ```julia-repl
-julia> deltaVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0])
-3-element Vector{Float32}:
+julia> deltaVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0])
+3-element Vector{Float64}:
  9.0
  90.0
  900.0
@@ -112,8 +112,8 @@ Inputs a `num+1` long `Vector{Float}` of domain bounds and returns a `num` long 
 
 # Examples
 ```julia-repl
-julia> meanVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0])
-3-element Vector{Float32}:
+julia> meanVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0])
+3-element Vector{Float64}:
  5.5
  55.0
  550.0
@@ -141,8 +141,8 @@ Inputs a `num+1` long `Vector{Float}` of p grid boundries and the particle `mu` 
 
 # Examples
 ```julia-repl
-julia> deltaEVector([1.0f0, 10.0f0, 100.0f0, 1000.0f0], 1.0f0)
-3-element Vector{Float32}:
+julia> deltaEVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0], 1.0e0)
+3-element Vector{Float64}:
  50.600693
  4951.15
  495001.16

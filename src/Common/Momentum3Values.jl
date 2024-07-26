@@ -10,13 +10,13 @@ Requrires normalised masses (mu1,mu2,mu3,mu4) to be defined in advance in Init.j
 
 # Examples
 ```julia-repl
-julia> mu1 = 1836.1528f0
-julia> mu2 = 1836.1528f0
-julia> mu3 = 1836.1528f0
-julia> mu4 = 1836.1528f0
-julia> p1v = [1f0, 0.5f0, 1.8f0]
-julia> p2v = [2f0, 0.2f0, 0.7f0]
-julia> p3v = [0f0, 0.3f0, 0.7f0]
+julia> mu1 = 1836.1528e0
+julia> mu2 = 1836.1528e0
+julia> mu3 = 1836.1528e0
+julia> mu4 = 1836.1528e0
+julia> p1v = [1e0, 0.5e0, 1.8e0]
+julia> p2v = [2e0, 0.2e0, 0.7e0]
+julia> p3v = [0e0, 0.3e0, 0.7e0]
 julia> p3pv = zeros(Float64,3)
 julia> p3pv .= p3v
 julia> Momentum3Value!(p3v,p3pv,p1v,p2v,mu1,mu2,mu3,mu4)
@@ -52,9 +52,9 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
     ct1::Float64 = p1v[2]
     ct2::Float64 = p2v[2] 
 
-    st3::Float64 = sqrt(1f0-ct3^2)
-    st1::Float64 = sqrt(1f0-ct1^2)
-    st2::Float64 = sqrt(1f0-ct2^2)
+    st3::Float64 = sqrt(1e0-ct3^2)
+    st1::Float64 = sqrt(1e0-ct1^2)
+    st2::Float64 = sqrt(1e0-ct2^2)
 
     ch1h3::Float64 = cospi(p3v[3]-p1v[3])
     ch1h4::Float64 = cospi(p3v[3]-p2v[3])
@@ -86,8 +86,8 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
     #p1p2 = p1*p2
 
     # reset p3v values
-    p3v[1] = 0f0 
-    p3pv[1] = 0f0
+    p3v[1] = 0e0 
+    p3pv[1] = 0e0
 
     C3sqr::Float64 = ((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))^2*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))^2+(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(-m42+2*A2*(-m3+m1)+2*A1*(A2-m3+m2)+(-m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))*(-m42+2*A2*(m3+m1)+2*A1*(A2+m3+m2)+(m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2)) 
 
@@ -103,15 +103,15 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
         p3p_physical = false
 
         p3 = C2/C4
-        if p3 == 0f0
+        if p3 == 0e0
             NumStates = 0
         else
-            if p3 > 0f0
+            if p3 > 0e0
                 p3v[1] = p3
             else
                 p3v[1] = -p3
                 p3v[2] *= -1
-                p3v[3] = mod(p3v[3]+1f0,2f0)
+                p3v[3] = mod(p3v[3]+1e0,2e0)
             end
             if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m1-m2
                 p3_physical = true
@@ -128,15 +128,15 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
         C3 = 4*sqrt(C3sqr)
         p3 = (C2-C3)/C4
 
-        if p3 == 0f0
+        if p3 == 0e0
             NumStates = 1
         else
-            if p3 > 0f0
+            if p3 > 0e0
                 p3v[1] = p3
             else
                 p3v[1] = -p3
                 p3v[2] *= -1
-                p3v[3] = mod(p3v[3]+1f0,2f0)
+                p3v[3] = mod(p3v[3]+1e0,2e0)
             end
 
             if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m1-m2
@@ -146,16 +146,16 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
 
         if NumStates == 2
             p3p = (C2+C3)/C4
-            if p3p == 0f0
+            if p3p == 0e0
                 NumStates = 1
             else
-                if p3p > 0f0
+                if p3p > 0e0
                     p3pv[1] = p3p
                     
                 else
                     p3pv[1] = -p3p
                     p3pv[2] *= -1
-                    p3pv[3] = mod(p3pv[3]+1f0,2f0)
+                    p3pv[3] = mod(p3pv[3]+1e0,2e0)
                 end
 
                 if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3p^2/(sqrt(m32+p3p^2)+m3)) > m3-m1-m2
@@ -167,12 +167,12 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
             if p3 == 0
                 NumStates = 0
             else
-                if p3 > 0f0
+                if p3 > 0e0
                     p3v[1] = p3
                 else
                     p3v[1] = -p3
                     p3v[2] *= -1
-                    p3v[3] = mod(p3v[3]+1f0,2f0)
+                    p3v[3] = mod(p3v[3]+1e0,2e0)
                 end
                 if (p12/(sqm1p1+m1)+p22/(sqm2p2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m1-m2
                     p3_physical = true
@@ -181,21 +181,21 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
 
         end
 
-    else # imaginary C3sqr < 0f0
+    else # imaginary C3sqr < 0e0
 
         NumStates = 1 # two states but both in same bin so same as one
         p3p_physical = false
         p3_physical = false
 
         p3Real = C2/C4
-        if p3Real == 0f0
+        if p3Real == 0e0
             NumStates = 0
         else
-            if p3Real < 0f0
+            if p3Real < 0e0
             p3v[2] *= -1
-            p3v[3] = mod(p3v[3]+1f0,2f0)
+            p3v[3] = mod(p3v[3]+1e0,2e0)
             #p3pv[2] *= -1
-            #p3pv[3] = mod(p3pv[3]+1f0,2f0)
+            #p3pv[3] = mod(p3pv[3]+1e0,2e0)
             end
         end
 
@@ -221,17 +221,17 @@ function p4Vector!(p4v::Vector{Float64},p3v::Vector{Float64},p1v::Vector{Float64
     ct2::Float64 = p2v[2]  
     ct3::Float64 = p3v[2] 
 
-    st1::Float64 = sqrt(1f0-p1v[2]^2)
-    st2::Float64 = sqrt(1f0-p2v[2]^2) 
-    st3::Float64 = sqrt(1f0-p3v[2]^2) 
+    st1::Float64 = sqrt(1e0-p1v[2]^2)
+    st2::Float64 = sqrt(1e0-p2v[2]^2) 
+    st3::Float64 = sqrt(1e0-p3v[2]^2) 
 
     ch1::Float64 = cospi(p1v[3])
     ch2::Float64 = cospi(p2v[3])
     ch3::Float64 = cospi(p3v[3])
 
-    sh1::Float64 = sqrt(1f0-ch1^2) 
-    sh2::Float64 = sqrt(1f0-ch2^2) 
-    sh3::Float64 = sqrt(1f0-ch3^2) 
+    sh1::Float64 = sqrt(1e0-ch1^2) 
+    sh2::Float64 = sqrt(1e0-ch2^2) 
+    sh3::Float64 = sqrt(1e0-ch3^2) 
 
     p3xyz = [p3*st3*ch3,p3*st3*sh3,p3*ct3]
     p1xyz = [p1*st1*ch1,p1*st1*sh1,p1*ct1]

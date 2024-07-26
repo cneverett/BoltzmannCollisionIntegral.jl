@@ -29,11 +29,11 @@ returns the differential cross section for the binary interaction of hard sphere
 function dsigmadt_SphSphSphSph(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
 
     #=
-        1f0/(s-4*muSph^2)
+        1/(s-4*muSph^2)
         sBig = (m3+m4)^2=4musph^2
         sSmol = s - sBig
     =#
-    1f0/(sSmol) 
+    1/(sSmol) 
 
 end
 
@@ -52,12 +52,12 @@ returns the total cross section for the binary interaction of hard spheres with 
 """
 function sigma_SphSphSphSph(sSmol::Float64,sBig::Float64)
     
-    1f0/2f0 # factor of 2 accounts for identical final states
-
+    sigma::Float64 = 1/2 # factor of 2 accounts for identical final states
+    return sigma
 end
 
-const dsigmadtNorm_SphSphSphSph = Float64(pi)*(2f0*RSph)^2
-const sigmanNorm_SphSphSphSph = Float64(pi)*(2f0*RSph)^2
+const dsigmadtNorm_SphSphSphSph = Float64(pi)*(2e0*RSph)^2
+const sigmanNorm_SphSphSphSph = Float64(pi)*(2e0*RSph)^2
 
 # ======================================================================= #
 

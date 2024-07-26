@@ -52,9 +52,9 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
     p3pv::Vector{Float64} = zeros(Float64,3)
     p4v::Vector{Float64} = zeros(Float64,3)
     p4pv::Vector{Float64} = zeros(Float64,3)
-    Sval::Float64 = 0f0
-    Svalp::Float64 = 0f0
-    Tval::Float64 = 0f0
+    Sval::Float64 = 0e0
+    Svalp::Float64 = 0e0
+    Tval::Float64 = 0e0
     p3_physical::Bool = true
     p3p_physical::Bool = true
     p4_physical::Bool = true
@@ -91,13 +91,13 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
         fill!(localSAtally3,UInt32(0))
         fill!(localSAtally4,UInt32(0))
 
-        if Tval != 0f0 # i.e. it is a valid interaction state
+        if Tval != 0e0 # i.e. it is a valid interaction state
 
-            fill!(localSAtotal3,0f0)
+            fill!(localSAtotal3,0e0)
             fill!(localp3Max,Float64(0))
             fill!(localt3Min,Float64(0))
             fill!(localt3Max,Float64(0))
-            fill!(localSAtotal4,0f0)
+            fill!(localSAtotal4,0e0)
             fill!(localp4Max,Float64(0))
             fill!(localt4Min,Float64(0))
             fill!(localt4Max,Float64(0))
@@ -221,7 +221,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
             @view(SAtally3[:,loc12]) .+= localSAtally3
             @view(SAtotal4[:,:,loc12]) .+= localSAtotal4
             @view(SAtally4[:,loc12]) .+= localSAtally4
-            if Tval != 0f0
+            if Tval != 0e0
                 @view(p3Max[:,loc12]) .= max.(@view(p3Max[:,loc12]),localp3Max)
                 @view(t3MinMax[1,:,loc12]) .= min.(@view(t3MinMax[1,:,loc12]),localt3Min)
                 @view(t3MinMax[2,:,loc12]) .= max.(@view(t3MinMax[2,:,loc12]),localt3Max)

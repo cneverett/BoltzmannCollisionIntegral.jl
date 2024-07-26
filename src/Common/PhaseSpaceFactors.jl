@@ -14,7 +14,7 @@ function PhaseSpaceFactors1!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,
             SMatrix3[nn,mm,ll,kk,jj,ii] *= t3val[mm+1]-t3val[mm] # dmu3
             SMatrix3[nn,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
             SMatrix3[nn,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
-            SMatrix3[nn,mm,ll,kk,jj,ii] /= (1f0+Float64(Indistinguishable_12))
+            SMatrix3[nn,mm,ll,kk,jj,ii] /= (1e0+Float64(Indistinguishable_12))
         end
         TMatrix1[ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
         TMatrix1[ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
@@ -26,7 +26,7 @@ function PhaseSpaceFactors1!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,
         SMatrix4[nn,mm,ll,kk,jj,ii] *= t4val[mm+1]-t4val[mm] # dmu3
         SMatrix4[nn,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
         SMatrix4[nn,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
-        SMatrix4[nn,mm,ll,kk,jj,ii] /= (1f0+Float64(Indistinguishable_12))
+        SMatrix4[nn,mm,ll,kk,jj,ii] /= (1e0+Float64(Indistinguishable_12))
     end
 
 
@@ -96,7 +96,7 @@ function STSymmetry!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,6},TMatr
     # FIRST: they are ALWAYS symmetric with respect to θ->π-θ for all particle momentum states
     # SECOND: if the incident masses are equal (mu1==mu2) then S and T are symmetric to swapping the incident particles 
 
-    avgT = 0f0
+    avgT = 0e0
     avgS = zeros(Float64,size(SMatrix3[:,:,1,1,1,1]))
 
     # SMatrix has the symmetry that if t1 t2 are mirrored in the t=pi/2 plane then t3 is also mirrored in pi/2 plane genreting a mirrored identical state
@@ -123,7 +123,7 @@ function STSymmetry!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,6},TMatr
         
     end 
 
-    fill!(avgS,0f0)
+    fill!(avgS,0e0)
 
     # === SMatrix4 === #
     for ii in axes(SMatrix4,6), jj in axes(SMatrix4,5), kk in axes(SMatrix4,4), ll in axes(SMatrix4,3)
