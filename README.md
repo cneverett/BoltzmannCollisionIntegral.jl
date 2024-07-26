@@ -24,8 +24,13 @@ Evaluation is performed by assuming that the distribution function is constant o
 Evaluation currently supports both single and multithreaded operation (with multi-CPU acceleration planned). Data is exported in the [JLD2](https://github.com/JuliaIO/JLD2.jl) file format.
 
 ## Usage
-
-After installing the package, run 
+`BoltzmannCollisionIntegral.jl` is available to download from the [Julia package
+manager](https://pkgdocs.julialang.org/v1/). Inside a Julia session, enter the package manager with `]`, then run the command 
+Install the package using 
+```julia 
+pkg> add BoltzmannCollisionIntegral
+```
+then load the package by running
 ```julia
 using BoltzmannCollisionIntegral
 ```
