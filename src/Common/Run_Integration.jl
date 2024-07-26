@@ -11,8 +11,8 @@ This script is provided as an example of how to run the BinaryInteractionSpectra
 
 # Define the Momentum space discretisations for each particle species named. This includes the upper and lower momentum bounds and the number of bins for momentum magnitude and cos(theta) and must be of the format `pl_name`, pl_name`, `nump_name` and `numt_name` where `name` is the abreviated three letter name of the particle species. 
 
-    pl_Sph = -5e0
-    pu_Sph = 4e0
+    pl_Sph = Float64(-5)
+    pu_Sph = Float64(4)
     nump_Sph = 72
     numt_Sph = 8
 

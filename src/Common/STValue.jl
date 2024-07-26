@@ -53,7 +53,7 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::F
         
         # TSspe anisotropic absorption spectrum (to be integrated over d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
         Tval = (1/E1)*(1/E2)*(InvarientFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
-        if (Tval==Inf32)
+        if (Tval==Inf)
             error("ST1 Inf#"*string(sSmol)*"#"*string(sBig))
         end
     else # if not valid set T value to zero

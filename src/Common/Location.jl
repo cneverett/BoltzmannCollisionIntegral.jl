@@ -5,7 +5,7 @@ Returns the index of the bin in which 'val' is contatined based on the 'num' of 
 
 # Examples
 ```julia-repl
-julia> location(10f0,0f0,9,2f0)
+julia> location(10e0,0e0,9,2e0)
 2
 ```
 """
@@ -21,7 +21,7 @@ Returns the index of the bin in which the costheta 'val' is contatined based on 
 
 # Examples
 ```julia-repl
-julia> location_t(8,0.5f0)
+julia> location_t(8,0.5e0)
 6
 ```
 """
@@ -37,11 +37,11 @@ Returns the index of the bin in which 'val' is contatined based on the 'num' of 
 
 # Examples
 ```julia-repl
-julia> location_p3(10f0,1f0,9,2f0)
+julia> location_p3(10e0,1e0,9,2e0)
 2
-julia> location_p3(10f0,1f0,9,11f0) # overflow
+julia> location_p3(10e0,1e0,9,11e0) # overflow
 10
-julia> location_p3(10f0,1f0,9,0.5f0) # underflow
+julia> location_p3(10e0,1e0,9,0.5e0) # underflow
 1
 ```
 """
@@ -60,7 +60,7 @@ costheta bounds [tl tu] are defined as CONST in Init.jl
 
 # Examples
 ```julia-repl
-julia> vectorLocation(4f0,-5f0,9,8,[1f0,0.5f0,1.5f0])
+julia> vectorLocation(4e0,-5e0,9,8,[1e0,0.5e0,1.5e0])
 (5,6)
 """
 function vectorLocation(pu::Float64,pl::Float64,nump::Int64,numt::Int64,vector::Vector{Float64})

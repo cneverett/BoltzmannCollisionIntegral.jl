@@ -112,15 +112,15 @@ function DoesConserve(SMatrix3,SMatrix4,TMatrix1,TMatrix2,Run_Parameters)
     tr2 = trange(numt2);
     dμ2 = deltaVector(tr2);
 
-    SsumN3 = zero(typeof(SMatrix))
-    TsumN1 = zero(typeof(TMatrix))
-    SsumE3 = zero(typeof(SMatrix))
-    TsumE1 = zero(typeof(TMatrix))
+    SsumN3 = 0
+    TsumN1 = 0
+    SsumE3 = 0
+    TsumE1 = 0
 
-    SsumN4 = zero(typeof(SMatrix))
-    TsumN2 = zero(typeof(TMatrix))
-    SsumE4 = zero(typeof(SMatrix))
-    TsumE2 = zero(typeof(TMatrix))
+    SsumN4 = 0
+    TsumN2 = 0
+    SsumE4 = 0
+    TsumE2 = 0
 
     for k in axes(SMatrix3,3), l in axes(SMatrix3, 4), m in axes(SMatrix3,5), n in axes(SMatrix3,6)
         for i in axes(SMatrix3,1), j in axes(SMatrix3,2) 
