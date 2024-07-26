@@ -26,7 +26,6 @@ Evaluation currently supports both single and multithreaded operation (with mult
 ## Usage
 `BoltzmannCollisionIntegral.jl` is available to download from the [Julia package
 manager](https://pkgdocs.julialang.org/v1/). Inside a Julia session, enter the package manager with `]`, then run the command 
-Install the package using 
 ```julia 
 pkg> add BoltzmannCollisionIntegral
 ```
