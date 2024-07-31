@@ -13,7 +13,7 @@ makedocs(
                 "Cross Sections" => "crosssections.md",
                 "Internal Functions" => "internalfunctions.md"
                ],
-            checkdocs = :expors
+            checkdocs = :export
         #format = Documenter.HTML(
         #    mathengine = MathJax3(Dict(
         #        :loader => Dict("load" => ["[tex]/physics"]),
