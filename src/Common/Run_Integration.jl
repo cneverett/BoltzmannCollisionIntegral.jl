@@ -60,7 +60,7 @@ This script is provided as an example of how to run the BinaryInteractionSpectra
 # By default the file name contains all the information of discretisation in form pl3#pu3#nump3#p1l#p1u#nump1#p2l#p2u#nump2#numt3#numt1#numt2, and it to be stored in a folder called "Data" in the current working directory.
 
     fileLocation::String = pwd()*"\\Data";
-    fileName::String = name1*name2*name3*name4*"#"*string(Int(p3l))*"#"*string(Int(p3u))*"#"*string(nump3)*"#"*string(Int(p1l))*"#"*string(Int(p1u))*"#"*string(nump1)*"#"*string(Int(p2l))*"#"*string(Int(p2u))*"#"*string(nump2)*"#"*string(numt3)*"#"*string(numt1)*"#"*string(numt2)*".jld2"
+    fileName::String = filename = name1*name2*name3*name4*"#"*string(p1l)*"#"*string(p1u)*"#"*string(nump1)*"#"*string(p2l)*"#"*string(p2u)*"#"*string(nump2)*"#"*string(p3l)*"#"*string(p3u)*"#"*string(nump3)*"#"*string(p4l)*"#"*string(p4u)*"#"*string(nump4)*"#"*string(numt1)*"#"*string(numt2)*"#"*string(numt3)*"#"*string(numt4)*".jld2";
 
 # Now run the evaluation functions.
 
