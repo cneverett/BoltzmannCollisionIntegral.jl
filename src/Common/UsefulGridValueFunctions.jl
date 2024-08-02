@@ -75,7 +75,6 @@ end
 # ================================================================ #
 
 # =============== Momentum and Angle Changes over grid cells ===== #
-
 """
     deltaVector(valr)
 
@@ -104,7 +103,6 @@ end
 # ================================================================ #
 
 # ============== Mean Values in Grid Cells ======================= #
-
 """
     meanVector(valr)
 
@@ -133,7 +131,6 @@ end
 # ================================================================ #
 
 # ========================= "Delta Energy" ======================= #
-
 """
     deltaEVector(pr,mu)
 
@@ -177,8 +174,6 @@ end
 # ================================================================ #
 
 # ====================== "Delta Kinetic Energy" ================== #
-
-
 """
     deltaEkinVector(pr,mu)
 
@@ -193,7 +188,7 @@ julia> deltaEkinVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0], 1.0e0)
  899.9955
 ```
 """
-function deltaEKinVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
+function deltaEkinVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
     # inputs a (num+1) vector{Float} of p grid boundries and the particle mu value and return a (num) vector{Float} of average energy values per grid cell
     num = size(pr)[1]-1  # number of grid cells
     Ekin = zeros(Float32,num+1)
