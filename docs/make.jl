@@ -1,7 +1,7 @@
 # Inside make.jl
 push!(LOAD_PATH,"../src/")
-using BoltzmannCollisionIntegral
 using Documenter
+using BoltzmannCollisionIntegral
 
 makedocs(
         sitename = "BoltzmannCollisionIntegral.jl",
@@ -27,8 +27,8 @@ makedocs(
 )
 
 deploydocs(
-    target = "build",
     repo="github.com/cneverett/BoltzmannCollisionIntegral.jl.git",
+    target = "build",
     branch = "gh-pages",
     devbranch = "main",
     devurl = "dev",
