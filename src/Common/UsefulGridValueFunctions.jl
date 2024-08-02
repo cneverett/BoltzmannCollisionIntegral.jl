@@ -190,19 +190,29 @@ julia> deltaEkinVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0], 1.0e0)
 """
 function deltaEkinVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
     # inputs a (num+1) vector{Float} of p grid boundries and the particle mu value and return a (num) vector{Float} of average energy values per grid cell
+
     num = size(pr)[1]-1  # number of grid cells
-    Ekin = zeros(Float32,num+1)
-    ΔEkin = zeros(Float32,num)
+    E = zeros(T,num+1)
+    ΔEkin = zeros(T,num)
 
-    for ii in 1:num+1 
-        Ekin[ii] = pr[ii]^2/(sqrt(mu^2+pr[ii]^2)+mu)
+    if mu == zero(T) # same as ΔE
+        for ii in 1:num 
+            ΔEkin[ii] = pr[ii+1]^2-pr[ii]^2
+            ΔEkin[ii] /= 2
+        end
+    else 
+        for ii in 1:num+1 
+            E[ii] = mu + pr[ii]^2/(sqrt(mu^2+pr[ii]^2)+mu)
+        end 
+        for ii in 1:num 
+            # ΔEkin = ΔE - Δp*m
+            ΔEkin[ii] = pr[ii+1]^3/(E[ii+1]+mu) - pr[ii]^3/(E[ii]+mu) 
+            ΔEkin[ii] += mu^2*(asinh(pr[ii+1]/mu)-asinh(pr[ii]/mu))
+            ΔEkin[ii] /= 2
+        end
     end 
 
-    for ii in 1:num 
-        ΔEkin[ii] = E[ii+1] - E[ii]
-    end 
-
-    return ΔEkin
+    return ΔE
 end
 
 # =============================================================== #
