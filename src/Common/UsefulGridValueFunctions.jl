@@ -175,3 +175,39 @@ function deltaEVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
 end
 
 # ================================================================ #
+
+# ====================== "Delta Kinetic Energy" ================== #
+
+
+"""
+    deltaEkinVector(pr,mu)
+
+Inputs a `num+1` long `Vector{Float}` of p grid boundries and the particle `mu` value (normalised mass) and returns a `num` long `Vector{Float}` of average kinetic energy values per grid cell.
+
+# Examples
+```julia-repl
+julia> deltaEkinVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0], 1.0e0)
+3-element Vector{Float32}:
+   8.635662
+  89.955124
+ 899.9955
+```
+"""
+function deltaEKinVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
+    # inputs a (num+1) vector{Float} of p grid boundries and the particle mu value and return a (num) vector{Float} of average energy values per grid cell
+    num = size(pr)[1]-1  # number of grid cells
+    Ekin = zeros(Float32,num+1)
+    ΔEkin = zeros(Float32,num)
+
+    for ii in 1:num+1 
+        Ekin[ii] = pr[ii]^2/(sqrt(mu^2+pr[ii]^2)+mu)
+    end 
+
+    for ii in 1:num 
+        ΔEkin[ii] = E[ii+1] - E[ii]
+    end 
+
+    return ΔEkin
+end
+
+# =============================================================== #
