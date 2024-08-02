@@ -182,10 +182,10 @@ Inputs a `num+1` long `Vector{Float}` of p grid boundries and the particle `mu` 
 # Examples
 ```julia-repl
 julia> deltaEkinVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0], 1.0e0)
-3-element Vector{Float32}:
-   8.635662
-  89.955124
- 899.9955
+3-element Vector{Float64}:
+     46.10069600605712
+   4906.1506753523645
+ 494551.15128635924
 ```
 """
 function deltaEkinVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
@@ -212,7 +212,7 @@ function deltaEkinVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
         end
     end 
 
-    return ΔE
+    return ΔEkin
 end
 
 # =============================================================== #
