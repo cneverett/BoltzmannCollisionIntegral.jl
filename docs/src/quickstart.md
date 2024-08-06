@@ -11,7 +11,7 @@ First install the package by
     in a julia-repl session, or by running the script line by line in your favourite code editor.
 
 The example script `Run_Integration.jl` operates as follows:
-- Define the names of the 4 particles involved in the interaction (12->34) as the strings `name1` `name2` `name3` `name4`
+- Define the names of the 4 particles involved in the interaction (``12\to34``) as the strings `name1` `name2` `name3` `name4`
     - These should of the form of three letters, which abbreviate the particles full name (see [Particles](@ref) for list of currently implemented particles).
     - They should be ordered to match a currently [Implemented Interactions](@ref)
 - Define the momentum space discretisation. This includes the upper and lower bounds of momentum (log10) for particle species 1,2 and 3 (e.g. `p1l` and `p1u` for species 1) and the number of divisions (bins) for each particles momentum space (e.g. `nump1`).
@@ -32,22 +32,22 @@ The data stored in an output file can be loaded back into the workspace as a tup
 
 This returns a `Tuple` containing various arrays:
 - `Run_Parameters` : A tuple of the parameters used in the evaluation.
-- `Stot3` : A 6D matrix totalling all the emission spectrum values sampled for 12->34 interaction.
-- `Stot4` : A 6D matrix totalling all the emission spectrum values sampled for 12->43 interaction.
+- `Stot3` : A 6D matrix totalling all the emission spectrum values sampled for ``12\to34`` interaction.
+- `Stot4` : A 6D matrix totalling all the emission spectrum values sampled for ``12\to43`` interaction.
 - `Ttot` : A 4D matrix totalling all the absorption spectrum values sampled.
 - `Stal3` : A 5D matrix of tallies of the number of emission spectrum values sampled for 12->34 interaction.
 - `Stal4` : A 5D matrix of tallies of the number of emission spectrum values sampled for 12->43 interaction.
 - `Ttal` : A 4D matrix of tallies of the number of absorption spectrum values sampled.
-- `SMatrix3` : A 6D matrix of the emission spectrum for 12->34 interaction.
-- `SMatrix4` : A 6D matrix of the emission spectrum for 12->43 interaction.
-- `TMatrix1` : A 4D matrix of the absorption spectrum for 12->34 interaction.
-- `TMatrix2` : A 4D matrix of the absorption spectrum for 21->34 interaction i.e. by permutation of TMatrix1 and correct application of phase space factors if species 1 != species 2.
+- `SMatrix3` : A 6D matrix of the emission spectrum for ``12\to34`` interaction.
+- `SMatrix4` : A 6D matrix of the emission spectrum for ``12\to43`` interaction.
+- `TMatrix1` : A 4D matrix of the absorption spectrum for ``12\to34`` interaction.
+- `TMatrix2` : A 4D matrix of the absorption spectrum for ``21\to34`` interaction i.e. by permutation of TMatrix1 and correct application of phase space factors if species 1 != species 2.
 - `p3Max` : The maximum value of the momentum space variable p3 sampled for each bin. (Useful for correcting numerical diffusion)
 - `t3MinMax` : The minimum and maximum values of the momentum space variable t3 sampled for each bin. (Useful for correcting numerical diffusion)
 - `p4Max` : The maximum value of the momentum space variable p4 sampled for each bin. (Useful for correcting numerical diffusion)
 - `t4MinMax` : The minimum and maximum values of the momentum space variable t4 sampled for each bin. (Useful for correcting numerical diffusion)
-- `SConv3` : A 6D matrix of the convergence of the emission spectrum compared to the previous run with given `Run_Parameters` for 12->34 interaction.
-- `SConv4` : A 6D matrix of the convergence of the emission spectrum compared to the previous run with given `Run_Parameters` for 12->43 interaction.
+- `SConv3` : A 6D matrix of the convergence of the emission spectrum compared to the previous run with given `Run_Parameters` for ``12\to34`` interaction.
+- `SConv4` : A 6D matrix of the convergence of the emission spectrum compared to the previous run with given `Run_Parameters` for ``12\to43`` interaction.
 - `TConv` : A 4D matrix of the convergence of the absorption spectrum compared to the previous run with given `Run_Parameters`.
 
 Conservation of particle number and energy can be checked using the [DoesConserve](@ref) function.
