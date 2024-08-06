@@ -13,6 +13,7 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 [compat]
 BenchmarkTools = "1.5"
 Documenter = "1.5"
+DocumenterTools = "0.1.19"
 JLD2 = "0.4.5"
 Revise = "3.5.15"
 julia = "1.10.4"
