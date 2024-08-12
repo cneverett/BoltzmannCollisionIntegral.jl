@@ -1,7 +1,18 @@
 # Getting Started
 
-First install the package by 
-... TO BE UPDATED ONCE PACKAGE IS PUBLICLY AVAILABLE
+## Installation 
+BoltzmannCollisionIntegral.jl is available to download from the Julia package manager. Inside a Julia session, enter the package manager with `]`, then run the command
+
+```julia
+pkg> add BoltzmannCollisionIntegral
+```
+finally load the package by running
+
+```julia
+using BoltzmannCollisionIntegral
+```
+
+## Integrating
 
 !!! note
     An example script `Run_Integration.jl` for setting up and running the evaluation of the discrete collision integral can be found under `src/Common/` of the package. It is recommended that you copy this script to your working directory, edit the relevant fields and then running, either using the command 
