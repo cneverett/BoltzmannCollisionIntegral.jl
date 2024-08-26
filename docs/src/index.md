@@ -2,7 +2,7 @@
 
 `BoltzmannCollisionIntegral.jl` is a package for the evaluation of the Boltzmann collision integral for binary interactions of arbitrary momentum and anisotropic particle distributions using a method of momentum discretisation and Monte-Carlo integration. 
 
-The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions ``f(x^\mu,\boldsymbol{p})`` within such a system is dictated by the collisional relativistic Boltzmann equation:
+The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions ``f(x^\mu,\boldsymbol{p})`` within such a system is dictated by the collisional relativistic Boltzmann equation ([Everett+Cotter 2024](https://doi.org/10.1093/rasti/rzae036)):
 ```math
 p^\nu\partial_\nu f(x^\mu,\boldsymbol{p})+\partial_{p^\nu}\left(F^\nu f(x^\mu,\boldsymbol{p})\right)=C(x^\mu,\boldsymbol{p}),
 ```
