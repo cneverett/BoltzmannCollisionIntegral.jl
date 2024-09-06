@@ -7,6 +7,7 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, DoesConserv
     #using StaticArrays
     using BenchmarkTools
     using Documenter
+    using SpecialFunctions
 
     # include common files
         include("Common/Constants.jl")
@@ -29,6 +30,9 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, DoesConserv
 
     # include data reading functions for export
         include("Common/DataReading.jl")
+
+    # include Synchrotron functions
+        include("Synchrotron/Common/SyncKernel.jl")
 
 end
 
