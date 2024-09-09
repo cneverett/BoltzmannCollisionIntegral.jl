@@ -32,7 +32,10 @@ export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, DoesConserv
         include("Common/DataReading.jl")
 
     # include Synchrotron functions
-        include("Synchrotron/Common/SyncKernel.jl")
+        include("Synchrotron/Common/SynchrotronKernel.jl")
+        include("Synchrotron/Common/SyncPhaseSpaceFactors.jl")
+        include("Synchrotron/Serial/SyncMonteCarlo_Serial.jl")
+        include("Synchrotron/Serial/SyncIntegration_Serial.jl")
 
 end
 
