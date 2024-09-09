@@ -16,23 +16,27 @@ function SyncKernel(p1v,p2v,m2,z2,B)
     Jfactor2 = p2*st2
 
     n = abs((mEle^2*c^2)/(z2*ħ*q*B)) * p1 * (E2-p2*ct1*ct2)
-    println(n)
+    #println(n)
 
     x = p2 * st2 *st1 / (E2-p2*ct2*ct1)
-    println(x)
+    #println(x)
 
     # characteristic frequency
-    ω0 = abs((z2*q*B))/(E2*mEle)
-    println("critical photon momentum: "*string(ħ*ω0/(mEle*c^2)*E2^3))
+    #ω0 = abs((z2*q*B))/(E2*mEle)
+    #println("critical photon momentum: "*string(ħ*ω0/(mEle*c^2)*E2^3))
 
 
-    if n > 1e4 #&& 1-x < 0.01
+    if n > 1e3 #&& 1-x < 0.01
         # approximation for J's to second order 
         e = 1-x^2
         K13 = besselk(1/3,n*e^(3/2)/3)
         K23 = besselk(2/3,n*e^(3/2)/3)
         J1 = ((sqrt(e))/(pi*sqrt(3)))*(K13 #=+(e/10)*(K13-2*n*e^(3/2)*K23)=#)
         J2 = (e/(pi*sqrt(3)))*(K23 #=+ (e/5)*(2*K23-(1/(e^(3/2)*n)+n*e^(3/2))*K13)=#)
+    elseif n < 1e0
+        # omega < omega0 therefore no synchrotron radiation
+        J1 = 0e0
+        J2 = 0e0
     else
         # exact J's
         J1 = besselj(n,n*x)
@@ -50,7 +54,7 @@ function SyncKernel(p1v,p2v,m2,z2,B)
     
 end
 
-SyncKernel([1e-4,0.5],[1e4,0.5],1,1,1)
+#SyncKernel([1e-14,0.6],[1e1,0.5],1,1,1e-4)
 #n = 7.36e10
 #e = 1-(0.0045)^2
 #besselk(1/3,n*e^(3/2)/3)

@@ -1,7 +1,7 @@
 module BoltzmannCollisionIntegral
 
 export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, DoesConserve, fload_Matrix
-export SyncEvaluateSerial, fload_All_Sync
+export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync
 
     using JLD2
     using Base.Threads
@@ -37,6 +37,8 @@ export SyncEvaluateSerial, fload_All_Sync
         include("Synchrotron/Common/SyncPhaseSpaceFactors.jl")
         include("Synchrotron/Serial/SyncMonteCarlo_Serial.jl")
         include("Synchrotron/Serial/SyncIntegration_Serial.jl")
+        include("Synchrotron/MultiThread/SyncMonteCarlo_MultiThread.jl")
+        include("Synchrotron/MultiThread/SyncIntegration_MultiThread.jl")
 
 end
 
