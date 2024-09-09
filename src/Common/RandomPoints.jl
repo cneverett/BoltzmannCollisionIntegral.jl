@@ -43,3 +43,20 @@ function RPointSphereCosThetaPhi!(a::Vector{Float64})
     return nothing
     
 end
+
+"""
+    RPointSphereTheta!()
+
+Assigns the second (cos(theta)) element of 'a' with a randomly, uniformly sampled values of spherical angles cos(theta). 
+"""
+function RPointSphereCosTheta!(a::Vector{Float64}) 
+    # Inputs a 3 element vector [p, cos(theta)] and mutates said vector with new random values using form given in https://mathworld.wolfram.com/SpherePointPicking.html (with theta)
+    # phi points are normalised by pi
+
+    v::Float64 = rand(Float64)
+
+    a[2] = 2*v-1     # cos(theta) bound by [1,-1]
+
+    return nothing
+    
+end

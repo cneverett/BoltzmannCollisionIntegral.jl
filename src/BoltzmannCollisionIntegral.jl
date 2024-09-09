@@ -1,13 +1,14 @@
 module BoltzmannCollisionIntegral
 
 export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, DoesConserve, fload_Matrix
+export SyncEvaluateSerial, fload_All_Sync
 
     using JLD2
     using Base.Threads
     #using StaticArrays
     using BenchmarkTools
     using Documenter
-    using SpecialFunctions
+    using Bessels
 
     # include common files
         include("Common/Constants.jl")

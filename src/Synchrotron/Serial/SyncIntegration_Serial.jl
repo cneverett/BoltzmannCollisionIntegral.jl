@@ -3,11 +3,11 @@
 
 Function to run the Monte Carlo integration of the S array in a serial enviroment. 
 """
-function SynEvaluateSerial!(userSyncInputSerial)
+function SyncEvaluateSerial(userSyncInputSerial)
 
     # ======= Load User Parameters ======= #
 
-        (name1,name2,p1l,p1u,nump1,numt1,p2l,p2u,nump2,numt2,numSiter,fileLocation,fileName,BMag) = userSyncInputSerial;
+        (name2,p1l,p1u,nump1,numt1,p2l,p2u,nump2,numt2,numTiter,numSiter,fileLocation,fileName,BMag) = userSyncInputSerial;
 
     # ==================================== #
 
@@ -47,7 +47,7 @@ function SynEvaluateSerial!(userSyncInputSerial)
 
     # ===== Run MonteCarlo Integration ==== #
 
-        STMonteCarloAxi_Serial!(SAtotal,SAtally,#=pMax,tMinMax,=#Parameters,numSiter)
+        SyncMonteCarloAxi_Serial!(SAtotal,SAtally,#=pMax,tMinMax,=#Parameters,numTiter,numSiter)
 
     # ===================================== #
 
@@ -55,13 +55,11 @@ function SynEvaluateSerial!(userSyncInputSerial)
     # ===== Calculate S and T Matricies === #
 
         # preallocate
-        SMatrixOldSum = dropdims(sum(SMatrix,dims=(3,4,5,6)),dims=(3,4,5,6));
+        SMatrixOld = SMatrix;
         fill!(SMatrix,0e0);
         
         # divide element wise by tallys
-        for i in axes(SMatrix,1)
-            @. @view(SMatrix[i,:,:,:,:,:]) = @view(SAtotal[i,:,:,:,:,:]) / SAtally
-        end
+        @. SMatrix = SAtotal / SAtally
         replace!(SMatrix,NaN=>0e0); # remove NaN caused by /0e0
 
         # Angle / Momentum Ranges
@@ -73,20 +71,19 @@ function SynEvaluateSerial!(userSyncInputSerial)
         # Momentum space volume elements and symmetries
         PhaseSpaceFactorsSync1!(SMatrix,p1val,t1val,p2val,t2val)      # applies phase space factors for symmetries                  
         SyncSymmetry!(SMatrix)   # initial states are symmetric -> apply symmetry of interaction to improve MC values
-        PhaseSpaceFactorsSync2!(SMatrix,p1val,t1val,p2val,t2val)            # corrects phase space factors for application in kinetic models
+        PhaseSpaceFactorsSync2!(SMatrix,p1val,t1val)            # corrects phase space factors for application in kinetic models
                                             
         # correction to better conserve particle number and account for statistical noise of MC method
         #SCorrection2!(SMatrix,TMatrix) 
 
         # output a measure of convergence, i.e. new-old/old
-        SMatrixSum = dropdims(sum(SMatrix,dims=(3,4,5,6)),dims=(3,4,5,6));
-        SConverge = (SMatrixSum .- SMatrixOldSum)./SMatrixOldSum
+        SConverge = (SMatrix .- SMatrixOld)./SMatrixOld
 
     # ===================================== # 
 
     # ========== Save Arrays ============== #
 
-        OutputParameters = (name1,name2,p1l,p1u,nump1,p2l,p2u,nump2,numt1,numt2)
+        OutputParameters = (name2,p1l,p1u,nump1,p2l,p2u,nump2,numt1,numt2)
             
         f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
         write(f,"STotal",SAtotal)

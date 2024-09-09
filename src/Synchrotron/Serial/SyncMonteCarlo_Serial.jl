@@ -19,7 +19,7 @@
 - Take random points (p1,p2,t1,t2) and calculate Synchrotron emissivity
 - Find position in S arrays and allocated tallies and totals accordingly.
 """
-function SyncMonteCarloAxi_Serial!(SAtotal::Array{Float64,4},SAtally::Array{UInt32,4},#=pMax::Array{Float64,5},tMinMax::Array{Float64,6}=#Parameters::Tuple{Float64,Float64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64},numSiter::Int64)
+function SyncMonteCarloAxi_Serial!(SAtotal::Array{Float64,4},SAtally::Array{UInt32,4},#=pMax::Array{Float64,5},tMinMax::Array{Float64,6}=#Parameters::Tuple{Float64,Float64,Float64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64},numTiter::Int64,numSiter::Int64)
 
     # Set Parameters
     (mu2,z2,BMag,p1l,p1u,nump1,p2l,p2u,nump2,numt1,numt2) = Parameters
@@ -29,23 +29,29 @@ function SyncMonteCarloAxi_Serial!(SAtotal::Array{Float64,4},SAtally::Array{UInt
     p2v::Vector{Float64} = zeros(Float64,2)
     Sval::Float64 = 0e0
 
-    for _ in 1:numSiter
+    for _ in 1:numTiter
 
-        # generate p1v and p2v 
-        RPointSphereCosTheta!(p1v)
+        # generate p2v (emitting particle)
         RPointSphereCosTheta!(p2v)
-        RPointLogMomentum(p1v,p1l,p1u,nump1)
-        RPointLogMomentum(p2v,p2l,p2u,nump2)
+        RPointLogMomentum!(p2v,p2l,p2u,nump2)
 
-        # calculate S value
-        Sval = SyncKernel(p1v,p2v,mu2,z2,BMag)
-        # find S array location 
-        (p1loc,t1loc) = vectorLocation(p1u,p1l,nump1,numt1,p1v)
-        (p2loc,t2loc) = vectorLocation(p2u,p2l,nump2,numt2,p2v)
-        loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
+        for _ in 1:numSiter
 
-        SAtally[loc12] += 1
-        SAtotal[loc12] += Sval
+            # generate p1v (photon)
+            RPointSphereCosTheta!(p1v)
+            RPointLogMomentum!(p1v,p1l,p1u,nump1)
+
+            # calculate S value
+            Sval = SyncKernel(p1v,p2v,mu2,z2,BMag)
+            # find S array location 
+            (p1loc,t1loc) = vectorLocation(p1u,p1l,nump1,numt1,p1v)
+            (p2loc,t2loc) = vectorLocation(p2u,p2l,nump2,numt2,p2v)
+            loc12 = CartesianIndex(p1loc,t1loc,p2loc,t2loc)
+
+            SAtally[loc12] += UInt32(1)
+            SAtotal[loc12] += Sval
+        
+        end
 
     end
 
