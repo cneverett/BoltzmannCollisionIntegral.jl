@@ -104,9 +104,7 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
         # divide element wise by tallys
         if Indistinguishable_34 == true
             @. SAtally3 = SAtally3 + SAtally4
-            #fill!(SAtally4,0) # reset to avoid overcounting when multiple runs are made
             @. SAtotal3 = SAtotal3 + SAtotal4
-            fill!(SAtotal4,0)
             for i in axes(SMatrix3,1)
                 @. @view(SMatrix3[i,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:]) / SAtally3
             end

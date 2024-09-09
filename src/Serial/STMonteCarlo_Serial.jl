@@ -4,7 +4,7 @@ This module provides functions for MonteCarlo Integration of S and T Matricies
 =#
 
 """
-    STMonteCarloAxi_Serial!(SAtotal,TAtotal,SAtally,TAtally,p3v,p3pv,p1v,p2v,p3Max,t3MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
+    STMonteCarloAxi_Serial!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,p3Max,p4Max,t3MinMax,t4MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
 
 # Arguments
 - `SAtotal3::Array{Float64,6}` : Array of stored integration totals for S matrix for 12->34 interaction
@@ -58,7 +58,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
 
     for _ in 1:numTiter
 
-        # generate p1 and p2 vectors initially as to not have to re-caculate, but not p2 magnitude as we need one free parameter to vary
+        # generate p1 and p2 vectors initially as to not have to re-caculate
         RPointSphereCosThetaPhi!(p1v)
         RPointSphereCosThetaPhi!(p2v)
 
