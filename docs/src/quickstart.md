@@ -15,7 +15,7 @@ using BoltzmannCollisionIntegral
 ## Integrating 
 BoltzmannCollisionIntegral.jl contains the following modules:
 - Binary Interactions 12->34
-- Synchrotron emission   
+- Synchrotron emission    
 
 ### Quick Start for Binary Interactions Module
 
