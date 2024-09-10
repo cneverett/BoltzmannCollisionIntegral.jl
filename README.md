@@ -23,6 +23,11 @@ Evaluation is performed by assuming that the distribution function is constant o
 
 Evaluation currently supports both single and multithreaded operation (with multi-CPU acceleration planned). Data is exported in the [JLD2](https://github.com/JuliaIO/JLD2.jl) file format.
 
+Since v2.0.0 the evaluation of synchrotron emissions from charged particles orbiting a uniform magnetic field directed along the symmetry axis is also supported. This is achieved via the integration of the following:
+```math
+\left(\frac{\partial f(\boldsymbol{p}_1)}{\partial t}\right)_{Sync}=\frac{Z\mu^2}{B}\frac{3c^5\sigma_Tm_e^5}{4\pi\hbar^3\mu_0e^3}\int\mathrm{d}^3\boldsymbol{p}_2\frac{p_1}{p^0_2}\left[\left(\frac{p^0_2\cos\theta_1-p_2\cos\theta_2\cos\theta_1}{\sin\theta_1}\right)^2J_{\omega/\omega_0}(x)^2+(p_2\sin\theta_2)^2 J'_{\omega/\omega_0}(x)^2\right]f(\boldsymbol{p}_2).
+```
+
 ## Usage
 `BoltzmannCollisionIntegral.jl` is available to download from the [Julia package
 manager](https://pkgdocs.julialang.org/v1/). Inside a Julia session, enter the package manager with `]`, then run the command 
@@ -37,6 +42,11 @@ using BoltzmannCollisionIntegral
 To perform an evaluation of the emission and absorption spectra, an example script `Run_Integration.jl` for selecting the binary interaction, discrete phase space bounds and integration conditions is located under the `src/Common/` folder of the package. It is recommended to copy this script and place it in your working folder and edit the fields as required. Then simply run
 ```julia-repl
 include("Run_Integration.jl")
+``` 
+
+To perform an evaluation of the synchrotron emission spectra, an example script `Run_Integration_Sync.jl` for selecting the emitting particle, discrete phase space bounds and integration conditions is located under the `src/Synchrotron/Common/` folder of the package. It is recommended to copy this script and place it in your working folder and edit the fields as required. Then simply run
+```julia-repl
+include("Run_Integration_Sync.jl")
 ``` 
 
 See [Getting Started](https://cneverett.github.io/BoltzmannCollisionIntegral.jl/dev/quickstart/) for in depth detail.

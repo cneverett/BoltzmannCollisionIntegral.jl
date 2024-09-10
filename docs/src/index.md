@@ -2,6 +2,8 @@
 
 `BoltzmannCollisionIntegral.jl` is a package for the evaluation of the Boltzmann collision integral for binary interactions of arbitrary momentum and anisotropic particle distributions using a method of momentum discretisation and Monte-Carlo integration. 
 
+The code now also includes a module for the evaluation of synchrotron emissions, with details found in [synchrotron](@ref).
+
 The evaluation of the collision integral is of great use when studying kinetic system. The evolution of particle distributions ``f(x^\mu,\boldsymbol{p})`` within such a system is dictated by the collisional relativistic Boltzmann equation ([Everett+Cotter 2024](https://doi.org/10.1093/rasti/rzae036)):
 ```math
 p^\nu\partial_\nu f(x^\mu,\boldsymbol{p})+\partial_{p^\nu}\left(F^\nu f(x^\mu,\boldsymbol{p})\right)=C(x^\mu,\boldsymbol{p}),
@@ -36,9 +38,9 @@ dictating the rate of loss of particles of a specific type at a specific momentu
 
 ## Assumptions
 In order to enable the evaluation of the emission and absorption terms, we make the following set of assumptions (dropping dependence on space-time for notational simplicity):  
-- The system is axisymmetric in momentum space coordinates i.e. only dependant on ``p=|\boldsymbol{p}|`` and the cosine of the angle to the axis of symmetry (``\hat{z}``) ``\mu`` where ``\hat{z}\cdot\boldsymbol{p}=p\cos\theta=p\mu`` 
-- The distribution functions are redefined in an axisymmetric form i.e. ``f(\boldsymbol{p})\equiv\frac{f(p,\mu)}{2\pi p^2}``. This is done such that a single particle is described by the distribution ``f(p,\mu)=\delta(p-p_i)\delta(\mu-\mu_i)``.
-- The axisymmetric distribution functions are averaged over phase space intervals ``\Delta p\Delta\mu``, to generate discrete values i.e. ``f(t,p_i,\mu_j)=\frac{1}{\Delta p_i\Delta\mu_j}\int_{\Delta p_i\Delta\mu_j} \mathrm{d}p \mathrm{d}\mu~f(p,\mu)``, such that they act as if they are constant over that interval of phase space.  
+- The system is axisymmetric in momentum space coordinates i.e. only dependant on ``p=|\boldsymbol{p}|`` and the cosine of the angle to the axis of symmetry (``\hat{z}``) ``u`` where ``\hat{z}\cdot\boldsymbol{p}=p\cos\theta=pu`` 
+- The distribution functions are redefined in an axisymmetric form i.e. ``f(\boldsymbol{p})\equiv\frac{f(p,u)}{2\pi p^2}``. This is done such that a single particle is described by the distribution ``f(p,u)=\delta(p-p_i)\delta(u-u_i)``.
+- The axisymmetric distribution functions are averaged over phase space intervals ``\Delta p\Delta u``, to generate discrete values i.e. ``f(t,p_i, u_j)=\frac{1}{\Delta p_i\Delta u_j}\int_{\Delta p_i\Delta u_j} \mathrm{d}p \mathrm{d} u~f(p, u)``, such that they act as if they are constant over that interval of phase space.  
 - Particle masses, momenta and energies are normalised by a factor of the rest mass of the electron ``m_\text{Ele}`` and the speed of light ``c=1``.
 
 ## Discrete Form of the Boltzmann Equation
@@ -48,17 +50,17 @@ Following the assumptions laid out in the previous section. The axisymmetric, mo
 ```
 The discrete emission spectrum term is a 6D array, given by
 ```math
-f_{1,kl}f_{2,mn}S_{12|34,ijklmn}=f(p_{1,k},\mu_{1,l})f(p_{2,m},\mu_{2,n})\frac{\Delta p_{1,k}\Delta \mu_{1,l}\Delta p_{2,m}\Delta \mu_{2,n}}{\Delta p_{3,i}}\frac{1}{N}\sum^{N}_{a=1}\left[S_{val}\right](\{\boldsymbol{p}_1,\boldsymbol{p}_2,\boldsymbol{p}_3\}_a), 
+f_{1,kl}f_{2,mn}S_{12|34,ijklmn}=f(p_{1,k}, u_{1,l})f(p_{2,m}, u_{2,n})\frac{\Delta p_{1,k}\Delta  u_{1,l}\Delta p_{2,m}\Delta  u_{2,n}}{\Delta p_{3,i}}\frac{1}{N}\sum^{N}_{a=1}\left[S_{val}\right](\{\boldsymbol{p}_1,\boldsymbol{p}_2,\boldsymbol{p}_3\}_a), 
 ```
 with 
 ```math
 S_{val}=\frac{1}{1+\delta_{12}}\sum_\pm\frac{2p_\pm^2\mathcal{F}_{12}^2}{p_1^0p_2^0}\frac{\mathrm{d}\sigma_{12|34}}{\mathrm{d}t}(s,t_\pm)\frac{1}{p_1^0p_\pm-p_\pm^0p_1\cos\Theta_{\pm1}+p_2^0p_\pm-p_\pm^0p_2\cos\Theta_{\pm2}},
 ```
-where ``p_{\pm}`` are the two roots of ``(s+t-m_3^2-m_2^2-2p^\mu_1p_{4\mu})``. 
+where ``p_{\pm}`` are the two roots of ``(s+t-m_3^2-m_2^2-2p^ u_1p_{4 u})``. 
 
 The discrete absorption term is a 4D Array, given by
 ```math
-f_{3,ij}f_{4,kl}T_{34|12,ijkl}=f(p_{3,i},\mu_{3,j})f(p_{4,k},\mu_{4,l})\Delta\boldsymbol{p}_{4,k}\Delta\mu_{4,l}\frac{1}{N}\sum^{N}_{a=1}\left[T_{val}\right](\{\boldsymbol{p}_3,\boldsymbol{p}_4\}_a),
+f_{3,ij}f_{4,kl}T_{34|12,ijkl}=f(p_{3,i}, u_{3,j})f(p_{4,k}, u_{4,l})\Delta\boldsymbol{p}_{4,k}\Delta u_{4,l}\frac{1}{N}\sum^{N}_{a=1}\left[T_{val}\right](\{\boldsymbol{p}_3,\boldsymbol{p}_4\}_a),
 ```
 with
 ```math

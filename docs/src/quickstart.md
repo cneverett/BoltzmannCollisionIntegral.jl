@@ -12,10 +12,15 @@ finally load the package by running
 using BoltzmannCollisionIntegral
 ```
 
-## Integrating
+## Integrating 
+BoltzmannCollisionIntegral.jl contains the following modules:
+- Binary Interactions 12->34
+- Synchrotron emission   
+
+### Quick Start for Binary Interactions Module
 
 !!! note
-    An example script `Run_Integration.jl` for setting up and running the evaluation of the discrete collision integral can be found under `src/Common/` of the package. It is recommended that you copy this script to your working directory, edit the relevant fields and then running, either using the command 
+    An example script `Run_Integration.jl` for setting up and running the evaluation of the discrete binary collision integral can be found under `src/Common/` of the package. It is recommended that you copy this script to your working directory, edit the relevant fields and then running, either using the command 
     ```julia-repl
     include("Run_Integration.jl)
     ```
@@ -34,7 +39,31 @@ The example script `Run_Integration.jl` operates as follows:
 - Define the `fileLocation` where the output file ([JLD2](https://github.com/JuliaIO/JLD2.jl)) named `fileName` is to be written.
 - Evaluate the emission and absorption spectrum using the [`SpectraEvaluateSerial`](@ref) function for serial and [SpectraEvaluateMultiThread](@ref) for multithread. Once run, these functions will save the results to the output file.
 
-## Output
+### Quick Start for Synchrotron Module
+
+!!! note
+    An example script `Run_Integration_Sync.jl` for setting up and running the evaluation of the discrete binary collision integral can be found under `src/Synchrotron/Common/` of the package. It is recommended that you copy this script to your working directory, edit the relevant fields and then running, either using the command 
+    ```julia-repl
+    include("Run_Integration_Sync.jl)
+    ```
+    in a julia-repl session, or by running the script line by line in your favourite code editor.
+
+The example script `Run_Integration_Sync.jl` operates as follows:
+- Define the name of the emitting particle as the strings `name2`
+    - This should of the form of three letters, which abbreviate the particles full name (see [Particles](@ref) for list of currently implemented particles).
+- Define the momentum space discretisation. This includes the upper and lower bounds of momentum (log10) for the emitted photons (species 1) and emitting particle (species 2) i.e. `p1l` and `p1u` for species 1, and the number of divisions (bins) for each particles momentum space, i.e. `nump1`.
+- Define the number of divisions for the angular momentum space (i.e. cos(theta) space) for the particle species 1 and 2 (i.e. `numt1`). 
+- Define the number of Monte-Carlo samples to perform (as a rule of thumb, on a modern CPU it takes approximately 200ns per sample).
+    - `numTiter` for the number of random sets of $\{\vec{p}_2\}$ to sample, i.e. emitting particle states. 
+    - `numSiter` for the number of random $\{\vec{p}_2\}$ states to sample per $\{\vec{p}_2\}$, i.e. number of emitted photons to sample per emitting particle state.
+- If multithreading then define `nThreads` that will be used. This generates `nThreads` workers that perform evaluation in parallel, utilising `locks` to prevent data races. (see [Multi-Threading](https://docs.julialang.org/en/v1/manual/multi-threading/) for how to set up multi-threading in Julia)
+- Define the `fileLocation` where the output file ([JLD2](https://github.com/JuliaIO/JLD2.jl)) named `fileName` is to be written.
+- Evaluate the emission and absorption spectrum using the [`SyncEvaluateSerial`](@ref) function for serial and [SyncEvaluateMultiThread](@ref) for multithread. Once run, these functions will save the results to the output file.
+
+
+## Output Files
+
+### Output for Binary Interactions
 The data stored in an output file can be loaded back into the workspace as a tuple using the [fload_All](@ref) function.
         
 ```julia-repl
@@ -63,4 +92,21 @@ This returns a `Tuple` containing various arrays:
 
 Conservation of particle number and energy can be checked using the [DoesConserve](@ref) function.
 - The key statistic is `ratioN` and `ratioE` which dictate the ratio of particle number and energy before and after the interaction and should be close to 1.
+
+### Output for Synchrotron
+The data stored in an output file can be loaded back into the workspace as a tuple using the [fload_All_Sync](@ref) function.
+        
+```julia-repl
+    (Run_Parameters,SAtot,SAtal,SMatrix,#=pMax,tMinMax,=#,SConv) = fload_All_Sync(fileLocation,fileName)
+```
+
+Returns a tuple of the data stored in the file. The fields are as follows:
+- `Run_Parameters` : A tuple of the parameters used in the evaluation.
+- `Stot` : A 4D matrix totalling all the synchrotron emission spectrum values
+- `Stal` : A 4D matrix of tallies of the number of synchrotron emission spectrum values sampled
+- `SMatrix` : A 4D matrix of the synchrotron emission spectrum.
+- `pMax` : The maximum value of the momentum space variable p1 (photon mommentum) sampled for each bin. (Useful for correcting numerical diffusion)
+- `tMinMax` : The minimum and maximum values of the momentum space variable t1 sampled for each bin. (Useful for correcting numerical diffusion)
+- `SConv` : A 4D matrix of the convergence of the synchrotron emission spectrum compared to the previous run with given `Run_Parameters`.
+
 
