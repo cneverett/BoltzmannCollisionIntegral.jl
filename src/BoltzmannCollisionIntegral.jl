@@ -31,7 +31,7 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync
 
     # include data reading functions for export
         include("Common/DataReading.jl")
-
+        
     # include Synchrotron functions
         include("Synchrotron/Common/SynchrotronKernel.jl")
         include("Synchrotron/Common/SyncPhaseSpaceFactors.jl")
@@ -39,6 +39,7 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync
         include("Synchrotron/Serial/SyncIntegration_Serial.jl")
         include("Synchrotron/MultiThread/SyncMonteCarlo_MultiThread.jl")
         include("Synchrotron/MultiThread/SyncIntegration_MultiThread.jl")
+        include("Synchrotron/Common/SyncDataReading.jl")
 
 end
 
