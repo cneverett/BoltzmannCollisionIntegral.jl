@@ -18,7 +18,7 @@ function SyncKernel(p1v,p2v,m2,z2,B)
     n = abs((mEle^2*c^2)/(z2*ħ*q*B)) * p1 * (E2-p2*ct1*ct2)
     #println(n)
 
-    x = p2 * st2 *st1 / (E2-p2*ct2*ct1)
+    y = p2 * st2 *st1 / (E2-p2*ct2*ct1) # y=x/n
     #println(x)
 
     # characteristic frequency
@@ -26,9 +26,9 @@ function SyncKernel(p1v,p2v,m2,z2,B)
     #println("critical photon momentum: "*string(ħ*ω0/(mEle*c^2)*E2^3))
 
 
-    if n > 1e3 #&& 1-x < 0.01
+    if n > 1e2 #&& 1-y < 0.01
         # approximation for J's to second order 
-        e = 1-x^2
+        e = 1-y^2
         K13 = besselk(1/3,n*e^(3/2)/3)
         K23 = besselk(2/3,n*e^(3/2)/3)
         J1 = ((sqrt(e))/(pi*sqrt(3)))*(K13 #=+(e/10)*(K13-2*n*e^(3/2)*K23)=#)
@@ -39,8 +39,8 @@ function SyncKernel(p1v,p2v,m2,z2,B)
         J2 = 0e0
     else
         # exact J's
-        J1 = besselj(n,n*x)
-        J2 = 1/2 * (besselj(n-1,x) - besselj(n+1,x))
+        J1 = besselj(n,n*y)
+        J2 = 1/2 * (besselj(n-1,n*y) - besselj(n+1,n*y))
     end
 
     val = (abs(z2*m2^3/B))*(p1^3/E2)*((Jfactor1*J1)^2+(Jfactor2*J2)^2)
