@@ -7,7 +7,7 @@ The rate of change of photon distribution function is given by:
 ```
 where ``J`` are the Bessel functions (``J'`` refer to the derivative with respect to the argument), ``\frac{\omega}{\omega_0}=\frac{m_e^2c^2p_1}{Z\hbar eB}\left(p^0_2-p_1\cos\theta_1\cos\theta_2\right)`` and ``x=\frac{\omega}{\omega_0}=\frac{m_e^2c^2p_1}{Z\hbar eB}p_1p_2\sin\theta_1\sin\theta_2``. ``Z`` and ``\mu`` are the normalised charge and mass of the emitting particle, normalised by the fundamental charge and electron mass respectively, all other constants have their standard (SI) values.
 
-Making the standard set of assumptions laid out in [Index](@ref) this can be re-written in the form
+Making the standard set of assumptions laid out in [BoltzmannCollisionIntegral.jl](@ref) this can be re-written in the form
 ```math
 \left(\frac{\partial f_{1,ij}}{\partial t}\right)_{sync}=S_{ijkl}f_{2,kl}
 ```

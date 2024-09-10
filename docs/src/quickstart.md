@@ -37,7 +37,7 @@ The example script `Run_Integration.jl` operates as follows:
     - `numSiter` for the number of random $\{\vec{p}_3\}$ states to sample per $\{\vec{p}_1,\vec{p}_2\}$.
 - If multithreading then define `nThreads` that will be used. This generates `nThreads` workers that perform evaluation in parallel, utilising `locks` to prevent data races. (see [Multi-Threading](https://docs.julialang.org/en/v1/manual/multi-threading/) for how to set up multi-threading in Julia)
 - Define the `fileLocation` where the output file ([JLD2](https://github.com/JuliaIO/JLD2.jl)) named `fileName` is to be written.
-- Evaluate the emission and absorption spectrum using the [`SpectraEvaluateSerial`](@ref) function for serial and [SpectraEvaluateMultiThread](@ref) for multithread. Once run, these functions will save the results to the output file.
+- Evaluate the emission and absorption spectrum using the [`SpectraEvaluateSerial`](@ref) function for serial and [`SpectraEvaluateMultiThread`](@ref) for multithread. Once run, these functions will save the results to the output file.
 
 ### Quick Start for Synchrotron Module
 
@@ -58,7 +58,7 @@ The example script `Run_Integration_Sync.jl` operates as follows:
     - `numSiter` for the number of random $\{\vec{p}_2\}$ states to sample per $\{\vec{p}_2\}$, i.e. number of emitted photons to sample per emitting particle state.
 - If multithreading then define `nThreads` that will be used. This generates `nThreads` workers that perform evaluation in parallel, utilising `locks` to prevent data races. (see [Multi-Threading](https://docs.julialang.org/en/v1/manual/multi-threading/) for how to set up multi-threading in Julia)
 - Define the `fileLocation` where the output file ([JLD2](https://github.com/JuliaIO/JLD2.jl)) named `fileName` is to be written.
-- Evaluate the emission and absorption spectrum using the [`SyncEvaluateSerial`](@ref) function for serial and [SyncEvaluateMultiThread](@ref) for multithread. Once run, these functions will save the results to the output file.
+- Evaluate the emission and absorption spectrum using the [`SyncEvaluateSerial`](@ref) function for serial and [`SyncEvaluateMultiThread`](@ref) for multithread. Once run, these functions will save the results to the output file.
 
 
 ## Output Files
