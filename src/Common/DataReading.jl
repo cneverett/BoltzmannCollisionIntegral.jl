@@ -121,6 +121,72 @@ function fload_Matrix(fileLocation::String,fileName::String)
 
 end
 
+"""
+    fload_Matrix_ISO(fileLocation,fileName)
+
+Loads just the S and T Matricies stored in `fileName` stored at `fileLocation` first converting them to an isotropic form by summing over angles. (The dimensions of the matricies stay the same i.e. 6D->6D with three dimensions having a size of 1)
+
+# Example
+```julia-repl
+    Matricies = fload_All(fileLocation,fileName);
+```
+Returns a tuple of the data stored in the file. The fields are as follows:
+- `SMatrix3` : A 6D matrix of the emission spectrum for 12->34 interaction.
+- `SMatrix4` : A 6D matrix of the emission spectrum for 12->43 interaction.
+- `TMatrix1` : A 4D matrix of the absorption spectrum for 12->34 interaction.
+- `TMatrix2` : A 4D matrix of the absorption spectrum for 21->34 interaction.
+
+If initial or final particles are identical then only one of the SMatricies or TMatricies will be returned for that state.
+
+"""
+function fload_Matrix_ISO(fileLocation::String,fileName::String)
+        
+    filePath = fileLocation*"\\"*fileName
+    fileExist = isfile(filePath)
+
+    if fileExist
+        f = jldopen(filePath,"r+");
+        Run_Parameters = f["Parameters"]
+        SMatrix3 = f["SMatrix3"];
+        SMatrix4 = f["SMatrix4"];
+        TMatrix1 = f["TMatrix1"];
+        TMatrix2 = f["TMatrix2"];
+
+        close(f)  
+    else
+        error("no file with name $fileName found at location $fileLocation")
+    end
+
+    if Run_Parameters[1] == Run_Parameters[2] && Run_Parameters[3] == Run_Parameters[4]
+        SMatrix3ISO = sum(SMatrix3,dims=(2,4,6))
+        TMatrix1ISO = sum(TMatrix1,dims=(2,4))
+        return (SMatrix3ISO,TMatrix1ISO)
+    end
+
+    if Run_Parameters[1] == Run_Parameters[2] && Run_Parameters[3] != Run_Parameters[4]
+        SMatrix3ISO = sum(SMatrix3,dims=(2,4,6))
+        SMatrix4ISO = sum(SMatrix4,dims=(2,4,6))
+        TMatrix1ISO = sum(TMatrix1,dims=(2,4))
+        return (SMatrix3ISO,SMatrix4ISO,TMatrix1ISO)
+    end
+
+    if Run_Parameters[1] != Run_Parameters[2] && Run_Parameters[3] == Run_Parameters[4]
+        SMatrix3ISO = sum(SMatrix3,dims=(2,4,6))
+        TMatrix1ISO = sum(TMatrix1,dims=(2,4))
+        TMatrix2ISO = sum(TMatrix2,dims=(2,4))
+        return (SMatrix3ISO,TMatrix1ISO,TMatrix2ISO)
+    end
+
+    if Run_Parameters[1] != Run_Parameters[2] && Run_Parameters[3] != Run_Parameters[4]
+        SMatrix3ISO = sum(SMatrix3,dims=(2,4,6))
+        SMatrix4ISO = sum(SMatrix4,dims=(2,4,6))
+        TMatrix1ISO = sum(TMatrix1,dims=(2,4))
+        TMatrix2ISO = sum(TMatrix2,dims=(2,4))
+        return (SMatrix3ISO,SMatrix4ISO,TMatrix1ISO,TMatrix2ISO)
+    end
+
+end
+
 
 """
     DoesConserve(SMatrix,TMatrix,Parameters)
