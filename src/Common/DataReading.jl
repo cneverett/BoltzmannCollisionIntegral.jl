@@ -128,7 +128,7 @@ Loads just the S and T Matricies stored in `fileName` stored at `fileLocation` f
 
 # Example
 ```julia-repl
-    Matricies = fload_All(fileLocation,fileName);
+    Matricies = fload_All_ISO(fileLocation,fileName);
 ```
 Returns a tuple of the data stored in the file. The fields are as follows:
 - `SMatrix3` : A 6D matrix of the emission spectrum for 12->34 interaction.

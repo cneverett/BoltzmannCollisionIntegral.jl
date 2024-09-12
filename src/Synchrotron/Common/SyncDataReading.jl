@@ -40,3 +40,64 @@ function fload_All_Sync(fileLocation::String,fileName::String)
     return (Run_Parameters,SAtot,SAtal,SMatrix,#=pMax,tMinMax,=#SConv);
 
 end
+
+"""
+    fload_Matrix_Sync(fileLocation,fileName)
+
+Loads just the S and T Matricies stored in `fileName` stored at `fileLocation`. 
+
+# Example
+```julia-repl
+    Matricies = fload_Matrix_Sync(fileLocation,fileName);
+```
+Returns a tuple of the data stored in the file. The fields are as follows:
+- `SMatrix` : A 4D matrix of the emission spectrum for Synchrotron.
+
+"""
+function fload_Matrix_ISO(fileLocation::String,fileName::String)
+        
+    filePath = fileLocation*"\\"*fileName
+    fileExist = isfile(filePath)
+
+    if fileExist
+        f = jldopen(filePath,"r+");
+        SMatrix = f["SMatrix"];
+        close(f)  
+    else
+        error("no file with name $fileName found at location $fileLocation")
+    end
+
+    return (SMatrix)
+
+end
+
+"""
+    fload_Matrix_SyncISO(fileLocation,fileName)
+
+Loads just the S and T Matricies stored in `fileName` stored at `fileLocation` first converting them to an isotropic form by summing over angles. (The dimensions of the matricies stay the same i.e. 6D->6D with three dimensions having a size of 1)
+
+# Example
+```julia-repl
+    Matricies = fload_Matrix_SyncISO(fileLocation,fileName);
+```
+Returns a tuple of the data stored in the file. The fields are as follows:
+- `SMatrix` : A 4D matrix of the emission spectrum for Synchrotron.
+
+"""
+function fload_Matrix_ISO(fileLocation::String,fileName::String)
+        
+    filePath = fileLocation*"\\"*fileName
+    fileExist = isfile(filePath)
+
+    if fileExist
+        f = jldopen(filePath,"r+");
+        SMatrix = f["SMatrix"];
+        close(f)  
+    else
+        error("no file with name $fileName found at location $fileLocation")
+    end
+
+    SMatrixISO = sum(SMatrix,dims=(2,4))
+    return (SMatrixISO)
+
+end
