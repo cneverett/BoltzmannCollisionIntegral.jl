@@ -1,7 +1,7 @@
 module BoltzmannCollisionIntegral
 
-export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, DoesConserve, fload_Matrix
-export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync
+export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, DoesConserve, fload_Matrix, fload_Matrix_ISO
+export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix_Sync, fload_Matrix_SyncISO
 
     using JLD2
     using Base.Threads
