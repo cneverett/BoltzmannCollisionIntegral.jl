@@ -94,7 +94,7 @@ Conservation of particle number and energy can be checked using the [DoesConserv
 - The key statistic is `ratioN` and `ratioE` which dictate the ratio of particle number and energy before and after the interaction and should be close to 1.
 
 ### Output for Synchrotron
-The data stored in an output file can be loaded back into the workspace as a tuple using the [fload_All_Sync](@ref) function.
+The data stored in an output file can be loaded back into the workspace as a tuple using the `fload_All_Sync` function.
         
 ```julia-repl
     (Run_Parameters,SAtot,SAtal,SMatrix,#=pMax,tMinMax,=#,SConv) = fload_All_Sync(fileLocation,fileName)
