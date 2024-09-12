@@ -54,7 +54,7 @@ Returns a tuple of the data stored in the file. The fields are as follows:
 - `SMatrix` : A 4D matrix of the emission spectrum for Synchrotron.
 
 """
-function fload_Matrix(fileLocation::String,fileName::String)
+function fload_Matrix_Sync(fileLocation::String,fileName::String)
         
     filePath = fileLocation*"\\"*fileName
     fileExist = isfile(filePath)
@@ -84,7 +84,7 @@ Returns a tuple of the data stored in the file. The fields are as follows:
 - `SMatrix` : A 4D matrix of the emission spectrum for Synchrotron.
 
 """
-function fload_Matrix_ISO(fileLocation::String,fileName::String)
+function fload_Matrix_SyncISO(fileLocation::String,fileName::String)
         
     filePath = fileLocation*"\\"*fileName
     fileExist = isfile(filePath)
