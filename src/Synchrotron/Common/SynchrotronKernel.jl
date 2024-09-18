@@ -43,7 +43,7 @@ function SyncKernel(p1v,p2v,m2,z2,B)
         J2 = 1/2 * (besselj(n-1,n*y) - besselj(n+1,n*y))
     end
 
-    val = (abs(z2*m2^3/B))*(p1/E2)*((Jfactor1*J1)^2+(Jfactor2*J2)^2)
+    val = (abs(z2/B))*(p1/E2)*((Jfactor1*J1)^2+(Jfactor2*J2)^2)
     #println(val)
 
     factor = (3*c^4*mEle^5)/(4*pi*ħ^3*μ0*q^3) # synchrotron emission rate divided by c*σT
