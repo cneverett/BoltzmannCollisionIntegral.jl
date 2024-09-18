@@ -25,7 +25,7 @@ Evaluation currently supports both single and multithreaded operation (with mult
 
 Since v2.0.0 the evaluation of synchrotron emissions from charged particles orbiting a uniform magnetic field directed along the symmetry axis is also supported. This is achieved via the integration of the following:
 ```math
-\left(\frac{\partial f(\boldsymbol{p}_1)}{\partial t}\right)_{Sync}=\frac{Z\mu^2}{B}\frac{3c^5\sigma_Tm_e^5}{4\pi\hbar^3\mu_0e^3}\int\mathrm{d}^3\boldsymbol{p}_2\frac{1}{p_1p^0_2}\left[\left(\frac{p^0_2\cos\theta_1-p_2\cos\theta_2\cos\theta_1}{\sin\theta_1}\right)^2J_{\omega/\omega_0}(x)^2+(p_2\sin\theta_2)^2 J'_{\omega/\omega_0}(x)^2\right]f(\boldsymbol{p}_2).
+\left(\frac{\partial f(\boldsymbol{p}_1)}{\partial t}\right)_{Sync}=\frac{Z}{B}\frac{3c^5\sigma_Tm_e^5}{4\pi\hbar^3\mu_0e^3}\int\mathrm{d}^3\boldsymbol{p}_2\frac{1}{p_1p^0_2}\left[\left(\frac{p^0_2\cos\theta_1-p_2\cos\theta_2\cos\theta_1}{\sin\theta_1}\right)^2J_{\omega/\omega_0}(x)^2+(p_2\sin\theta_2)^2 J'_{\omega/\omega_0}(x)^2\right]f(\boldsymbol{p}_2).
 ```
 
 ## Usage
