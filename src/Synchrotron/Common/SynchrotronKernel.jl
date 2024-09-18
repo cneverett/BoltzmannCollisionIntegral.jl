@@ -1,3 +1,8 @@
+"""
+    SyncKernel(p1v,p2v,m2,z2,B)
+
+Returns the emission rate for a single photon ``p1v`` state emitted by a charged particle in state ``p2v`` with charge ``z2`` relative to the fundamental charge and mass ``m2`` relative to the mass of the electron, in a unifrom magnetic field ``B``.
+"""
 function SyncKernel(p1v,p2v,m2,z2,B)
 
     # p1 is Photon
