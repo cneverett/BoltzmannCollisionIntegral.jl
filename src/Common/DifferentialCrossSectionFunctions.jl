@@ -204,7 +204,7 @@ end
 returns the total cross section for electron-photon (Compton) scattering. Berestetskii 1982 (86.16). Masses and momenta are normalised by the rest mass of the electron ``m_{\\text{Ele}}`` and the cross section is normalised by ``σ_T``.
 
 ```math
-\\sigma_{e\\gamma\\rightarrow e\\gamma}(s)=\\frac{3}{4(s-1)}\\left[(1-\\frac{4}{\\left(s-1\\right)}-\\frac{8m_e^4}{\\left(s-1\\right)^2})\\log\\left(1+\\frac{s-1}{1}\\right)+\\frac{1}{2}+\\frac{8}{s-1}-\\frac{1}{2s^2}\\right]
+\\sigma_{e\\gamma\\rightarrow e\\gamma}(s)=\\frac{3}{4(s-1)}\\left[(1-\\frac{4}{\\left(s-1\\right)}-\\frac{8m_e^4}{\\left(s-1\\right)^2})\\log\\left(s\\right)+\\frac{1}{2}+\\frac{8}{s-1}-\\frac{1}{2s^2}\\right]
 ```
 
 # Arguments
@@ -213,9 +213,13 @@ returns the total cross section for electron-photon (Compton) scattering. Berest
 """
 function sigma_ElePhoElePho(sSmol::Float64,sBig::Float64)
 
-    #(1/(4*(s-1)))*((1-4/(s-1)-8/(s-1)^2)*log(1+1/(s-1))+1/2+8/(s-1)-1/(2*s^2))
+    #(1/(4*(s-1)))*((1-4/(s-1)-8/(s-1)^2)*log(s)+1/2+8/(s-1)-1/(2*s^2))
     s = sBig+sSmol
-    (3/(4*(sSmol)))*((1-4/(sSmol)-8/(sSmol)^2)*log(s)+1/2+8/(sSmol)-1/(2*s^2))
+    if sSmol < 1e-3 # small approximation
+        1-sSmol+13*sSmol^2/10
+    else
+        (3/(4*(sSmol)))*((1-4/(sSmol)-8/(sSmol)^2)*log(s)+1/2+8/(sSmol)-1/(2*s^2))
+    end
 
 end
 
