@@ -43,6 +43,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
     # allocate arrays
     p1v::Vector{Float64} = zeros(Float64,3)
     p2v::Vector{Float64} = zeros(Float64,3)
+    pv::Vector{Float64} = zeros(Float64,3)
     p3v::Vector{Float64} = zeros(Float64,3)
     p3pv::Vector{Float64} = zeros(Float64,3)
     p4v::Vector{Float64} = zeros(Float64,3)
@@ -87,10 +88,13 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
 
             for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
+                # generate random p direction for use in both p3 and p4 calculations
+                RPointSphereCosThetaPhi!(pv)
+
             # === p3 === #
-                #generate random p3 direction 
-                RPointSphereCosThetaPhi!(p3v)
-                p3pv .= p3v
+                #set random p3 direction 
+                p3v .= pv
+                p3pv .= pv
 
                 # Calculate p3 value
                 (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v,mu1,mu2,mu3,mu4)
@@ -137,9 +141,9 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
                 end
 
             # === p4 === #
-                #generate random p4 direction 
-                RPointSphereCosThetaPhi!(p4v)
-                p4pv .= p4v
+                #set random p4 direction 
+                p4v .= pv
+                p4pv .= pv
 
                 # Calculate p4 value
                 (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p1v,p2v,mu1,mu2,mu4,mu3)
