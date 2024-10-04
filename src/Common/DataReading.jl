@@ -77,6 +77,7 @@ Loads just the S and T Matricies stored in `fileName` stored at `fileLocation`.
     Matricies = fload_All(fileLocation,fileName);
 ```
 Returns a tuple of the data stored in the file. The fields are as follows:
+- `Run_Parameters` : A tuple of the parameters used in the evaluation.
 - `SMatrix3` : A 6D matrix of the emission spectrum for 12->34 interaction.
 - `SMatrix4` : A 6D matrix of the emission spectrum for 12->43 interaction.
 - `TMatrix1` : A 4D matrix of the absorption spectrum for 12->34 interaction.
@@ -104,19 +105,19 @@ function fload_Matrix(fileLocation::String,fileName::String)
     end
 
     if Run_Parameters[1] == Run_Parameters[2] && Run_Parameters[3] == Run_Parameters[4]
-        return (SMatrix3,TMatrix1)
+        return (Run_Parameters,SMatrix3,TMatrix1)
     end
 
     if Run_Parameters[1] == Run_Parameters[2] && Run_Parameters[3] != Run_Parameters[4]
-        return (SMatrix3,SMatrix4,TMatrix1)
+        return (Run_Parameters,SMatrix3,SMatrix4,TMatrix1)
     end
 
     if Run_Parameters[1] != Run_Parameters[2] && Run_Parameters[3] == Run_Parameters[4]
-        return (SMatrix3,TMatrix1,TMatrix2)
+        return (Run_Parameters,SMatrix3,TMatrix1,TMatrix2)
     end
 
     if Run_Parameters[1] != Run_Parameters[2] && Run_Parameters[3] != Run_Parameters[4]
-        return (SMatrix3,SMatrix4,TMatrix1,TMatrix2)
+        return (Run_Parameters,SMatrix3,SMatrix4,TMatrix1,TMatrix2)
     end
 
 end
@@ -131,6 +132,7 @@ Loads just the S and T Matricies stored in `fileName` stored at `fileLocation` f
     Matricies = fload_All_ISO(fileLocation,fileName);
 ```
 Returns a tuple of the data stored in the file. The fields are as follows:
+- `Run_Parameters` : A tuple of the parameters used in the evaluation.
 - `SMatrix3` : A 6D matrix of the emission spectrum for 12->34 interaction.
 - `SMatrix4` : A 6D matrix of the emission spectrum for 12->43 interaction.
 - `TMatrix1` : A 4D matrix of the absorption spectrum for 12->34 interaction.
@@ -160,21 +162,21 @@ function fload_Matrix_ISO(fileLocation::String,fileName::String)
     if Run_Parameters[1] == Run_Parameters[2] && Run_Parameters[3] == Run_Parameters[4]
         SMatrix3ISO = sum(SMatrix3,dims=(2,4,6))
         TMatrix1ISO = sum(TMatrix1,dims=(2,4))
-        return (SMatrix3ISO,TMatrix1ISO)
+        return (Run_Parameters,SMatrix3ISO,TMatrix1ISO)
     end
 
     if Run_Parameters[1] == Run_Parameters[2] && Run_Parameters[3] != Run_Parameters[4]
         SMatrix3ISO = sum(SMatrix3,dims=(2,4,6))
         SMatrix4ISO = sum(SMatrix4,dims=(2,4,6))
         TMatrix1ISO = sum(TMatrix1,dims=(2,4))
-        return (SMatrix3ISO,SMatrix4ISO,TMatrix1ISO)
+        return (Run_Parameters,SMatrix3ISO,SMatrix4ISO,TMatrix1ISO)
     end
 
     if Run_Parameters[1] != Run_Parameters[2] && Run_Parameters[3] == Run_Parameters[4]
         SMatrix3ISO = sum(SMatrix3,dims=(2,4,6))
         TMatrix1ISO = sum(TMatrix1,dims=(2,4))
         TMatrix2ISO = sum(TMatrix2,dims=(2,4))
-        return (SMatrix3ISO,TMatrix1ISO,TMatrix2ISO)
+        return (Run_Parameters,SMatrix3ISO,TMatrix1ISO,TMatrix2ISO)
     end
 
     if Run_Parameters[1] != Run_Parameters[2] && Run_Parameters[3] != Run_Parameters[4]
