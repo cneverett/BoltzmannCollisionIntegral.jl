@@ -144,7 +144,7 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
 end
 
 """
-    SValue4(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
+    SValue4(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
 
 Returns `Sval` from MC integration based on initial momentum states `p1v` and `p2v` and final state `p4v` and differential cross section `dsigmadt` based on particle selection 12->34.  
 Assumes f(x,p,μ)=constant over bin
@@ -190,7 +190,7 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     val::Float64 = (1/E1)*(1/E2)*(2*InvarientFlux2Small(sSmol,m1,m2))
 
     p4::Float64 = p4v[1]
-    ct4::Float64 = p4v[2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
+    ct4::Float64 = p4v[2] 
     st4::Float64 = sqrt(1e0-p4v[2]^2)
     ch4h1::Float64 = cospi(p4v[3]-p1v[3])
     ch4h2::Float64 = cospi(p4v[3]-p2v[3])
@@ -199,7 +199,7 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     E4::Float64 = Es4 + m4
 
     # u = uBig + uSmol
-    uBig::Float64 = (m4-m1)^4
+    uBig::Float64 = (m4-m1)^2
     #uSmol::Float64 = -2*(m1*Es4 + m4*Es1 + Es4*Es1 - p4*p1*(ct4*ct1+ch4h1*st4*st1))
     uSmol::Float64 = -2*p4*p1*(-ct4*ct1 -ch4h1*st4*st1 + Es4s*Es1s + m1*Es4s/p1 + m4*Es1s/p4)
     # t = tBig + tSmol
