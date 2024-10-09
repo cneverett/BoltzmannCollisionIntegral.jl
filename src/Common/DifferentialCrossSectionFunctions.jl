@@ -193,8 +193,12 @@ returns the differential cross section for electron-photon scattering (Compton) 
 function dsigmadt_ElePhoElePho(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
 
     # -(1/(s-1)^2)*((1/(s-1)+1/(u-1))^2+(1/(s-1)+1/(u-1))-(1/4)*((s-1)/(u-1)+(u-1)/(s-1)))
+    # s+t+u = 2
+    # sSmol+tSmol+uSmol = 0
+    # sSmol = -tSmol-uSmol
     
-    (3/(sSmol)^2)*((1/(sSmol)+1/(uSmol))^2+(1/(sSmol)+1/(uSmol))-(1/4)*((sSmol)/(uSmol)+(uSmol)/(sSmol)))
+    #(3/(sSmol)^2)*((1/(sSmol)+1/(uSmol))^2+(1/(sSmol)+1/(uSmol))-(1/4)*((sSmol)/(uSmol)+(uSmol)/(sSmol)))
+    (3/(sSmol)^2)*((-1/(tSmol+uSmol)+1/(uSmol))^2+(-1/(tSmol+uSmol)+1/(uSmol))-(1/4)*(-(tSmol+uSmol)/(uSmol)-(uSmol)/(tSmol+uSmol)))
 
 end
 
@@ -225,6 +229,26 @@ end
 
 const dsigmadtNorm_ElePhoElePho = σT;
 const sigmaNorm_ElePhoElePho = σT;
+
+function dsigmadt_PhoElePhoEle(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmol::Float64,uBig::Float64)
+
+    # -(1/(s-1)^2)*((1/(s-1)+1/(u-1))^2+(1/(s-1)+1/(u-1))-(1/4)*((s-1)/(u-1)+(u-1)/(s-1)))
+    
+    (3/(sSmol)^2)*((1/(sSmol)+1/(uSmol))^2+(1/(sSmol)+1/(uSmol))-(1/4)*((sSmol)/(uSmol)+(uSmol)/(sSmol)))
+
+end
+
+function sigma_PhoElePhoEle(sSmol::Float64,sBig::Float64)
+
+    #(1/(4*(s-1)))*((1-4/(s-1)-8/(s-1)^2)*log(s)+1/2+8/(s-1)-1/(2*s^2))
+    s = sBig+sSmol
+    if sSmol < 1e-3 # small approximation
+        1-sSmol+13*sSmol^2/10
+    else
+        (3/(4*(sSmol)))*((1-4/(sSmol)-8/(sSmol)^2)*log(s)+1/2+8/(sSmol)-1/(2*s^2))
+    end
+
+end
 
 # ==================================================================== # 
 
