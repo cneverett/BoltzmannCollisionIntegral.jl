@@ -182,7 +182,7 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
 
         OutputParameters = (name1,name2,name3,name4,p3l,p3u,nump3,p4l,p4u,nump4,p1l,p1u,nump1,p2l,p2u,nump2,numt3,numt4,numt1,numt2)
             
-        f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
+       f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
         write(f,"STotal3",SAtotal3)
         write(f,"STally3",SAtally3)
         write(f,"SMatrix3",SMatrix3)
