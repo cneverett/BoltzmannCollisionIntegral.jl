@@ -7,28 +7,24 @@ function PhaseSpaceFactors1!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,
 
     # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays such that the symmetries can be applied.
 
-    # === SMatrix3 === #
+
     # Momentum space volume elements
-    for ii in axes(SMatrix3,6), jj in axes(SMatrix3,5), kk in axes(SMatrix3,4), ll in axes(SMatrix3,3)
+    for ii in axes(SMatrix3,6), jj in axes(SMatrix3,5), kk in axes(SMatrix3,4), ll in axes(SMatrix3,3) # common axes
         for mm in axes(SMatrix3,2), nn in 1:size(SMatrix3,1)
             SMatrix3[nn,mm,ll,kk,jj,ii] *= t3val[mm+1]-t3val[mm] # dmu3
             SMatrix3[nn,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
             SMatrix3[nn,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
             SMatrix3[nn,mm,ll,kk,jj,ii] /= (1e0+Float64(Indistinguishable_12))
         end
+        for mm in axes(SMatrix4,2), nn in 1:size(SMatrix4,1)
+            SMatrix4[nn,mm,ll,kk,jj,ii] *= t4val[mm+1]-t4val[mm] # dmu4
+            SMatrix4[nn,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
+            SMatrix4[nn,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
+            SMatrix4[nn,mm,ll,kk,jj,ii] /= (1e0+Float64(Indistinguishable_12))
+        end
         TMatrix1[ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
         TMatrix1[ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
     end
-
-    # === SMatrix4 === #
-    # Momentum space volume elements
-    for ii in axes(SMatrix4,6), jj in axes(SMatrix4,5), kk in axes(SMatrix4,4), ll in axes(SMatrix4,3), mm in axes(SMatrix4,2), nn in 1:size(SMatrix4,1)
-        SMatrix4[nn,mm,ll,kk,jj,ii] *= t4val[mm+1]-t4val[mm] # dmu3
-        SMatrix4[nn,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
-        SMatrix4[nn,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
-        SMatrix4[nn,mm,ll,kk,jj,ii] /= (1e0+Float64(Indistinguishable_12))
-    end
-
 
     return nothing
 
@@ -48,10 +44,10 @@ function PhaseSpaceFactors2!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,
     # Momentum space volume elements
     for ii in axes(SMatrix3,6), jj in axes(SMatrix3,5), kk in axes(SMatrix3,4), ll in axes(SMatrix3,3)
         for mm in axes(SMatrix3,2), nn in 1:size(SMatrix3,1)-1
-            if nn == 1 # must account for underflow values increasing bin size (perhaps not)
-            SMatrix3[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn])# dp3dmu3 
+            if nn == 1 # must account for underflow values increasing bin size 
+                SMatrix3[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1])# dp3dmu3 
             else
-            SMatrix3[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn]) # dp3dmu3 
+                SMatrix3[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn]) # dp3dmu3 
             end
         end
         TMatrix1[ll,kk,jj,ii] /= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
@@ -67,10 +63,10 @@ function PhaseSpaceFactors2!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,
     # Momentum space volume elements
     for ii in axes(SMatrix4,6), jj in axes(SMatrix4,5), kk in axes(SMatrix4,4), ll in axes(SMatrix4,3)
         for mm in axes(SMatrix4,2), nn in 1:size(SMatrix4,1)-1
-            if nn == 1 # must account for underflow values increasing bin size (perhaps not)
-            SMatrix4[nn,mm,ll,kk,jj,ii] /= (t4val[mm+1]-t4val[mm])*(p4val[nn+1]-p4val[nn])# dp3dmu3 
+            if nn == 1 # must account for underflow values increasing bin size 
+                SMatrix4[nn,mm,ll,kk,jj,ii] /= (t4val[mm+1]-t4val[mm])*(p4val[nn+1])# dp3dmu3 
             else
-            SMatrix4[nn,mm,ll,kk,jj,ii] /= (t4val[mm+1]-t4val[mm])*(p4val[nn+1]-p4val[nn]) # dp3dmu3 
+                SMatrix4[nn,mm,ll,kk,jj,ii] /= (t4val[mm+1]-t4val[mm])*(p4val[nn+1]-p4val[nn]) # dp3dmu3 
             end 
         end
     end

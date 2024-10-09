@@ -129,7 +129,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 # Calculate S Array totals
                 if NumStates == 1
                     if p3_physical
-                        p3loc = location_p3(p3u,p3l,nump3,p3v[1])
+                        p3loc = location_p(p3u,p3l,nump3,p3v[1])
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal3[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
@@ -141,7 +141,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 if NumStates == 2
                     t3ploc = location_t(numt3,p3pv[2])
                     if p3_physical
-                        p3loc = location_p3(p3u,p3l,nump3,p3v[1])
+                        p3loc = location_p(p3u,p3l,nump3,p3v[1])
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal3[p3loc,t3loc] += Sval
                         localp3Max[t3loc] = max(localp3Max[t3loc],p3v[1])
@@ -149,7 +149,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                         localt3Max[p3loc] = max(localt3Max[p3loc],p3v[2])
                     end
                     if p3p_physical
-                        p3ploc = location_p3(p3u,p3l,nump3,p3pv[1])
+                        p3ploc = location_p(p3u,p3l,nump3,p3pv[1])
                         Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal3[p3ploc,t3ploc] += Svalp
                         localp3Max[t3ploc] = max(localp3Max[t3ploc],p3pv[1])
@@ -180,7 +180,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 # Calculate S Array totals
                 if NumStates == 1
                     if p4_physical
-                        p4loc = location_p3(p4u,p4l,nump4,p4v[1])
+                        p4loc = location_p(p4u,p4l,nump4,p4v[1])
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal4[p4loc,t4loc] += Sval
                         localp4Max[t4loc] = max(localp4Max[t4loc],p4v[1])
@@ -192,7 +192,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 if NumStates == 2
                     t4ploc = location_t(numt4,p4pv[2])
                     if p4_physical
-                        p4loc = location_p3(p4u,p4l,nump4,p4v[1])
+                        p4loc = location_p(p4u,p4l,nump4,p4v[1])
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal4[p4loc,t4loc] += Sval
                         localp4Max[t4loc] = max(localp4Max[t4loc],p4v[1])
@@ -200,7 +200,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                         localt4Max[p4loc] = max(localt4Max[p4loc],p4v[2])
                     end
                     if p4p_physical
-                        p4ploc = location_p3(p4u,p4l,nump4,p4pv[1])
+                        p4ploc = location_p(p4u,p4l,nump4,p4pv[1])
                         Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal4[p4ploc,t4ploc] += Svalp
                         localp4Max[t4ploc] = max(localp4Max[t4ploc],p4pv[1])

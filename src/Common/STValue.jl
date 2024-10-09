@@ -47,11 +47,10 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::F
     sBig::Float64 = (m1+m2)^2
     sSmol::Float64 = 2*p1*p2*(-ct1*ct2 -ch1h2*st1*st2 +Es1s*Es2s +m1*Es2s/p1 +m2*Es1s/p2)
 
-    if sCheck(sSmol,sBig,m3,m4) # check if s value is valid for interaction
+    if sCheck(sSmol,sBig,m1,m2,m3,m4) # check if s value is valid for interaction
         E1::Float64 = Es1 + m1
         E2::Float64 = Es2 + m2
         
-        # TSspe anisotropic absorption spectrum (to be integrated over d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
         Tval = (1/E1)*(1/E2)*(InvarientFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
         if (Tval==Inf||Tval < 0e0)
             error("ST1 Inf or -ve#"*string(Tval)*string(sSmol)*"#"*string(sBig))
@@ -105,7 +104,7 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
 
     sBig::Float64 = (m1+m2)^2
     #sSmol::Float64 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2+ch1h2*st1*st2))
-    sSmol::Float64 = 2*p1*p2*(-ct1*ct2-ch1h2*st1*st2 + Es1s*Es2s + m1*Es2s/p1 + m2*Es1s/p2)
+    sSmol::Float64 = 2*p1*p2*(-ct1*ct2 -ch1h2*st1*st2 + Es1s*Es2s + m1*Es2s/p1 + m2*Es1s/p2)
 
     # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
     val::Float64 = (1/E1)*(1/E2)*(2*InvarientFlux2Small(sSmol,m1,m2))
@@ -133,7 +132,18 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     #sumTerms .= (Es1, -Es3prime*p1*(ct3*ct1+ch3h1*st3*st1), Es2, -Es3prime*p2*(ct3*ct2+ch3h2*st3*st2), m1, -(m3/p3)*p1*(ct3*ct1+ch3h1*st3*st1), m2, -(m3/p3)*p2*(ct3*ct2+ch3h2*st3*st2))
     #deltacorrect = p3*sum_oro(sumTerms)
 
+    #if (stuCheck(sSmol,sBig,tSmol,tBig,uSmol,uBig,m1,m2,m3,m4) == false || tCheck(tSmol,tBig,m1,m2,m3,m4) == false || uCheck(uSmol,uBig,m1,m2,m3,m4) == false)
+    #    error("stu check")
+    #end
+
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p3^2/(deltacorrect*sign(deltacorrect)))
+
+    #println("S3:",Sval,p3v,p1v,p2v)
+    #println(sSmol)
+    #println(tSmol)
+    #println(uSmol)
+    #println(sSmol+uSmol+tSmol)
+    #println(string(val)*"#",string(p3^2)*"#",string(1/deltacorrect)*"#",string(dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig))*"#")
 
     if (Sval==Inf || Sval == -Inf || Sval < 0e0)
         error("ST1 Inf#$deltacorrect#$sSmol#$sBig#$tSmol#$tBig#$uSmol#$uBig#$p3v#$p1v#$p2v")  
@@ -196,7 +206,6 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     ch4h2::Float64 = cospi(p4v[3]-p2v[3])
     Es4::Float64 = m4 != 0e0 ? (p4^2)/(sqrt(m42+p4^2)+m4) : p4
     Es4s::Float64 = Es4/p4
-    E4::Float64 = Es4 + m4
 
     # u = uBig + uSmol
     uBig::Float64 = (m4-m1)^2
@@ -213,7 +222,18 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     #sumTerms .= (Es1, -Es3prime*p1*(ct3*ct1+ch3h1*st3*st1), Es2, -Es3prime*p2*(ct3*ct2+ch3h2*st3*st2), m1, -(m3/p3)*p1*(ct3*ct1+ch3h1*st3*st1), m2, -(m3/p3)*p2*(ct3*ct2+ch3h2*st3*st2))
     #deltacorrect = p3*sum_oro(sumTerms)
 
+    #if (stuCheck(sSmol,sBig,tSmol,tBig,uSmol,uBig,m1,m2,m3,m4) == false || tCheck(tSmol,tBig,m1,m2,m3,m4) == false || uCheck(uSmol,uBig,m1,m2,m3,m4) == false)
+    #    error("stu check")
+    #end
+
     Sval = dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig)*val*(p4^2/(deltacorrect*sign(deltacorrect)))
+
+    #println("S4:",Sval,p4v,p1v,p2v)
+    #println(sSmol)
+    #println(tSmol)
+    #println(uSmol)
+    #println(sSmol+uSmol+tSmol)
+    #println(string(val)*"#",string(p4^2)*"#",string(1/deltacorrect)*"#",string(dsigmadt(sSmol,sBig,tSmol,tBig,uSmol,uBig))*"#")
 
     if (Sval==Inf || Sval == -Inf || Sval < 0e0)
         error("ST1 Inf#$deltacorrect#$sSmol#$sBig#$tSmol#$tBig#$uSmol#$uBig#$p4v#$p1v#$p2v")  

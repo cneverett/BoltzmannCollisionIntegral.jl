@@ -31,21 +31,21 @@ function location_t(numt::Int64,val::Float64)
 end
 
 """
-    location_p3(u,l,num,val)
+    location_p(u,l,num,val)
 
-Returns the index of the bin in which 'val' is contatined based on the 'num' of bins and their 'u' upper and 'l' lower bound including overflow and underflow possibilities. Overflow are assigned to num+1 while underflow are assigned to lowest bin i.e. 1.
+Returns the index of the momentum bin in which 'val' is contatined based on the 'num' of bins and their 'u' upper and 'l' lower bound including overflow and underflow possibilities. Overflow are assigned to num+1 while underflow are assigned to lowest bin i.e. 1.
 
 # Examples
 ```julia-repl
-julia> location_p3(10e0,1e0,9,2e0)
+julia> location_p(10e0,1e0,9,2e0)
 2
-julia> location_p3(10e0,1e0,9,11e0) # overflow
+julia> location_p(10e0,1e0,9,11e0) # overflow
 10
-julia> location_p3(10e0,1e0,9,0.5e0) # underflow
+julia> location_p(10e0,1e0,9,0.5e0) # underflow
 1
 ```
 """
-function location_p3(u::Float64,l::Float64,num::Int64,val::Float64)
+function location_p(u::Float64,l::Float64,num::Int64,val::Float64)
     # function for generating poisition in array. Bins MUST be uniform
     logp = log10(val)
     loc = logp != l ? ceil(Int64,Float64(num)*(logp-l)/(u-l)) : Int64(1) 
