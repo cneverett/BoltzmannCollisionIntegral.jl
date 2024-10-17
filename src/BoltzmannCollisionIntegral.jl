@@ -7,7 +7,7 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
     using Base.Threads
     #using StaticArrays
     using BenchmarkTools
-    using Documenter
+    #using Documenter
     using Bessels
 
     # include common files
