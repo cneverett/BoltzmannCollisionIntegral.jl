@@ -17,7 +17,7 @@ function SyncKernel(p1v,p2v,m2,z2,B)
     
     E2 = sqrt(p2^2 + m2^2)
 
-    Jfactor1 = (E2*ct1-p2*ct1*ct2)/(st1)
+    Jfactor1 = (E2*ct1-p2*ct2)/(st1)
     Jfactor2 = p2*st2
 
     n = abs((mEle^2*c^2)/(z2*ħ*q*B)) * p1 * (E2-p2*ct1*ct2)
