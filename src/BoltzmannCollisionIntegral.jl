@@ -6,7 +6,7 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
     using JLD2
     using Base.Threads
     #using StaticArrays
-    using BenchmarkTools
+    #using BenchmarkTools
     #using Documenter
     using Bessels
 
