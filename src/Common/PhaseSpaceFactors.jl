@@ -1,9 +1,9 @@
 """
-    PhaseSpaceFactors1!(SMatrix3,SMatrix4,TMatrix,t3val,t4val,p1val,t1val,p2val,t2val,Indeistinguishable_12)
+    PhaseSpaceFactors1!(SMatrix3,SMatrix4,TMatrix,u3_bounds,u4_bounds,p1_bounds,u1_bounds,p2_bounds,u2_bounds,Indistinguishable_12)
 
 Applies phase space volume element factors for 'SMatrix' and 'TMatrix' terms in order to correctly apply 'STSymmetry' corrections. 
 """
-function PhaseSpaceFactors1!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,6},TMatrix1::Array{Float64,4},t3val::Vector{Float64},t4val::Vector{Float64},p1val::Vector{Float64},t1val::Vector{Float64},p2val::Vector{Float64},t2val::Vector{Float64},Indistinguishable_12::Bool)
+function PhaseSpaceFactors1!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,6},TMatrix1::Array{Float64,4},u3_bounds::Vector{Float64},u4_bounds::Vector{Float64},p1_bounds::Vector{Float64},u1_bounds::Vector{Float64},p2_bounds::Vector{Float64},u2_bounds::Vector{Float64},Indistinguishable_12::Bool)
 
     # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays such that the symmetries can be applied.
 
@@ -11,19 +11,19 @@ function PhaseSpaceFactors1!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,
     # Momentum space volume elements
     for ii in axes(SMatrix3,6), jj in axes(SMatrix3,5), kk in axes(SMatrix3,4), ll in axes(SMatrix3,3) # common axes
         for mm in axes(SMatrix3,2), nn in 1:size(SMatrix3,1)
-            SMatrix3[nn,mm,ll,kk,jj,ii] *= t3val[mm+1]-t3val[mm] # dmu3
-            SMatrix3[nn,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
-            SMatrix3[nn,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
+            SMatrix3[nn,mm,ll,kk,jj,ii] *= u3_bounds[mm+1]-u3_bounds[mm] # dmu3
+            SMatrix3[nn,mm,ll,kk,jj,ii] *= (u1_bounds[kk+1]-u1_bounds[kk])*(p1_bounds[ll+1]-p1_bounds[ll]) # dp1dmu1
+            SMatrix3[nn,mm,ll,kk,jj,ii] *= (u2_bounds[ii+1]-u2_bounds[ii])*(p2_bounds[jj+1]-p2_bounds[jj]) # dp2dmu2
             SMatrix3[nn,mm,ll,kk,jj,ii] /= (1e0+Float64(Indistinguishable_12))
         end
         for mm in axes(SMatrix4,2), nn in 1:size(SMatrix4,1)
-            SMatrix4[nn,mm,ll,kk,jj,ii] *= t4val[mm+1]-t4val[mm] # dmu4
-            SMatrix4[nn,mm,ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
-            SMatrix4[nn,mm,ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
+            SMatrix4[nn,mm,ll,kk,jj,ii] *= u4_bounds[mm+1]-u4_bounds[mm] # dmu4
+            SMatrix4[nn,mm,ll,kk,jj,ii] *= (u1_bounds[kk+1]-u1_bounds[kk])*(p1_bounds[ll+1]-p1_bounds[ll]) # dp1dmu1
+            SMatrix4[nn,mm,ll,kk,jj,ii] *= (u2_bounds[ii+1]-u2_bounds[ii])*(p2_bounds[jj+1]-p2_bounds[jj]) # dp2dmu2
             SMatrix4[nn,mm,ll,kk,jj,ii] /= (1e0+Float64(Indistinguishable_12))
         end
-        TMatrix1[ll,kk,jj,ii] *= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2
-        TMatrix1[ll,kk,jj,ii] *= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
+        TMatrix1[ll,kk,jj,ii] *= (u2_bounds[ii+1]-u2_bounds[ii])*(p2_bounds[jj+1]-p2_bounds[jj]) # dp2dmu2
+        TMatrix1[ll,kk,jj,ii] *= (u1_bounds[kk+1]-u1_bounds[kk])*(p1_bounds[ll+1]-p1_bounds[ll]) # dp1dmu1
     end
 
     return nothing
@@ -31,32 +31,32 @@ function PhaseSpaceFactors1!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,
 end
 
 """
-    PhaseSpaceFactors2!(SMatrix3,SMatrix4,TMatrix,p3val,t3val,p4val,t4val,p1val,t1val,p2val,t2val)
+    PhaseSpaceFactors2!(SMatrix3,SMatrix4,TMatrix,p3_bounds,u3_bounds,p4_bounds,u4_bounds,p1_bounds,u1_bounds,p2_bounds,u2_bounds)
 
 To follow 'PhaseSpaceFactors1' and 'STSymmetry'. Corrects phase space factors on 'SMatrix' and 'TMatrix' for use in kinetic codes.
 Assumes f(x,p,μ)= constant
 """
-function PhaseSpaceFactors2!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,6},TMatrix1::Array{Float64,4},TMatrix2::Array{Float64,4},p3val::Vector{Float64},t3val::Vector{Float64},p4val::Vector{Float64},t4val::Vector{Float64},p1val::Vector{Float64},t1val::Vector{Float64},p2val::Vector{Float64},t2val::Vector{Float64})
+function PhaseSpaceFactors2!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,6},TMatrix1::Array{Float64,4},TMatrix2::Array{Float64,4},p3_bounds::Vector{Float64},u3_bounds::Vector{Float64},p4_bounds::Vector{Float64},u4_bounds::Vector{Float64},p1_bounds::Vector{Float64},u1_bounds::Vector{Float64},p2_bounds::Vector{Float64},u2_bounds::Vector{Float64})
 
-    # Function that divides the S T elements by dp3dmu3 or equivilant to then be used in kinetic models
+    # Function that divides the S T elements by dp3dmu3 or equivalent to then be used in kinetic models
 
     # === SMatrix3 === #
     # Momentum space volume elements
     for ii in axes(SMatrix3,6), jj in axes(SMatrix3,5), kk in axes(SMatrix3,4), ll in axes(SMatrix3,3)
         for mm in axes(SMatrix3,2), nn in 1:size(SMatrix3,1)-1
             if nn == 1 # must account for underflow values increasing bin size 
-                SMatrix3[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1])# dp3dmu3 
+                SMatrix3[nn,mm,ll,kk,jj,ii] /= (u3_bounds[mm+1]-u3_bounds[mm])*(p3_bounds[nn+1])# dp3dmu3 
             else
-                SMatrix3[nn,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[nn+1]-p3val[nn]) # dp3dmu3 
+                SMatrix3[nn,mm,ll,kk,jj,ii] /= (u3_bounds[mm+1]-u3_bounds[mm])*(p3_bounds[nn+1]-p3_bounds[nn]) # dp3dmu3 
             end
         end
-        TMatrix1[ll,kk,jj,ii] /= (t1val[kk+1]-t1val[kk])*(p1val[ll+1]-p1val[ll]) # dp1dmu1
-        TMatrix2[jj,ii,ll,kk] /= (t2val[ii+1]-t2val[ii])*(p2val[jj+1]-p2val[jj]) # dp2dmu2           
+        TMatrix1[ll,kk,jj,ii] /= (u1_bounds[kk+1]-u1_bounds[kk])*(p1_bounds[ll+1]-p1_bounds[ll]) # dp1dmu1
+        TMatrix2[jj,ii,ll,kk] /= (u2_bounds[ii+1]-u2_bounds[ii])*(p2_bounds[jj+1]-p2_bounds[jj]) # dp2dmu2           
     end
 
-    # overflow bin size assumed to be up to 1*maximum p3val 
+    # overflow bin size assumed to be up to 1*maximum p3_bounds 
     for ii in axes(SMatrix3,6), jj in axes(SMatrix3,5), kk in axes(SMatrix3,4), ll in axes(SMatrix3,3), mm in axes(SMatrix3,2)
-        SMatrix3[end,mm,ll,kk,jj,ii] /= (t3val[mm+1]-t3val[mm])*(p3val[end]) # dp3dmu3
+        SMatrix3[end,mm,ll,kk,jj,ii] /= (u3_bounds[mm+1]-u3_bounds[mm])*(p3_bounds[end]) # dp3dmu3
     end
 
     # === SMatrix4 === #
@@ -64,16 +64,16 @@ function PhaseSpaceFactors2!(SMatrix3::Array{Float64,6},SMatrix4::Array{Float64,
     for ii in axes(SMatrix4,6), jj in axes(SMatrix4,5), kk in axes(SMatrix4,4), ll in axes(SMatrix4,3)
         for mm in axes(SMatrix4,2), nn in 1:size(SMatrix4,1)-1
             if nn == 1 # must account for underflow values increasing bin size 
-                SMatrix4[nn,mm,ll,kk,jj,ii] /= (t4val[mm+1]-t4val[mm])*(p4val[nn+1])# dp3dmu3 
+                SMatrix4[nn,mm,ll,kk,jj,ii] /= (u4_bounds[mm+1]-u4_bounds[mm])*(p4_bounds[nn+1])# dp3dmu3 
             else
-                SMatrix4[nn,mm,ll,kk,jj,ii] /= (t4val[mm+1]-t4val[mm])*(p4val[nn+1]-p4val[nn]) # dp3dmu3 
+                SMatrix4[nn,mm,ll,kk,jj,ii] /= (u4_bounds[mm+1]-u4_bounds[mm])*(p4_bounds[nn+1]-p4_bounds[nn]) # dp3dmu3 
             end 
         end
     end
 
-    # overflow bin size assumed to be up to 1*maximum p4val 
+    # overflow bin size assumed to be up to 1*maximum p4_bounds 
     for ii in axes(SMatrix4,6), jj in axes(SMatrix4,5), kk in axes(SMatrix4,4), ll in axes(SMatrix4,3), mm in axes(SMatrix4,2)
-        SMatrix4[end,mm,ll,kk,jj,ii] /= (t4val[mm+1]-t4val[mm])*(p4val[end]) # dp3dmu3
+        SMatrix4[end,mm,ll,kk,jj,ii] /= (u4_bounds[mm+1]-u4_bounds[mm])*(p4_bounds[end]) # dp3dmu3
     end
 
     return nothing
@@ -82,7 +82,7 @@ end
 
 
 """
-    STSymmetry!(SMatrix3,SMatrix4,TMatrix,t3val,mu1,mu2)
+    STSymmetry!(SMatrix3,SMatrix4,TMatrix,u3_bounds,mu1,mu2)
 
 To follow 'PhaseSpaceFactors1'. Physical nature of binary interaction has certain symmetries. 'STSymmetry' uses these symmetries to improve MC sampling of 'SMatrix' and 'TMatrix'.
 """
@@ -168,7 +168,7 @@ end
 
 # ====== Currently Unused ================ #
 
-    function SCorrection!(SMatrix::Array{Float64,6},TMatrix::Array{Float64,4},p3val::Vector{Float64},t3val::Vector{Float64},p1val::Vector{Float64},t1val::Vector{Float64},p2val::Vector{Float64},t2val::Vector{Float64})
+    function SCorrection!(SMatrix::Array{Float64,6},TMatrix::Array{Float64,4},p3_bounds::Vector{Float64},u3_bounds::Vector{Float64},p1_bounds::Vector{Float64},u1_bounds::Vector{Float64},p2_bounds::Vector{Float64},u2_bounds::Vector{Float64})
 
         # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays
 
@@ -182,10 +182,10 @@ end
                     for ll in 1:nump1
                         for mm in 1:numt3
                             for nn in 1:nump3
-                                SFull[nn+2,mm,ll,kk,jj,ii] = SMatrix[nn+2,mm,ll,kk,jj,ii] *(cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[nn+1]-p3val[nn]) # d^2pvec3
+                                SFull[nn+2,mm,ll,kk,jj,ii] = SMatrix[nn+2,mm,ll,kk,jj,ii] *(cospi(u3_bounds[mm])-cospi(u3_bounds[mm+1]))*(p3_bounds[nn+1]-p3_bounds[nn]) # d^2pvec3
                             end
                         end
-                        TFull[ll,kk,jj,ii] = TMatrix[ll,kk,jj,ii] * (cospi(t1val[kk])-cospi(t1val[kk+1]))*(p1val[ll+1]-p1val[ll])
+                        TFull[ll,kk,jj,ii] = TMatrix[ll,kk,jj,ii] * (cospi(u1_bounds[kk])-cospi(u1_bounds[kk+1]))*(p1_bounds[ll+1]-p1_bounds[ll])
                     end
                 end
             end
@@ -197,7 +197,7 @@ end
                 for kk in 1:numt1
                     for ll in 1:nump1
                         for mm in 1:numt3
-                            SFull[1,mm,ll,kk,jj,ii] = SMatrix[1,mm,ll,kk,jj,ii] * (cospi(t3val[mm])-cospi(t3val[mm+1]))*(p3val[1]) # d^3pvec3
+                            SFull[1,mm,ll,kk,jj,ii] = SMatrix[1,mm,ll,kk,jj,ii] * (cospi(u3_bounds[mm])-cospi(u3_bounds[mm+1]))*(p3_bounds[1]) # d^3pvec3
                         end
                     end
                 end
@@ -210,7 +210,7 @@ end
                 for kk in 1:numt1
                     for ll in 1:nump1
                         for mm in 1:numt3
-                            SFull[2,mm,ll,kk,jj,ii] = SMatrix[2,mm,ll,kk,jj,ii] * (cospi(t3val[mm])-cospi(t3val[mm+1])) * (p3val[nump3+1]*10^(log10(p3val[nump3+1])-log10(p3val[nump3]))-p3val[nump3+1])  # d^3pvec3
+                            SFull[2,mm,ll,kk,jj,ii] = SMatrix[2,mm,ll,kk,jj,ii] * (cospi(u3_bounds[mm])-cospi(u3_bounds[mm+1])) * (p3_bounds[nump3+1]*10^(log10(p3_bounds[nump3+1])-log10(p3_bounds[nump3]))-p3_bounds[nump3+1])  # d^3pvec3
                         end
                     end
                 end

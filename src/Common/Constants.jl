@@ -34,5 +34,5 @@ const zPro::Float64 = Float64(1);                   # Charge of Proton
 const zSph::Float64 = Float64(0);                   # Charge of hard sphere
 
 # Domain bounds
-const tl::Float64 = Float64(-1);                    # Lower bound for cos(theta)
-const tu::Float64 = Float64(1);                     # Upper bound for cos(theta) 
+const u_low::Float64 = Float64(-1);                    # Lower bound for cos(theta)
+const u_up::Float64 = Float64(1);                     # Upper bound for cos(theta) 

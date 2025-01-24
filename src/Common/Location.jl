@@ -1,17 +1,37 @@
 """
-    location(u,l,num,val)
+    location(up_bound,low_bound,num,val,spacing)
 
-Returns the index of the bin in which 'val' is contatined based on the 'num' of bins and their 'u' upper and 'l' lower bound.
+Returns the index of the bin in which 'val' is contained based the grid bounds of that variable with 'num' bins.
+
+Implemented grid spacing types are:
+    - uniform spacing: `spacing = "u"`
+    - log10 spacing: `spacing = "l"`
+        - up and low bounds should be supplied as log10 values
+    - binary (1/2^n) spacing: `spacing = "b"` 
+        - binary spacing is used for u=cos(theta) grids and therefore bounds should always be [-1 1] and num must be odd!
 
 # Examples
 ```julia-repl
-julia> location(10e0,0e0,9,2e0)
+julia> location(10e0,0e0,9,2e0,"u")
 2
 ```
 """
-function location(u::Float64,l::Float64,num::Int64,val::Float64)
-    # function for generating poisition in array. Bins MUST be uniform
-    return val != l ? ceil(Int64,Float64(num)*(val-l)/(u-l)) : Int64(1) 
+function location(up_bound::Float64,low_bound::Float64,num::Int64,val::Float64,spacing::String)
+    # function for generating position in array. Bins MUST be uniform
+    if spacing == "u" # uniform spacing
+        return val != low_bound ? ceil(Int64,Float64(num)*(val-low_bound)/(up_bound-low_bound)) : Int64(1) 
+    elseif spacing == "l" # log spacing
+        logval = log10(val)
+        loc = logval != low_bound ? ceil(Int64,Float64(num)*(logval-low_bound)/(up_bound-low_bound)) : Int64(1) 
+        return 1 <= loc <= num ? loc : loc>num ? num+1 : 1 # assignes 1 for under, num+1 for over and loc for in range
+    elseif spacing == "b" # binary (2^n) fractional spacing
+        logval = log(1/2,1-abs(val))
+        num_half = Int64((num-1)/2)
+        loc = logval < num_half ? floor(Int64,logval/up_bound) : num_half
+        return sign(val) == -1 ? num_half+1-loc : num_half+1+loc
+    else
+        error("Spacing type not recognized")
+    end
 end
 
 """
@@ -26,7 +46,7 @@ julia> location_t(8,0.5e0)
 ```
 """
 function location_t(numt::Int64,val::Float64)
-    # function for generating poisition in array. Bins MUST be uniform
+    # function for generating position in array. Bins MUST be uniform
     return val != tl ? ceil(Int64,Float64(numt)*(val-tl)/(tu-tl)) : Int64(1) 
 end
 

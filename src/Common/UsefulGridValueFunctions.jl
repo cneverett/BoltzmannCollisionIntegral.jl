@@ -1,34 +1,37 @@
-#=
-
-This module generates vectors of useful grid quantities from grid upper, lower bounds and number of grid cells.
-The "useful quantities" are then used in calculating moments of the distribution function.
-
-    0-th Moment:
-    ∫f(ij)sin(θ)dpdθ = ∑(ij) fij Δpi Δμj
-    where:
-        p(i+1/2) are the momentum values on grid boundries
-        θ(j+1/2) are the theta values on grid boundries 
-        Δpi = p(i+1/2) - p(i-1/2)
-        Δμj = cos(θ(j-1/2)) - cos(θ(j+1/2)) = -[cos(θ(j+1/2)) - cos(θ(j-1/2))]
-    all are positive definite
-
-    1-st Moment:
-    ∫p^μ f(ij)sin(θ) dpdθ
-        Momentum part: 
-        ∫p f(ij) sin(θ) dp dθ = ∑(ij) f(ij) Δμj Δpi <p>i
-        where:
-            <p>i = 1/2(p(i+1/2)-p(i-1/2)) is the mean momnetum
-=#
-
 # =============== Values on Grid Boundaries ====================== #
+
 """
-    prange(pl,pu,nump)
+    bounds(up_bound,low_bound,num,spacing)
+
+Returns a `num+1` long `Vector{Float}` of grid bounds. These grid bounds can spaced either by 
+    - linear spacing: `spacing = "u"`
+    - log10 spacing: `spacing = "l"`
+    - binary (1/2^n) spacing: `spacing = "b"`
+
+"""
+function bounds(up_bound::T,low_bound::T,num::Int64,spacing::String) where T <: Union{Float32,Float64}
+
+    if spacing == "u" # uniform spacing
+        return [range(low_bound,up_bound,num+1);]
+    elseif spacing == "l" # log spacing
+        return 10 .^[range(low_bound,up_bound,num+1);]
+    elseif spacing == "b" # binary (2^n) fractional spacing
+        pow = [range(1,(num-1)/2); Inf]
+        a = 1 .-(1/2) .^(pow)
+        return [reverse(-a) ; a]
+    else
+        error("Spacing type not recognized")
+    end
+end
+
+"""
+    bounds_p(pl,pu,nump)
 
 Returns a `nump+1` long `Vector{Float}` of p-space grid bounds NOT in Log10 space.
 
 # Examples
 ```julia-repl
-julia> prange(-5e0,4e0,9)
+julia> bounds_p(-5e0,4e0,9)
 10-element Vector{Float64}:
  1.0e-5
  1.0e-4
@@ -42,20 +45,20 @@ julia> prange(-5e0,4e0,9)
  10000.0
 ```
 """
-function prange(pl::T,pu::T,nump::Int64) where T <: Union{Float32,Float64}
+function bounds_p(pl::T,pu::T,nump::Int64) where T <: Union{Float32,Float64}
     # returns a vector{T} of p grid bounds NOT in Log10 space
     return 10 .^[range(pl,pu,nump+1);]
 end
 
 """
-    trange(numt)
+    bounds_t(numt)
 
 Returns a `numt+1` long `Vector{Float}` of theta-space grid bounds in terms of cos(theta).
 Upper and lower bounds [tl tu] are defined as CONST in Init.jl as [-1 1], type returned is that of tl, tu.
 
 # Examples
 ```julia-repl
-julia> trange(8)
+julia> bounds_t(8)
 9-element Vector{Float64}:
  -1.0
  -0.75
@@ -68,7 +71,7 @@ julia> trange(8)
   1.0
 ```
 """
-function trange(numt::Int64) 
+function bounds_t(numt::Int64) 
     return [range(tl,tu,numt+1);]
 end
 
@@ -78,7 +81,7 @@ end
 """
     deltaVector(valr)
 
-Inputs a `num+1` long `Vector{Float}` quantitiy values (domain bounds) and returns a `num` long `Vector{Float}` of differeces (domain widths).
+Inputs a `num+1` long `Vector{Float}` quantity values (domain bounds) and returns a `num` long `Vector{Float}` of differeces (domain widths).
 
 # Examples
 ```julia-repl
