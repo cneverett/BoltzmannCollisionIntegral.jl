@@ -1,5 +1,5 @@
 #= 
-This defines all the values to be taken as constant in the evaluation of the Monte Carlo Integration of the S and T Matricies.
+This defines all the values to be taken as constant in the evaluation of the Monte Carlo Integration of the S and T Matrices.
 Including particle properties and some domain bounds
 =#
 

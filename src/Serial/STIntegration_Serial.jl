@@ -3,13 +3,23 @@
 """
     SpectraEvaluateSerial(userInputSerial)
 
-Function to run the Monte Carlo integration of the S and T arrays in a serial environment. The function will run the Monte Carlo integration in serial and then calculate the S and T matricies and save the results to a file.
+Function to run the Monte Carlo integration of the S and T arrays in a serial environment. The function will run the Monte Carlo integration in serial and then calculate the S and T matrices and save the results to a file.
 """
-function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,String,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,String,String})
+function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64},Int64,Int64,String,String})
 
     # ========= Load user Parameters ======= #
 
-        (name1,name2,name3,name4,p3_low,p3_up,num_p3,p4_low,p4_up,num_p4,p1_low,p1_up,num_p1,p2_low,p2_up,num_p2,num_u3,num_u4,num_u1,num_u2,numTiter,numSiter,fileLocation,fileName) = userInputSerial
+        (Parameters,numTiter,numSiter,fileLocation,fileName) = Main.userInputSerial
+        #Parameters = deepcopy(OutputParameters) # as grids undergo type change
+        (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num) = Parameters
+
+    # ====================================== #
+
+    # ========= Valid Grids? =============== #
+        
+        if u1_grid == "b" && u1_num%2 == 0 || u2_grid == "b" && u2_num%2 == 0 || u3_grid == "b" && u3_num%2 == 0 || u4_grid == "b" && u4_num%2 == 0
+            error("Binary grid must have odd number of bins")
+        end
 
     # ====================================== #
 
@@ -43,20 +53,20 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
             TMatrix2 = f["TMatrix2"];
             close(f)
         else
-            SAtotal3 = zeros(Float64,(num_p3+1),num_u3,num_p1,num_u1,num_p2,num_u2); 
-            SAtotal4 = zeros(Float64,(num_p4+1),num_u4,num_p1,num_u1,num_p2,num_u2); 
-            TAtotal = zeros(Float64,num_p1,num_u1,num_p2,num_u2);
-            SAtally3 = zeros(UInt32,num_u3,num_p1,num_u1,num_p2,num_u2);
-            SAtally4 = zeros(UInt32,num_u4,num_p1,num_u1,num_p2,num_u2)
-            TAtally = zeros(UInt32,num_p1,num_u1,num_p2,num_u2);
-            SMatrix3 = zeros(Float64,(num_p3+1),num_u3,num_p1,num_u1,num_p2,num_u2);
-            TMatrix1 = zeros(Float64,num_p1,num_u1,num_p2,num_u2);
-            TMatrix2 = zeros(Float64,num_p2,num_u2,num_p1,num_u1);
-            p3Max = zeros(Float64,num_u3,num_p1,num_u1,num_p2,num_u2);
-            u3MinMax = zeros(Float64,2,(num_p3+1),num_p1,num_u1,num_p2,num_u2);
-            SMatrix4 = zeros(Float64,(num_p4+1),num_u4,num_p1,num_u1,num_p2,num_u2);
-            p4Max = zeros(Float64,num_u4,num_p1,num_u1,num_p2,num_u2);
-            u4MinMax = zeros(Float64,2,(num_p4+1),num_p1,num_u1,num_p2,num_u2);
+            SAtotal3 = zeros(Float64,(p3_num+1),u3_num,p1_num,u1_num,p2_num,u2_num); 
+            SAtotal4 = zeros(Float64,(p4_num+1),u4_num,p1_num,u1_num,p2_num,u2_num); 
+            TAtotal = zeros(Float64,p1_num,u1_num,p2_num,u2_num);
+            SAtally3 = zeros(UInt32,u3_num,p1_num,u1_num,p2_num,u2_num);
+            SAtally4 = zeros(UInt32,u4_num,p1_num,u1_num,p2_num,u2_num);
+            TAtally = zeros(UInt32,p1_num,u1_num,p2_num,u2_num);
+            SMatrix3 = zeros(Float64,(p3_num+1),u3_num,p1_num,u1_num,p2_num,u2_num);
+            TMatrix1 = zeros(Float64,p1_num,u1_num,p2_num,u2_num);
+            TMatrix2 = zeros(Float64,p2_num,u2_num,p1_num,u1_num);
+            p3Max = zeros(Float64,u3_num,p1_num,u1_num,p2_num,u2_num);
+            u3MinMax = zeros(Float64,2,(p3_num+1),p1_num,u1_num,p2_num,u2_num);
+            SMatrix4 = zeros(Float64,(p4_num+1),u4_num,p1_num,u1_num,p2_num,u2_num);
+            p4Max = zeros(Float64,u4_num,p1_num,u1_num,p2_num,u2_num);
+            u4MinMax = zeros(Float64,2,(p4_num+1),p1_num,u1_num,p2_num,u2_num);
             fill!(@view(u3MinMax[1,:,:,:,:,:]),1e0);
             fill!(@view(u3MinMax[2,:,:,:,:,:]),-1e0);
             fill!(@view(u4MinMax[1,:,:,:,:,:]),1e0);
@@ -76,22 +86,28 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
 
     # ===== Set Particle (normalised) Masses) and Parameters ====== #
 
-        mu1::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
+        #= mu1::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
         mu2::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
         mu3::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name3))
         mu4::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name4))
 
-        Parameters = (mu1,mu2,mu3,mu4,p3_low,p3_up,num_p3,p4_low,p4_up,num_p4,p1_low,p1_up,num_p1,p2_low,p2_up,num_p2,num_u3,num_u4,num_u1,num_u2)
+        Parameters = (mu1,mu2,mu3,mu4,p3_low,p3_up,p3_num,p4_low,p4_up,p4_num,p1_low,p1_up,p1_num,p2_low,p2_up,p2_num,u3_num,u4_num,u1_num,u2_num) =#
 
     # ============================================================= #
 
     # ===== Run MonteCarlo Integration ==== #
 
+        #@btime STMonteCarloAxi_Serial!($SAtotal3,$SAtotal4,$TAtotal,$SAtally3,$SAtally4,$TAtally,$p3Max,$p4Max,$u3MinMax,$u4MinMax,$sigma,$dsigmadt,$Parameters,$numTiter,$numSiter)
+
+        #@time STMonteCarloAxi_Serial!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,p3Max,p4Max,u3MinMax,u4MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
+
+        #@allocated STMonteCarloAxi_Serial!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,p3Max,p4Max,u3MinMax,u4MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
+
         STMonteCarloAxi_Serial!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,p3Max,p4Max,u3MinMax,u4MinMax,sigma,dsigmadt,Parameters,numTiter,numSiter)
 
     # ===================================== #
 
-    # ===== Calculate S and T Matricies === #
+    # ===== Calculate S and T Matrices === #
 
         # preallocate
         SMatrixOldSum3 = dropdims(sum(SMatrix3,dims=(3,4,5,6)),dims=(3,4,5,6));
@@ -147,14 +163,14 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
         replace!(TMatrix1,NaN=>0e0);
 
         # Angle / Momentum Ranges
-        u3val = bounds(u_up,u_low,num_u3,"u")
-        u4val = bounds(u_up,u_low,num_u4,"u")
-        u1val = bounds(u_up,u_low,num_u1,"u")
-        u2val = bounds(u_up,u_low,num_u2,"u")
-        p3val = bounds(p3_low,p3_up,num_p3,"l")
-        p4val = bounds(p4_low,p4_up,num_p4,"l")
-        p1val = bounds(p1_low,p1_up,num_p1,"l")
-        p2val = bounds(p2_low,p2_up,num_p2,"l")
+        u3val = bounds(u_up,u_low,u3_num,u3_grid)
+        u4val = bounds(u_up,u_low,u4_num,u4_grid)
+        u1val = bounds(u_up,u_low,u1_num,u1_grid)
+        u2val = bounds(u_up,u_low,u2_num,u2_grid)
+        p3val = bounds(p3_low,p3_up,p3_num,p3_grid)
+        p4val = bounds(p4_low,p4_up,p4_num,p4_grid)
+        p1val = bounds(p1_low,p1_up,p1_num,p1_grid)
+        p2val = bounds(p2_low,p2_up,p2_num,p2_grid)
 
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix3,SMatrix4,TMatrix1,u3val,u4val,p1val,u1val,p2val,u2val,Indistinguishable_12)      # applies phase space factors for symmetries                  
@@ -180,9 +196,9 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
 
     # ========== Save Arrays ============== #
 
-        OutputParameters = (name1,name2,name3,name4,p3_low,p3_up,num_p3,p4_low,p4_up,num_p4,p1_low,p1_up,num_p1,p2_low,p2_up,num_p2,num_u3,num_u4,num_u1,num_u2)
+        #OutputParameters = Parameters
             
-       f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
+        f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
         write(f,"STotal3",SAtotal3)
         write(f,"STally3",SAtally3)
         write(f,"SMatrix3",SMatrix3)
@@ -204,7 +220,7 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{String,String,String,Strin
 
         write(f,"TConverge",TConverge)
 
-        write(f,"Parameters",OutputParameters)
+        write(f,"Parameters",Parameters)
         close(f)
 
     # ===================================== #
