@@ -36,3 +36,13 @@ const zSph::Float64 = Float64(0);                   # Charge of hard sphere
 # Domain bounds
 const u_low::Float64 = Float64(-1);                    # Lower bound for cos(theta)
 const u_up::Float64 = Float64(1);                     # Upper bound for cos(theta) 
+
+# Grid data type definitions
+const Grid_to_Type = Dict{String,Any}("u"=>Int8(1),"l"=>Int16(1),"b"=>Int32(1))
+
+abstract type UniformGridType end
+struct UniformGrid <: UniformGridType end
+abstract type LogTenGridType end
+struct LogTenGrid <: LogTenGridType end
+abstract type BinaryGridType end
+struct BinaryGrid <: BinaryGridType end

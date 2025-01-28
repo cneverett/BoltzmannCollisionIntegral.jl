@@ -81,7 +81,7 @@ end
 """
     deltaVector(valr)
 
-Inputs a `num+1` long `Vector{Float}` quantity values (domain bounds) and returns a `num` long `Vector{Float}` of differeces (domain widths).
+Inputs a `num+1` long `Vector{Float}` quantity values (domain bounds) and returns a `num` long `Vector{Float}` of differences (domain widths).
 
 # Examples
 ```julia-repl
@@ -137,7 +137,7 @@ end
 """
     deltaEVector(pr,mu)
 
-Inputs a `num+1` long `Vector{Float}` of p grid boundries and the particle `mu` value (normalised mass) and returns a `num` long `Vector{Float}` of average energy values per grid cell.
+Inputs a `num+1` long `Vector{Float}` of p grid boundaries and the particle `mu` value (normalised mass) and returns a `num` long `Vector{Float}` of average energy values per grid cell.
 
 # Examples
 ```julia-repl
@@ -180,7 +180,7 @@ end
 """
     deltaEkinVector(pr,mu)
 
-Inputs a `num+1` long `Vector{Float}` of p grid boundries and the particle `mu` value (normalised mass) and returns a `num` long `Vector{Float}` of average kinetic energy values per grid cell.
+Inputs a `num+1` long `Vector{Float}` of p grid boundaries and the particle `mu` value (normalised mass) and returns a `num` long `Vector{Float}` of average kinetic energy values per grid cell.
 
 # Examples
 ```julia-repl
@@ -192,7 +192,7 @@ julia> deltaEkinVector([1.0e0, 10.0e0, 100.0e0, 1000.0e0], 1.0e0)
 ```
 """
 function deltaEkinVector(pr::Vector{T},mu::T) where T <: Union{Float32,Float64}
-    # inputs a (num+1) vector{Float} of p grid boundries and the particle mu value and return a (num) vector{Float} of average energy values per grid cell
+    # inputs a (num+1) vector{Float} of p grid boundaries and the particle mu value and return a (num) vector{Float} of average energy values per grid cell
 
     num = size(pr)[1]-1  # number of grid cells
     E = zeros(T,num+1)

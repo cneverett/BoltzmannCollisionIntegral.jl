@@ -9,7 +9,7 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String
 
     # ========= Load user Parameters ======= #
 
-        (Parameters,numTiter,numSiter,fileLocation,fileName) = Main.userInputSerial
+        (Parameters,numTiter,numSiter,fileLocation,fileName) = userInputSerial
         #Parameters = deepcopy(OutputParameters) # as grids undergo type change
         (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num) = Parameters
 

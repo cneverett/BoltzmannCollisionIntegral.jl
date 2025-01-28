@@ -34,6 +34,38 @@ function location(up_bound::Float64,low_bound::Float64,num::Int64,val::Float64,s
     end
 end
 
+function location(up_bound::Float64,low_bound::Float64,num::Int64,val::Float64,::UniformGridType)
+    # grid location for uniform grid
+    return val != low_bound ? ceil(Int64,Float64(num)*(val-low_bound)/(up_bound-low_bound)) : Int64(1) 
+end
+
+function location(up_bound::Float64,low_bound::Float64,num::Int64,val::Float64,::LogTenGridType)
+    # grid location for log10 grid
+    logval = log10(val)
+    loc = logval != low_bound ? ceil(Int64,Float64(num)*(logval-low_bound)/(up_bound-low_bound)) : Int64(1) 
+    return 1 <= loc <= num ? loc : loc>num ? num+1 : 1 # assigns 1 for under, num+1 for over and loc for in range
+end
+
+function location(up_bound::Float64,low_bound::Float64,num::Int64,val::Float64,::BinaryGridType)
+    # grid location for binary grid
+    logval = log(1/2,1-abs(val))
+    num_half = Int64((num-1)/2)
+    loc = logval < num_half ? floor(Int64,logval/up_bound) : num_half
+    return sign(val) == -1 ? Int64(num_half+1-loc) : Int64(num_half+1+loc)
+end
+
+function Grid_String_to_Type(grid_string)
+    if grid_string == "u"
+        return UniformGrid()
+    elseif grid_string == "l"
+        return LogTenGrid()
+    elseif grid_string == "b"
+        return BinaryGrid()
+    else
+        error("Spacing type not recognized")
+    end
+end
+
 """
     location_t(numt,val)
 
