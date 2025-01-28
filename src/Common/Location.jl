@@ -23,7 +23,7 @@ function location(up_bound::Float64,low_bound::Float64,num::Int64,val::Float64,s
     elseif spacing == "l" # log spacing
         logval = log10(val)
         loc = logval != low_bound ? ceil(Int64,Float64(num)*(logval-low_bound)/(up_bound-low_bound)) : Int64(1) 
-        return 1 <= loc <= num ? loc : loc>num ? num+1 : 1 # assignes 1 for under, num+1 for over and loc for in range
+        return 1 <= loc <= num ? loc : loc>num ? num+1 : 1 # assigns 1 for under, num+1 for over and loc for in range
     elseif spacing == "b" # binary (2^n) fractional spacing
         logval = log(1/2,1-abs(val))
         num_half = Int64((num-1)/2)
@@ -47,7 +47,7 @@ julia> location_t(8,0.5e0)
 """
 function location_t(numt::Int64,val::Float64)
     # function for generating position in array. Bins MUST be uniform
-    return val != tl ? ceil(Int64,Float64(numt)*(val-tl)/(tu-tl)) : Int64(1) 
+    return val != u_low ? ceil(Int64,Float64(numt)*(val-u_low)/(u_up-u_low)) : Int64(1) 
 end
 
 """
