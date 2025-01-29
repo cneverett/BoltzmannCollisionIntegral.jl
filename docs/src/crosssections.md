@@ -1,4 +1,13 @@
-# Implemented Particles and Binary Interactions
+# Implemented Grids, Particles and Binary Interactions
+
+## Grids
+Three types of grids for momentum space and angular space have been implemented
+
+| Grid Spacing | Abr. String | Notes                                        | 
+| -------- | ----------- | -------------------------------------------- |
+| Uniform   | `"u"`     |  Uniform grid spacing between the upper and lower bounds    | 
+| Log10 | `"l"`     |  Exponentially increasing grid spacing, uniform in Log10 space from upper to lower bounds (bounds should be given as Log10(bound value))                                            | 
+| Binary | `"b"`     |  Fractionally decreasing grid spacing for angular grids. Bin widths half as they move away from u=0 in both directions to u=+-1.                                            | 
 
 ## Particles
 Below is a table of the currently implemented particles (i.e. their particle properties are defined within the code)

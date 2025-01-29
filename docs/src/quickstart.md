@@ -15,7 +15,7 @@ using BoltzmannCollisionIntegral
 ## Integrating 
 BoltzmannCollisionIntegral.jl contains the following modules:
 - Binary Interactions 12->34
-- Synchrotron emission    
+- Synchrotron emission 2->12, where 2 is a charged particle and 1 is a photon   
 
 ### Quick Start for Binary Interactions Module
 
@@ -30,8 +30,8 @@ The example script `Run_Integration.jl` operates as follows:
 - Define the names of the 4 particles involved in the interaction (``12\to34``) as the strings `name1` `name2` `name3` `name4`
     - These should of the form of three letters, which abbreviate the particles full name (see [Particles](@ref) for list of currently implemented particles).
     - They should be ordered to match a currently [Implemented Interactions](@ref)
-- Define the momentum space discretisation. This includes the upper and lower bounds of momentum (log10) for particle species 1,2 and 3 (e.g. `p1l` and `p1u` for species 1) and the number of divisions (bins) for each particles momentum space (e.g. `nump1`).
-- Define the number of divisions for the angular momentum space (i.e. cos(theta) space) for the particle species 1,2 and 3 (e.g. `numt1`). 
+- Define the momentum space discretisation for particles 1,2,3 and 4. This includes the upper and lower bounds of momentum magnitude (`p_low...` and `p_up...`), the grid type (`p_grid...`, see [Grids](@ref) for options) and the number of divisions (bins) (`p_num...`).
+- Define the discretisation for the angular momentum space (i.e. u=cos(theta) space) for the particle species 1,2,3 and 4. This includes grid type (`u_grid...`) and number of bins (`u_num...`). The upper and lower bounds are by default assumed to be $u=\pm1$. 
 - Define the number of Monte-Carlo samples to perform (as a rule of thumb, on a modern CPU it takes approximately 200ns per sample).
     - `numTiter` for the number of random sets of $\{\vec{p}_1,\vec{p}_2\}$ to sample. 
     - `numSiter` for the number of random $\{\vec{p}_3\}$ states to sample per $\{\vec{p}_1,\vec{p}_2\}$.
@@ -49,10 +49,10 @@ The example script `Run_Integration.jl` operates as follows:
     in a julia-repl session, or by running the script line by line in your favourite code editor.
 
 The example script `Run_Integration_Sync.jl` operates as follows:
-- Define the name of the emitting particle as the strings `name2`
+- Define the name of the emitting charged particle as the strings `name2`
     - This should of the form of three letters, which abbreviate the particles full name (see [Particles](@ref) for list of currently implemented particles).
-- Define the momentum space discretisation. This includes the upper and lower bounds of momentum (log10) for the emitted photons (species 1) and emitting particle (species 2) i.e. `p1l` and `p1u` for species 1, and the number of divisions (bins) for each particles momentum space, i.e. `nump1`.
-- Define the number of divisions for the angular momentum space (i.e. cos(theta) space) for the particle species 1 and 2 (i.e. `numt1`). 
+- Define the momentum space discretisation for the emitting particle and photons. This includes the upper and lower bounds of momentum magnitude (`p_low...` and `p_up...`), the grid type (`p_grid...`, see [Grids](@ref) for options) and the number of divisions (bins) (`p_num...`).
+- Define the discretisation for the angular momentum space (i.e. u=cos(theta) space) for the emitting particles and photons. This includes grid type (`u_grid...`) and number of bins (`u_num...`). The upper and lower bounds are by default assumed to be $u=\pm1$.
 - Define the number of Monte-Carlo samples to perform (as a rule of thumb, on a modern CPU it takes approximately 200ns per sample).
     - `numTiter` for the number of random sets of $\{\vec{p}_2\}$ to sample, i.e. emitting particle states. 
     - `numSiter` for the number of random $\{\vec{p}_2\}$ states to sample per $\{\vec{p}_2\}$, i.e. number of emitted photons to sample per emitting particle state.
