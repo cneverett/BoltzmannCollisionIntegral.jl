@@ -96,8 +96,6 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
         p2loc = location(p2_up,p2_low,p2_num,p2v[1],p2_grid)
         u1loc = location(u_up,u_low,u1_num,p1v[2],u1_grid)
         u2loc = location(u_up,u_low,u2_num,p2v[2],u2_grid)
-        #(p1loc,u1loc) = vectorLocation(p1_up,p1_low,p1_num,u1_num,p1v)
-        #(p2loc,u2loc) = vectorLocation(p2_up,p2_low,p2_num,u2_num,p2v)
         loc12 = CartesianIndex(p1loc,u1loc,p2loc,u2loc)
 
         SAtotalView3 = @view SAtotal3[:,:,loc12]
