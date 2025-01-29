@@ -3,13 +3,22 @@
 
 Function to run the Monte Carlo integration of the S array in a serial enviroment. 
 """
-function SyncEvaluateMultiThread(userInputSyncMultiThread)
+function SyncEvaluateMultiThread(userInputSyncMultiThread::Tuple{Tuple{String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64},Int64,Int64,Int64,String,String})
 
     # ======= Load User Parameters ======= #
 
-    (name2,p1l,p1u,nump1,numt1,p2l,p2u,nump2,numt2,numTiterPerThread,numSiterPerThread,nThreads,fileLocation,fileName,BMag) = userInputSyncMultiThread;
+    (Parameters,numTiterPerThread,numSiterPerThread,nThreads,fileLocation,fileName) = userInputSyncMultiThread;
+    (name1,name2,mu1,mu2,z1,z2,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,BMag) = Parameters;
 
     # ==================================== #
+
+    # ========= Valid Grids? =============== #
+        
+        if u1_grid == "b" && u1_num%2 == 0 || u2_grid == "b" && u2_num%2 == 0
+            error("Binary grid must have odd number of bins")
+        end
+
+    # ====================================== #
 
     # ======== Load/Create Files ========= #
         
@@ -25,28 +34,19 @@ function SyncEvaluateMultiThread(userInputSyncMultiThread)
             #t1MinMax = f["t3MinMax"];
             close(f)
         else
-            SAtotal = zeros(Float64,nump1,numt1,nump2,numt2);  
-            SAtally = zeros(UInt32,nump1,numt1,nump2,numt2);
-            SMatrix = zeros(Float64,nump1,numt1,nump2,numt2);
-            #pMax = zeros(Float64,nump1,numt1,nump2,numt2);
-            #tMinMax = zeros(Float64,2,nump1,numt1,nump2,numt2);
+            SAtotal = zeros(Float64,p1_num,u1_num,p2_num,u2_num);  
+            SAtally = zeros(UInt32,p1_num,u1_num,p2_num,u2_num);
+            SMatrix = zeros(Float64,p1_num,u1_num,p2_num,u2_num);
+            #pMax = zeros(Float64,p1_num,u1_num,p2_num,u2_num);
+            #tMinMax = zeros(Float64,2,p1_num,u1_num,p2_num,u2_num);
             #fill!(@view(tMinMax[1,:,:,:,:]),1e0);
         end
 
     # ================================= #
 
-    # ===== Set Particle (normalised) Masses) and Parameters ====== #
-
-        mu2::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
-        z2::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("z"*name2))
-
-        Parameters = (mu2,z2,BMag,p1l,p1u,nump1,p2l,p2u,nump2,numt1,numt2)
-
-    # ============================================================= #
-
     # ======== Set up Array of Locks ====== #
 
-        ArrayOfLocks = [Threads.SpinLock() for _ in 1:nump2]    
+        ArrayOfLocks = [Threads.SpinLock() for _ in 1:p2_num]    
 
     # ===================================== #
 
@@ -59,7 +59,7 @@ function SyncEvaluateMultiThread(userInputSyncMultiThread)
     # ===================================== #
 
 
-    # ===== Calculate S and T Matricies === #
+    # ===== Calculate S and T Matrices === #
 
         # preallocate
         SMatrixOld = SMatrix;
@@ -70,15 +70,15 @@ function SyncEvaluateMultiThread(userInputSyncMultiThread)
         replace!(SMatrix,NaN=>0e0); # remove NaN caused by /0e0
 
         # Angle / Momentum Ranges
-        t1val = trange(numt1)
-        t2val = trange(numt2)
-        p1val = prange(p1l,p1u,nump1)
-        p2val = prange(p2l,p2u,nump2)
+        u1val = bounds(u_up,u_low,u1_num,u1_grid)
+        u2val = bounds(u_up,u_low,u2_num,u2_grid)
+        p1val = bounds(p1_low,p1_up,p1_num,p1_grid)
+        p2val = bounds(p2_low,p2_up,p2_num,p2_grid)
 
         # Momentum space volume elements and symmetries
-        PhaseSpaceFactorsSync1!(SMatrix,p1val,t1val,p2val,t2val)      # applies phase space factors for symmetries                  
+        PhaseSpaceFactorsSync1!(SMatrix,p1val,u1val,p2val,u2val)      # applies phase space factors for symmetries                  
         SyncSymmetry!(SMatrix)   # initial states are symmetric -> apply symmetry of interaction to improve MC values
-        PhaseSpaceFactorsSync2!(SMatrix,p1val,t1val)            # corrects phase space factors for application in kinetic models
+        PhaseSpaceFactorsSync2!(SMatrix,p1val,u1val)            # corrects phase space factors for application in kinetic models
                                             
         # correction to better conserve particle number and account for statistical noise of MC method
         #SCorrection2!(SMatrix,TMatrix) 
@@ -86,11 +86,9 @@ function SyncEvaluateMultiThread(userInputSyncMultiThread)
         # output a measure of convergence, i.e. new-old/old
         SConverge = (SMatrix .- SMatrixOld)./SMatrixOld
 
-    # ===================================== # 
+    # ===================================== #
 
     # ========== Save Arrays ============== #
-
-        OutputParameters = (name2,p1l,p1u,nump1,p2l,p2u,nump2,numt1,numt2)
             
         f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
         write(f,"STotal",SAtotal)
@@ -99,7 +97,7 @@ function SyncEvaluateMultiThread(userInputSyncMultiThread)
         #write(f,"pMax",pMax)
         #write(f,"tMinMax",tMinMax)
         write(f,"SConverge",SConverge)
-        write(f,"Parameters",OutputParameters)
+        write(f,"Parameters",Parameters)
         close(f)
 
     # ===================================== #
