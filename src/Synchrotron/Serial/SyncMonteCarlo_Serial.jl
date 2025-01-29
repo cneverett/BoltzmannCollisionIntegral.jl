@@ -39,8 +39,8 @@ function SyncMonteCarloAxi_Serial!(SAtotal::Array{Float64,4},SAtally::Array{UInt
         # generate p2v (emitting particle)
         RPointSphereCosTheta!(p2v)
         RPointLogMomentum!(p2v,p2_low,p2_up,p2_num)
-        p2loc = location(p2_up,p2_low,p2_num,p2v[1],p2_grid)
-        u2loc = location(u_up,u_low,u2_num,p2v[2],u2_grid)
+        p2loc = location(p2_low,p2_up,p2_num,p2v[1],p2_grid)
+        u2loc = location(u_low,u_up,u2_num,p2v[2],u2_grid)
 
         for _ in 1:numSiter
 
@@ -51,8 +51,8 @@ function SyncMonteCarloAxi_Serial!(SAtotal::Array{Float64,4},SAtally::Array{UInt
             # calculate S value
             Sval = SyncKernel(p1v,p2v,mu2,z2,BMag)
             # find S array location 
-            p1loc = location(p1_up,p1_low,p1_num,p1v[1],p1_grid)
-            u1loc = location(u_up,u_low,u1_num,p1v[2],u1_grid)
+            p1loc = location(p1_low,p1_up,p1_num,p1v[1],p1_grid)
+            u1loc = location(u_low,u_up,u1_num,p1v[2],u1_grid)
 
             SAtally[p1loc,u1loc,p2loc,u2loc] += UInt32(1)
             SAtotal[p1loc,u1loc,p2loc,u2loc] += Sval

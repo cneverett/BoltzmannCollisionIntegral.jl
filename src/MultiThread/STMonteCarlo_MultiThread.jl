@@ -107,10 +107,10 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
         # Tval
         Tval = TValue(p1v,p2v,sigma,mu1,mu2,mu3,mu4)
         # Calculate T Array Location
-        p1loc = location(p1_up,p1_low,p1_num,p1v[1],p1_grid)
-        p2loc = location(p2_up,p2_low,p2_num,p2v[1],p2_grid)
-        u1loc = location(u_up,u_low,u1_num,p1v[2],u1_grid)
-        u2loc = location(u_up,u_low,u2_num,p2v[2],u2_grid)
+        p1loc = location(p1_low,p1_up,p1_num,p1v[1],p1_grid)
+        p2loc = location(p2_low,p2_up,p2_num,p2v[1],p2_grid)
+        u1loc = location(u_low,u_up,u1_num,p1v[2],u1_grid)
+        u2loc = location(u_low,u_up,u2_num,p2v[2],u2_grid)
         loc12 = CartesianIndex(p1loc,u1loc,p2loc,u2loc)
 
         fill!(localSAtally3,UInt32(0))
@@ -144,8 +144,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 # S Array Tallies
                 # For each u3 sampled, p3 will be + or -ve, corresponding to a change in sign of u3. Therefore by sampling one u3 we are actually sampling u3 and -u3 with one or both having valid p3 states.
                 #if NumStates != 0
-                    u3loc = location(u_up,u_low,u3_num,p3v[2],u3_grid)
-                    u3locMirror = location(u_up,u_low,u3_num,-p3v[2],u3_grid)
+                    u3loc = location(u_low,u_up,u3_num,p3v[2],u3_grid)
+                    u3locMirror = location(u_low,u_up,u3_num,-p3v[2],u3_grid)
                     localSAtally3[u3loc] += UInt32(1)
                     localSAtally3[u3locMirror] += UInt32(1)
                 #end
@@ -153,7 +153,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 # Calculate S Array totals
                 if NumStates == 1
                     if p3_physical
-                        p3loc = location(p3_up,p3_low,p3_num,p3v[1],p3_grid)
+                        p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal3[p3loc,u3loc] += Sval
                         localp3Max[u3loc] = max(localp3Max[u3loc],p3v[1])
@@ -163,9 +163,9 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 end
 
                 if NumStates == 2
-                    u3ploc = location(u_up,u_low,u3_num,p3pv[2],u3_grid)
+                    u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
                     if p3_physical
-                        p3loc = location(p3_up,p3_low,p3_num,p3v[1],p3_grid)
+                        p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal3[p3loc,u3loc] += Sval
                         localp3Max[u3loc] = max(localp3Max[u3loc],p3v[1])
@@ -173,7 +173,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                         localu3Max[p3loc] = max(localu3Max[p3loc],p3v[2])
                     end
                     if p3p_physical
-                        p3ploc = location(p3_up,p3_low,p3_num,p3pv[1],p3_grid)
+                        p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
                         Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal3[p3ploc,u3ploc] += Svalp
                         localp3Max[u3ploc] = max(localp3Max[u3ploc],p3pv[1])
@@ -195,8 +195,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 # S Array Tallies
                 # For each u3 sampled, p3 will be + or -ve, corresponding to a change in sign of u3. Therefore by sampling one u3 we are actually sampling u3 and -u3 with one or both having valid p3 states.
                 #if NumStates != 0
-                    u4loc = location(u_up,u_low,u4_num,p4v[2],u4_grid)
-                    u4locMirror = location(u_up,u_low,u4_num,-p4v[2],u4_grid)
+                    u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
+                    u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
                     localSAtally4[u4loc] += UInt32(1)
                     localSAtally4[u4locMirror] += UInt32(1)
                 #end
@@ -204,7 +204,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 # Calculate S Array totals
                 if NumStates == 1
                     if p4_physical
-                        p4loc = location(p4_up,p4_low,p4_num,p4v[1],p4_grid)
+                        p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal4[p4loc,u4loc] += Sval
                         localp4Max[u4loc] = max(localp4Max[u4loc],p4v[1])
@@ -214,9 +214,9 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                 end
 
                 if NumStates == 2
-                    u4ploc = location(u_up,u_low,u4_num,p4pv[2],u4_grid)
+                    u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
                     if p4_physical
-                        p4loc = location(p4_up,p4_low,p4_num,p4v[1],p4_grid)
+                        p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal4[p4loc,u4loc] += Sval
                         localp4Max[u4loc] = max(localp4Max[u4loc],p4v[1])
@@ -224,7 +224,7 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
                         localu4Max[p4loc] = max(localu4Max[p4loc],p4v[2])
                     end
                     if p4p_physical
-                        p4ploc = location(p4_up,p4_low,p4_num,p4pv[1],p4_grid)
+                        p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
                         Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         localSAtotal4[p4ploc,u4ploc] += Svalp
                         localp4Max[u4ploc] = max(localp4Max[u4ploc],p4pv[1])

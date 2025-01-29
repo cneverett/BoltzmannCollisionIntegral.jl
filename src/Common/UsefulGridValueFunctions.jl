@@ -9,7 +9,7 @@ Returns a `num+1` long `Vector{Float}` of grid bounds. These grid bounds can spa
     - binary (1/2^n) spacing: `spacing = "b"`
 
 """
-function bounds(up_bound::T,low_bound::T,num::Int64,spacing::String) where T <: Union{Float32,Float64}
+function bounds(low_bound::T,up_bound::T,num::Int64,spacing::String) where T <: Union{Float32,Float64}
 
     if spacing == "u" # uniform spacing
         return [range(low_bound,up_bound,num+1);]

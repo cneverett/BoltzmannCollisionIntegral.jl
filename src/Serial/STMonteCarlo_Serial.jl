@@ -92,10 +92,10 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
         # Tval
         Tval = TValue(p1v,p2v,sigma,mu1,mu2,mu3,mu4)
         # Calculate T Array Location
-        p1loc = location(p1_up,p1_low,p1_num,p1v[1],p1_grid)
-        p2loc = location(p2_up,p2_low,p2_num,p2v[1],p2_grid)
-        u1loc = location(u_up,u_low,u1_num,p1v[2],u1_grid)
-        u2loc = location(u_up,u_low,u2_num,p2v[2],u2_grid)
+        p1loc = location(p1_low,p1_up,p1_num,p1v[1],p1_grid)
+        p2loc = location(p2_low,p2_up,p2_num,p2v[1],p2_grid)
+        u1loc = location(u_low,u_up,u1_num,p1v[2],u1_grid)
+        u2loc = location(u_low,u_up,u2_num,p2v[2],u2_grid)
         loc12 = CartesianIndex(p1loc,u1loc,p2loc,u2loc)
 
         SAtotalView3 = @view SAtotal3[:,:,loc12]
@@ -127,8 +127,8 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
                 # S Array Tallies
                 # For each t3 sampled, p3 will be + or -ve, corresponding to a change in sign of t3. Therefore by sampling one t3 we are actually sampling t3 and -t3 with one or both having valid p3 states.
                 #if NumStates != 0
-                    u3loc = location(u_up,u_low,u3_num,p3v[2],u3_grid)
-                    u3locMirror = location(u_up,u_low,u3_num,-p3v[2],u3_grid)
+                    u3loc = location(u_low,u_up,u3_num,p3v[2],u3_grid)
+                    u3locMirror = location(u_low,u_up,u3_num,-p3v[2],u3_grid)
                     SAtallyView3[u3loc] += UInt32(1)
                     SAtallyView3[u3locMirror] += UInt32(1)
                 #end
@@ -136,7 +136,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
                 # Calculate S Array totals
                 if NumStates == 1
                     if p3_physical
-                        p3loc = location(p3_up,p3_low,p3_num,p3v[1],p3_grid)
+                        p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView3[p3loc,u3loc] += Sval
                         p3MaxView[u3loc] = max(p3MaxView[u3loc],p3v[1])
@@ -147,7 +147,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
 
                 if NumStates == 2
                     if p3_physical
-                        p3loc = location(p3_up,p3_low,p3_num,p3v[1],p3_grid)
+                        p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView3[p3loc,u3loc] += Sval
                         p3MaxView[u3loc] = max(p3MaxView[u3loc],p3v[1])
@@ -155,8 +155,8 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
                         u3MaxView[p3loc] = max(u3MaxView[p3loc],p3v[2])
                     end
                     if p3p_physical
-                        u3ploc = location(u_up,u_low,u3_num,p3pv[2],u3_grid)
-                        p3ploc = location(p3_up,p3_low,p3_num,p3pv[1],p3_grid)
+                        u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
+                        p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
                         Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView3[p3ploc,u3ploc] += Svalp
                         p3MaxView[u3ploc] = max(p3MaxView[u3ploc],p3pv[1])
@@ -176,8 +176,8 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
                 # S Array Tallies
                 # For each t4 sampled, p4 will be + or -ve, corresponding to a change in sign of t4. Therefore by sampling one t4 we are actually sampling t4 and -t4 with one or both having valid p4 states.
                 #if NumStates != 0
-                    u4loc = location(u_up,u_low,u4_num,p4v[2],u4_grid)
-                    u4locMirror = location(u_up,u_low,u4_num,-p4v[2],u4_grid)
+                    u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
+                    u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
                     SAtallyView4[u4loc] += UInt32(1)
                     SAtallyView4[u4locMirror] += UInt32(1)
                 #end
@@ -185,7 +185,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
                 # Calculate S Array totals
                 if NumStates == 1
                     if p4_physical
-                        p4loc = location(p4_up,p4_low,p4_num,p4v[1],p4_grid)
+                        p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu4,mu4)
                         SAtotalView4[p4loc,u4loc] += Sval
                         p4MaxView[u4loc] = max(p4MaxView[u4loc],p4v[1])
@@ -196,7 +196,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
 
                 if NumStates == 2
                     if p4_physical
-                        p4loc = location(p4_up,p4_low,p4_num,p4v[1],p4_grid)
+                        p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView4[p4loc,u4loc] += Sval
                         p4MaxView[u4loc] = max(p4MaxView[u4loc],p4v[1])
@@ -204,8 +204,8 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
                         u4MaxView[p4loc] = max(u4MaxView[p4loc],p4v[2])
                     end
                     if p4p_physical
-                        u4ploc = location(u_up,u_low,u4_num,p4pv[2],u4_grid)
-                        p4ploc = location(p4_up,p4_low,p4_num,p4pv[1],p4_grid)
+                        u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
+                        p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
                         Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView4[p4ploc,u4ploc] += Svalp
                         p4MaxView[u4ploc] = max(p4MaxView[u4ploc],p4pv[1])

@@ -6,16 +6,18 @@ This script is provided as an example of how to run the BinaryInteractionSpectra
 
     name2::String = "Ele";
 
-# Define the Momentum space discretisations for particle 2 and particle 1 (particle 1 is the emitted photon). This includes the upper and lower momentum bounds (log10) and the number of bins for momentum magnitude and cos(theta) and must be of the format `pl_name`, pl_name`, `nump_name` and `numt_name` where `name` is the abreviated three letter name of the particle species. 
+# Define the Momentum space discretisation for particle 2 and particle 1 (particle 1 is the emitted photon).  This includes the upper and lower momentum bounds, grid type "l", "u", or "b", and the number of bins. Must be of the format `p_low_name`, p_low_name`, `p_grid_name`, `p_num_name`, `u_grid_name` and `u_num_name` where `name` is the abbreviated three letter name of the particle species. 
 
-    pl_Ele = -5e0
-    pu_Ele = 4e0
-    nump_Ele = Int64(8*(pu_Ele-pl_Ele))
-    numt_Ele = 8
+    p_low_Ele = -5e0
+    p_up_Ele = 4e0
+    p_grid_Ele = "l"
+    p_num_Ele = 72
+    u_grid_Ele = "u"
+    u_num_Ele = 8
 
     pl_Pho = -14e0
     pu_Pho = 4e0
-    nump_Pho = Int64(4*(pu_Pho-pl_Pho))
+    nump_Pho = 72
     numt_Pho = 8
 
 # Define the Magnetic Field Strength (in Tesla)  
@@ -25,17 +27,29 @@ This script is provided as an example of how to run the BinaryInteractionSpectra
 # ==== DO NOT EDIT THIS SECTION ======= #
 # ===================================== #
 
-    # This section takes all the information above, and geneartes a tuple of the parameters to be passed to the evaluation functions.
+    # This section takes all the information above, and generates a tuple of the parameters to be passed to the evaluation functions.
 
     name1::String = "Pho";
-    p1l::Float64 = getfield(Main,Symbol("pl_"*name1))
-    p1u::Float64 = getfield(Main,Symbol("pu_"*name1))
-    nump1::Int64 = getfield(Main,Symbol("nump_"*name1))
-    numt1::Int64 = getfield(Main,Symbol("numt_"*name1))
-    p2l::Float64 = getfield(Main,Symbol("pl_"*name2))
-    p2u::Float64 = getfield(Main,Symbol("pu_"*name2))
-    nump2::Int64 = getfield(Main,Symbol("nump_"*name2))
-    numt2::Int64 = getfield(Main,Symbol("numt_"*name2))
+    p1_low::Float64 = getfield(Main,Symbol("p_low_"*name1))
+    p1_up::Float64 = getfield(Main,Symbol("p_up_"*name1))
+    p1_grid::String = getfield(Main,Symbol("p_grid_"*name1))
+    p1_num::Int64 = getfield(Main,Symbol("p_num_"*name1))
+    u1_grid::String = getfield(Main,Symbol("u_grid_"*name1))
+    u1_num::Int64 = getfield(Main,Symbol("u_num_"*name1))
+    p2_low::Float64 = getfield(Main,Symbol("p_low_"*name2))
+    p2_up::Float64 = getfield(Main,Symbol("p_up_"*name2))
+    p2_grid::String = getfield(Main,Symbol("p_grid_"*name2))
+    p2_num::Int64 = getfield(Main,Symbol("p_num_"*name2))
+    u2_grid::String = getfield(Main,Symbol("u_grid_"*name2))
+    u2_num::Int64 = getfield(Main,Symbol("u_num_"*name2))
+
+    mu1::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
+    mu2::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
+
+    z1::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("z"*name1))
+    z2::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("z"*name2))
+
+    Parameters = (name1,name2,mu1,mu2,z1,z2,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,BMag)
 
 # ===================================== #
 # ===================================== #
@@ -55,18 +69,17 @@ This script is provided as an example of how to run the BinaryInteractionSpectra
     nThreads::Int64 = 10;
 
 # Define the location where the output file (.jld2 format) is to be stored and its name.
-# By default the file name contains all the information of discretisation in form p1l#p1u#nump1#p2l#p2u#nump2#numt1#numt2, and it to be stored in a folder called "Data" in the current working directory.
+# By default the file name contains all the information of discretisation in form "sync p1_low-p1_up p1_grid p1_num#...#u2_grid u2_num.jld2", and it to be stored in a folder called "Data" in the current working directory.
 
     fileLocation::String = pwd()*"\\Data";
-    fileName::String = "sync"*name2*"#"*string(p1l)*"#"*string(p1u)*"#"*string(nump1)*"#"*string(p2l)*"#"*string(p2u)*"#"*string(nump2)*"#"*string(numt1)*"#"*string(numt2)*".jld2";
-
+    fileName::String = "sync"*name2*"#"*string(p1_low)*"-"*string(p1_up)*p1_grid*string(p1_num)*"#"*string(p2_low)*"-"*string(p2_up)*p2_grid*string(p2_num)*"#"*u1_grid*string(u1_num)*"#"*u2_grid*string(u2_num)*".jld2";
 
 # Now run the evaluation functions. (Comment out as needed)
 
     # ===== DO NOT EDIT THIS SECTION ===== #
     
-        userInputSyncSerial = (name2,p1l,p1u,nump1,numt1,p2l,p2u,nump2,numt2,numTiter,numSiter,fileLocation,fileName,BMag);
-        userInputSyncMultiThread = (name2,p1l,p1u,nump1,numt1,p2l,p2u,nump2,numt2,numTiterPerThread,numSiterPerThread,nThreads,fileLocation,fileName,BMag);
+        userInputSyncSerial = (Parameters,numTiter,numSiter,fileLocation,fileName);
+        userInputSyncMultiThread = (Parameters,numTiterPerThread,numSiterPerThread,nThreads,fileLocation,fileName);
 
     # ===================================== #
 
