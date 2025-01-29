@@ -10,7 +10,7 @@ makedocs(
         pages=[
                 "Overview" => "index.md",
                 "Getting Started" => "quickstart.md",
-                "Cross Sections" => "crosssections.md",
+                "Grids, Particles and Cross Sections" => "crosssections.md",
                 "Synchrotron Emissions" => "synchrotron.md",
                 "Internal Functions" => "internalfunctions.md"
                ],
