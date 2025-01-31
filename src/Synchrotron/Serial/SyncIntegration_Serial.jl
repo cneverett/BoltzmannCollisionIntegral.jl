@@ -62,8 +62,8 @@ function SyncEvaluateSerial(userSyncInputSerial::Tuple{Tuple{String,String,Float
         replace!(SMatrix,NaN=>0e0); # remove NaN caused by /0e0
 
         # Angle / Momentum Ranges
-        u1val = bounds(u_up,u_low,u1_num,u1_grid)
-        u2val = bounds(u_up,u_low,u2_num,u2_grid)
+        u1val = bounds(u_low,u_up,u1_num,u1_grid)
+        u2val = bounds(u_low,u_up,u2_num,u2_grid)
         p1val = bounds(p1_low,p1_up,p1_num,p1_grid)
         p2val = bounds(p2_low,p2_up,p2_num,p2_grid)
 

@@ -222,7 +222,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
             SAtallyView4 .+= UInt32(1)
         end
 
-        # asign to T arrays
+        # assign to T arrays
         TAtotal[loc12] += Tval # ST[3] doesn't change with S loop
         TAtally[loc12] += UInt32(1)
 

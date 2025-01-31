@@ -5,7 +5,7 @@ Loads all the data stored in `fileName` stored at `fileLocation`.
 
 # Example
 ```julia-repl
-    (Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,t3MinMax,t4MinMax,SConv3,SConv4,TConv) = fload_All(fileLocation,fileName);
+    (Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,u3MinMax,u4MinMax,SConv3,SConv4,TConv) = fload_All(fileLocation,fileName);
 ```
 Returns a tuple of the data stored in the file. The fields are as follows:
 - `Parameters` : A tuple of the parameters used in the evaluation.
@@ -20,9 +20,9 @@ Returns a tuple of the data stored in the file. The fields are as follows:
 - `TMatrix1` : A 4D matrix of the absorption spectrum for 12->34 interaction.
 - `TMatrix2` : A 4D matrix of the absorption spectrum for 21->34 interaction i.e. by permutation of TMatrix1 and correct application of phase space factors if species 1 != species 2.
 - `p3Max` : The maximum value of the momentum space variable p3 sampled for each bin. (Useful for correcting numerical diffusion)
-- `t3MinMax` : The minimum and maximum values of the momentum space variable t3 sampled for each bin. (Useful for correcting numerical diffusion)
+- `u3MinMax` : The minimum and maximum values of the momentum space variable t3 sampled for each bin. (Useful for correcting numerical diffusion)
 - `p4Max` : The maximum value of the momentum space variable p4 sampled for each bin. (Useful for correcting numerical diffusion)
-- `t4MinMax` : The minimum and maximum values of the momentum space variable t4 sampled for each bin. (Useful for correcting numerical diffusion)
+- `u4MinMax` : The minimum and maximum values of the momentum space variable t4 sampled for each bin. (Useful for correcting numerical diffusion)
 - `SConv3` : A 6D matrix of the convergence of the emission spectrum compared to the previous run with given `Parameters` for 12->34 interaction.
 - `SConv4` : A 6D matrix of the convergence of the emission spectrum compared to the previous run with given `Parameters` for 12->43 interaction.
 - `TConv` : A 4D matrix of the convergence of the absorption spectrum compared to the previous run with given `Parameters`.
@@ -42,14 +42,14 @@ function fload_All(fileLocation::String,fileName::String)
         SMatrix3 = f["SMatrix3"];
         SConv3 = f["SConverge3"];
         p3Max = f["p3Max"];
-        t3MinMax = f["t3MinMax"];
+        u3MinMax = f["u3MinMax"];
 
         SAtot4 = f["STotal4"];
         SAtal4 = f["STally4"];
         SMatrix4 = f["SMatrix4"];
         SConv4 = f["SConverge4"];
         p4Max = f["p4Max"];
-        t4MinMax = f["t4MinMax"];
+        u4MinMax = f["u4MinMax"];
 
         TAtot = f["TTotal"];
         TAtal = f["TTally"];
@@ -62,7 +62,7 @@ function fload_All(fileLocation::String,fileName::String)
         error("no file with name $fileName found at location $fileLocation")
     end
 
-    return (Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,t3MinMax,t4MinMax,SConv3,SConv4,TConv);
+    return (Parameters,SAtot3,SAtot4,TAtot,SAtal3,SAtal4,TAtal,SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3Max,p4Max,u3MinMax,u4MinMax,SConv3,SConv4,TConv);
 
 end
 

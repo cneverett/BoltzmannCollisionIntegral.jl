@@ -170,10 +170,10 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
         replace!(TMatrix1,NaN=>0e0);
 
         # Angle / Momentum Ranges
-        u3val = bounds(u_up,u_low,u3_num,u3_grid)
-        u4val = bounds(u_up,u_low,u4_num,u4_grid)
-        u1val = bounds(u_up,u_low,u1_num,u1_grid)
-        u2val = bounds(u_up,u_low,u2_num,u2_grid)
+        u3val = bounds(u_low,u_up,u3_num,u3_grid)
+        u4val = bounds(u_low,u_up,u4_num,u4_grid)
+        u1val = bounds(u_low,u_up,u1_num,u1_grid)
+        u2val = bounds(u_low,u_up,u2_num,u2_grid)
         p3val = bounds(p3_low,p3_up,p3_num,p3_grid)
         p4val = bounds(p4_low,p4_up,p4_num,p4_grid)
         p1val = bounds(p1_low,p1_up,p1_num,p1_grid)
