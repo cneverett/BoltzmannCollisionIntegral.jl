@@ -15,7 +15,7 @@ end # function
 """
     PhaseSpaceFactorsSync2!(SMatrix,p1val,t1val)
 
-To follow 'PhaseSpaceFactorsSync1' and 'SyncSymmetry'. Correct phase spcae factors on 'SMatrix' for use in kinetic codes. 
+To follow 'PhaseSpaceFactorsSync1' and 'SyncSymmetry'. Correct phase space factors on 'SMatrix' for use in kinetic codes. 
 """
 function PhaseSpaceFactorsSync2!(SMatrix::Array{Float64,4},p1val::Vector{Float64},t1val::Vector{Float64})
 

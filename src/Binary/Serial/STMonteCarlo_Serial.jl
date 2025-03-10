@@ -186,7 +186,7 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
                 if NumStates == 1
                     if p4_physical
                         p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-                        Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu4,mu4)
+                        Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView4[p4loc,u4loc] += Sval
                         p4MaxView[u4loc] = max(p4MaxView[u4loc],p4v[1])
                         u4MinView[p4loc] = min(u4MinView[p4loc],p4v[2])

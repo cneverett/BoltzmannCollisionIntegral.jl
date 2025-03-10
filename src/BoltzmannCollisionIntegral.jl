@@ -10,27 +10,26 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
     #using Documenter
     using Bessels
 
-    # include common files
+    # include Common files
         include("Common/Constants.jl")
-        include("Common/DifferentialCrossSectionFunctions.jl")
-        include("Common/Momentum3Values.jl")
         include("Common/RandomPoints.jl")
-        include("Common/MandelstramChecks.jl")
-        include("Common/STValue.jl")
-        include("Common/UsefulGridValueFunctions.jl")
-        include("Common/PhaseSpaceFactors.jl")
         include("Common/Location.jl")
 
-    # include serial methods
-        include("Serial/STIntegration_Serial.jl")
-        include("Serial/STMonteCarlo_Serial.jl")
-
-    #include parallel methods
-        include("MultiThread/STIntegration_MultiThread.jl")
-        include("MultiThread/STMonteCarlo_MultiThread.jl")
-
-    # include data reading functions for export
-        include("Common/DataReading.jl")
+    # include Binary files
+        include("Binary/Common/DifferentialCrossSectionFunctions.jl")
+        include("Binary/Common/Momentum3Values.jl")
+        include("Binary/Common/MandelstramChecks.jl")
+        include("Binary/Common/STValue.jl")
+        include("Binary/Common/UsefulGridValueFunctions.jl")
+        include("Binary/Common/PhaseSpaceFactors.jl")
+        # include serial methods
+        include("Binary/Serial/STIntegration_Serial.jl")
+        include("Binary/Serial/STMonteCarlo_Serial.jl")
+        #include parallel methods
+        include("Binary/MultiThread/STIntegration_MultiThread.jl")
+        include("Binary/MultiThread/STMonteCarlo_MultiThread.jl")       
+        # include data reading functions for export
+        include("Binary/Common/DataReading.jl")
         
     # include Synchrotron functions
         include("Synchrotron/Common/SynchrotronKernel.jl")
