@@ -32,13 +32,16 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
         include("Binary/Common/DataReading.jl")
         
     # include Synchrotron functions
-        include("Synchrotron/Common/SynchrotronKernel.jl")
-        include("Synchrotron/Common/SyncPhaseSpaceFactors.jl")
-        include("Synchrotron/Serial/SyncMonteCarlo_Serial.jl")
-        include("Synchrotron/Serial/SyncIntegration_Serial.jl")
-        include("Synchrotron/MultiThread/SyncMonteCarlo_MultiThread.jl")
-        include("Synchrotron/MultiThread/SyncIntegration_MultiThread.jl")
-        include("Synchrotron/Common/SyncDataReading.jl")
+        include("Emission/Common/SynchrotronKernel.jl")
+        include("Emission/Common/SyncPhaseSpaceFactors.jl")
+        # include serial methods
+        include("Emission/Serial/SyncMonteCarlo_Serial.jl")
+        include("Emission/Serial/SyncIntegration_Serial.jl")
+        # include parallel methods
+        include("Emission/MultiThread/SyncMonteCarlo_MultiThread.jl")
+        include("Emission/MultiThread/SyncIntegration_MultiThread.jl")
+        # include data reading functions for export
+        include("Emission/Common/SyncDataReading.jl")
 
 end
 
