@@ -79,6 +79,8 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
     u2_grid = Grid_String_to_Type(u2_grid_st)
     u3_grid = Grid_String_to_Type(u3_grid_st)
     u4_grid = Grid_String_to_Type(u4_grid_st)
+
+    p = Progress(numTiter)
     
     for _ in 1:numTiter
 
@@ -226,7 +228,11 @@ function STMonteCarloAxi_Serial!(SAtotal3::Array{Float64,6},SAtotal4::Array{Floa
         TAtotal[loc12] += Tval # ST[3] doesn't change with S loop
         TAtally[loc12] += UInt32(1)
 
+        next!(p)
+
     end # Tloop
+
+    finish!(p)
 
     return nothing
 

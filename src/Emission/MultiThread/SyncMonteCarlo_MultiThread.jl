@@ -19,7 +19,7 @@
 - Take random points (p1,p2,t1,t2) and calculate Synchrotron emissivity
 - Find position in S arrays and allocated tallies and totals accordingly.
 """
-function SyncMonteCarloAxi_MultiThread!(SAtotal::Array{Float64,4},SAtally::Array{UInt32,4},#=pMax::Array{Float64,5},tMinMax::Array{Float64,6}=#ArrayOfLocks,Parameters::Tuple{String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64},numTiter::Int64,numSiter::Int64,nThreads::Int64)
+function SyncMonteCarloAxi_MultiThread!(SAtotal::Array{Float64,4},SAtally::Array{UInt32,4},#=pMax::Array{Float64,5},tMinMax::Array{Float64,6}=#ArrayOfLocks,Parameters::Tuple{String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64},numTiter::Int64,numSiter::Int64,nThreads::Int64,p)
 
     # Set Parameters
     (name1,name2,mu1,mu2,z1,z2,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,BMag) = Parameters
@@ -73,6 +73,8 @@ function SyncMonteCarloAxi_MultiThread!(SAtotal::Array{Float64,4},SAtally::Array
             @view(SAtally[:,:,p2loc,u2loc]) .+= localStally
             @view(SAtotal[:,:,p2loc,u2loc]) .+= localStotal
         end
+
+        next!(p)
 
     end
 

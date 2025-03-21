@@ -34,6 +34,8 @@ function SyncMonteCarloAxi_Serial!(SAtotal::Array{Float64,4},SAtally::Array{UInt
     u1loc::Int64 = 0
     u2loc::Int64 = 0
 
+    p = Progress(numTiter)
+
     for _ in 1:numTiter
 
         # generate p2v (emitting particle)
@@ -59,6 +61,12 @@ function SyncMonteCarloAxi_Serial!(SAtotal::Array{Float64,4},SAtally::Array{UInt
         
         end
 
+        next!(p)
+
     end
 
+    finish!(p)
+
+    return nothing 
+    
 end # function

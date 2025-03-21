@@ -7,11 +7,13 @@ version = "2.2.3"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Bessels = "0e736298-9ec6-45e8-9647-e4fc86a2fe38"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 
 [compat]
 BenchmarkTools = "1.6.0"
 Bessels = "0.2.8"
 JLD2 = "0.5.11"
+ProgressMeter = "1.10.2"
 julia = "1.11.1"
 
 [extras]

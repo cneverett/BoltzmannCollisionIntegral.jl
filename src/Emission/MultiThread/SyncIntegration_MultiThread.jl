@@ -52,9 +52,13 @@ function SyncEvaluateMultiThread(userInputSyncMultiThread::Tuple{Tuple{String,St
 
     # ===== Run MonteCarlo Integration ==== #
 
-        workers  = [SyncMonteCarloAxi_MultiThread!(SAtotal,SAtally,#=pMax,tMinMax,=#ArrayOfLocks,Parameters,numTiterPerThread,numSiterPerThread,nThreads) for _ in 1:nThreads]
+        p = Progress(numTiterPerThread*nThreads)
+
+        workers  = [SyncMonteCarloAxi_MultiThread!(SAtotal,SAtally,#=pMax,tMinMax,=#ArrayOfLocks,Parameters,numTiterPerThread,numSiterPerThread,nThreads,p) for _ in 1:nThreads]
 
         wait.(workers) # Allow all workers to finish
+
+        finish!(p)
 
     # ===================================== #
 

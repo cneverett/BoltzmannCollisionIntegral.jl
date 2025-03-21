@@ -107,10 +107,14 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
 
     # ===== Run MonteCarlo Integration ==== #
 
+        p = Progress(numTiterPerThread*nThreads)
+
         # Set up workers
         workers = [STMonteCarloAxi_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,p3Max,p4Max,u3MinMax,u4MinMax,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread) for _ in 1:nThreads]
         
         wait.(workers) # Allow all workers to finish
+
+        finish!(p)
    
     # ===================================== #
 

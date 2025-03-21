@@ -37,7 +37,7 @@ This module provides functions for MonteCarlo Integration of S and T Matrices
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array{Float64,6},TAtotal::Array{Float64,4},SAtally3::Array{UInt32,5},SAtally4::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float64,5},p4Max::Array{Float64,5},u3MinMax::Array{Float64,6},u4MinMax::Array{Float64,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64)
+function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array{Float64,6},TAtotal::Array{Float64,4},SAtally3::Array{UInt32,5},SAtally4::Array{UInt32,5},TAtally::Array{UInt32,4},ArrayOfLocks,p3Max::Array{Float64,5},p4Max::Array{Float64,5},u3MinMax::Array{Float64,6},u4MinMax::Array{Float64,6},sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,p)
 
     # Set Parameters
     (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid_st,p1_num,u1_grid_st,u1_num,p2_low,p2_up,p2_grid_st,p2_num,u2_grid_st,u2_num,p3_low,p3_up,p3_grid_st,p3_num,u3_grid_st,u3_num,p4_low,p4_up,p4_grid_st,p4_num,u4_grid_st,u4_num) = Parameters
@@ -260,6 +260,8 @@ function STMonteCarloAxi_MultiThread!(SAtotal3::Array{Float64,6},SAtotal4::Array
         end 
 
     end # T loop
+
+    next!(p)
 
     end # Thread spawn 
 

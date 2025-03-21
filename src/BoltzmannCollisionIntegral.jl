@@ -9,6 +9,7 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
     using BenchmarkTools
     #using Documenter
     using Bessels
+    using ProgressMeter
 
     # include Common files
         include("Common/Constants.jl")
