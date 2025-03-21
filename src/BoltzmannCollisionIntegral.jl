@@ -17,6 +17,7 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
         include("Common/Location.jl")
 
     # include Binary files
+        include("Binary/Common/Structs.jl")
         include("Binary/Common/DifferentialCrossSectionFunctions.jl")
         include("Binary/Common/Momentum3Values.jl")
         include("Binary/Common/MandelstramChecks.jl")

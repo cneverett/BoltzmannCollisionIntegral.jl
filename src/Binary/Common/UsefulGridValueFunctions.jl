@@ -7,7 +7,6 @@ Returns a `num+1` long `Vector{Float}` of grid bounds. These grid bounds can spa
     - linear spacing: `spacing = "u"`
     - log10 spacing: `spacing = "l"`
     - binary (1/2^n) spacing: `spacing = "b"`
-
 """
 function bounds(low_bound::T,up_bound::T,num::Int64,spacing::String) where T <: Union{Float32,Float64}
 
