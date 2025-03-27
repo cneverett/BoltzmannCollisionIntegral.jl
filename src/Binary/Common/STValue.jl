@@ -3,8 +3,12 @@
 """
     TValue(p1v,p2v,sigma,mu1,mu2)
 
-returns `Tval` with its Tval from MC integration based on initial momentum states `p1v` and `p2v` and cross section `sigma` based on particle selection. If initial state fails `sCheck`, i.e. cannot generate a physical output state, Tval is set to 0e0. 
-Assumes f(x,p,μ)=constant over bin
+returns `Tval` with its Tval from MC integration based on initial momentum states `p1v` and `p2v` and cross section `sigma` based on particle selection.
+```math
+T_\\text{val} = \\frac{1}{p^0_1p^0_2}\\sigma(s)F_12(s)
+```
+If initial state fails `sCheck`, i.e. cannot generate a physical output state, Tval is set to 0e0. 
+Assumes f(x,p,u,ϕ)=f(x,vec{p})/p^2=constant over bin
 """
 function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64)
 
@@ -51,7 +55,7 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::F
         E1::Float64 = Es1 + m1
         E2::Float64 = Es2 + m2
         
-        Tval = (1/E1)*(1/E2)*(InvarientFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
+        Tval = (1/E1)*(1/E2)*(InvariantFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
         if (Tval==Inf||Tval < 0e0)
             error("ST1 Inf or -ve#"*string(Tval)*string(sSmol)*"#"*string(sBig))
         end
@@ -66,8 +70,11 @@ end
 """
     SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
 
-Returns `Sval` from MC integration based on initial momentum states `p1v` and `p2v` and final state `p3v` and differential cross section `dsigmadt` based on particle selection 12->34.  
-Assumes f(x,p,μ)=constant over bin
+Returns `Sval` from MC integration based on initial momentum states `p1v` and `p2v` and final state `p3v` and differential cross section `dsigmadt` based on particle selection 12->34. 
+```math
+S_\\text{val}=\\frac{\\mathrm{d}\\sigma_{12|34}}{\\mathrm{d}t}\\frac{\\mathcal{F}_{12}^2}{\\pi\\left|p^0_3(p_1\\cos\\Theta_{31}+p_2\\cos\\Theta_{32})-p_3(p^0_1+p^0_2)\\right|}\frac{p_3^2}{p^0_1p^0_2}.
+``` 
+Assumes f(x,p,u,ϕ)=f(x,vec{p})/p^2=constant over bin
 """
 function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},dsigmadt::Function,mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64)
 
@@ -107,7 +114,7 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     sSmol::Float64 = 2*p1*p2*(-ct1*ct2 -ch1h2*st1*st2 + Es1s*Es2s + m1*Es2s/p1 + m2*Es1s/p2)
 
     # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
-    val::Float64 = (1/E1)*(1/E2)*(2*InvarientFlux2Small(sSmol,m1,m2))
+    val::Float64 = (1/E1)*(1/E2)*(InvariantFlux2Small(sSmol,m1,m2))/pi
 
     p3::Float64 = p3v[1]
     ct3::Float64 = p3v[2] # sinpi and cospi slightly slower than sin(pi*) but more accurate apparently
@@ -197,7 +204,7 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     sSmol::Float64 = 2*p1*p2*(-ct1*ct2 -ch1h2*st1*st2 + Es1s*Es2s + m1*Es2s/p1 + m2*Es1s/p2)
 
     # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
-    val::Float64 = (1/E1)*(1/E2)*(2*InvarientFlux2Small(sSmol,m1,m2))
+    val::Float64 = (1/E1)*(1/E2)*(InvariantFlux2Small(sSmol,m1,m2))/pi
 
     p4::Float64 = p4v[1]
     ct4::Float64 = p4v[2] 
@@ -244,11 +251,11 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
 end
 
 """
-    InvarientFlux(s,mu12,mu22)
+    InvariantFlux(s,mu12,mu22)
 
 returns the value of the invarient flux with 's' mandelstram variable and masses 'mass1' and 'mass2'
 """
-function InvarientFlux(s::Float64,mu12::Float64,mu22::Float64)
+function InvariantFlux(s::Float64,mu12::Float64,mu22::Float64)
 
     # sqrt(lambda(s,m1^2,m2^2))/2 = sqrt(s)|p*|
     return sqrt(s^2-2*s*(mu12+mu22)+(mu12-mu22)^2)/2
@@ -256,11 +263,11 @@ function InvarientFlux(s::Float64,mu12::Float64,mu22::Float64)
 end
 
 """
-    InvarientFluxSmall(sSmol,mu12,mu22)
+    InvariantFluxSmall(sSmol,mu12,mu22)
 
 returns the value of the invarient flux with smalled 's' mandelstram variable (sSmol = s - (m1+m2)^2)
 """
-function InvarientFluxSmall(sSmol::Float64,mu1::Float64,mu2::Float64)
+function InvariantFluxSmall(sSmol::Float64,mu1::Float64,mu2::Float64)
     # Better accuracy for small s
 
     # sqrt(lambda(s,m1^2,m2^2))/2 = sqrt(s)|p*|
@@ -269,11 +276,11 @@ function InvarientFluxSmall(sSmol::Float64,mu1::Float64,mu2::Float64)
 end
 
 """
-    InvarientFlux2(s,mass12,mass22)
+    InvariantFlux2(s,mass12,mass22)
 
 returns the value of the squared invarient flux with 's' mandelstram variable and masses 'mass1' and 'mass2'
 """
-function InvarientFlux2(s::Float64,mu12::Float64,mu22::Float64)
+function InvariantFlux2(s::Float64,mu12::Float64,mu22::Float64)
 
     # lambda(s,m1^2,m2^2)/4 = s|p*|^2
     return (s^2-2*s*(mu12+mu22)+(mu12-mu22)^2)/4
@@ -281,11 +288,11 @@ function InvarientFlux2(s::Float64,mu12::Float64,mu22::Float64)
 end
 
 """
-    InvarientFluxSmall(sSmol,mass12,mass22)
+    InvariantFluxSmall(sSmol,mass12,mass22)
 
 returns the value of the squared invarient flux with smalled 's' mandelstram variable (sSmol = s - (m1+m2)^2)
 """
-function InvarientFlux2Small(sSmol::Float64,mu1::Float64,mu2::Float64)
+function InvariantFlux2Small(sSmol::Float64,mu1::Float64,mu2::Float64)
     # Better accuracy for small s
 
     # lambda(s,m1^2,m2^2)/4 = s|p*|^2

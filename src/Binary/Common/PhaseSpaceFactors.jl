@@ -7,7 +7,6 @@ function PhaseSpaceFactors1!(SMatrix3::Array{Float64,9},SMatrix4::Array{Float64,
 
     # Function that applies the correct phase space factors to SMatrix and TMatrix derived from Stotal and Ttotal arrays such that the symmetries can be applied.
 
-
     # Momentum space volume elements
     for h2 in axes(SMatrix3,9), u2 in axes(SMatrix3,8), p2 in axes(SMatrix3,7), h1 in axes(SMatrix3,6), u1 in axes(SMatrix3,5), p1 in axes(SMatrix3,4) # common axes
         for h3 in axes(SMatrix3,3), u3 in axes(SMatrix3,2), p3 in 1:size(SMatrix3,1)
@@ -34,7 +33,7 @@ end
     PhaseSpaceFactors2!(SMatrix3,SMatrix4,TMatrix,p3_bounds,u3_bounds,p4_bounds,u4_bounds,p1_bounds,u1_bounds,p2_bounds,u2_bounds)
 
 To follow 'PhaseSpaceFactors1' and 'STSymmetry'. Corrects phase space factors on 'SMatrix' and 'TMatrix' for use in kinetic codes.
-Assumes f(x,p,u,h)= constant
+Assumes f(x,p,u,ϕ)= f(x,vec{p})/p^2=constant
 """
 function PhaseSpaceFactors2!(SMatrix3::Array{Float64,9},SMatrix4::Array{Float64,9},TMatrix1::Array{Float64,6},TMatrix2::Array{Float64,6},p3_bounds::Vector{Float64},u3_bounds::Vector{Float64},h3_bounds::Vector{Float64},p4_bounds::Vector{Float64},u4_bounds::Vector{Float64},h4_bounds::Vector{Float64},p1_bounds::Vector{Float64},u1_bounds::Vector{Float64},h1_bounds::Vector{Float64},p2_bounds::Vector{Float64},u2_bounds::Vector{Float64},h2_bounds::Vector{Float64})
 

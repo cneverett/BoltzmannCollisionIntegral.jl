@@ -4,9 +4,6 @@ This defines the differential/total cross section function and its normalisation
 
 =#
 
-# Dependancies  
-#include("Constants.jl")
-
 # ====================== Hard Sphere Collisions ============================== #
 
 """

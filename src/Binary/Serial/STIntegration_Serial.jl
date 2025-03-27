@@ -33,8 +33,8 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         u1_grid = Parameters.u1_grid
         u1_num = Parameters.u1_num
 
-        phi1_grid = Parameters.phi1_grid
-        phi1_num = Parameters.phi1_num
+        h1_grid = Parameters.h1_grid
+        h1_num = Parameters.h1_num
 
         p2_low = Parameters.p2_low
         p2_up = Parameters.p2_up
@@ -44,8 +44,8 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         u2_grid = Parameters.u2_grid
         u2_num = Parameters.u2_num
 
-        phi2_grid = Parameters.phi2_grid
-        phi2_num = Parameters.phi2_num
+        h2_grid = Parameters.h2_grid
+        h2_num = Parameters.h2_num
 
         p3_low = Parameters.p3_low
         p3_up = Parameters.p3_up
@@ -55,8 +55,8 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         u3_grid = Parameters.u3_grid
         u3_num = Parameters.u3_num
 
-        phi3_grid = Parameters.phi3_grid
-        phi3_num = Parameters.phi3_num
+        h3_grid = Parameters.h3_grid
+        h3_num = Parameters.h3_num
 
         p4_low = Parameters.p4_low
         p4_up = Parameters.p4_up
@@ -66,8 +66,8 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         u4_grid = Parameters.u4_grid
         u4_num = Parameters.u4_num
 
-        phi4_grid = Parameters.phi4_grid
-        phi4_num = Parameters.phi4_num
+        h4_grid = Parameters.h4_grid
+        h4_num = Parameters.h4_num
 
     # ====================================== #
 
@@ -81,15 +81,16 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
 
     # ===== Are states Distinguishable ===== #
 
-        Indistinguishable_12 = name1 == name2
-        Indistinguishable_34 = name3 == name4
+        Indistinguishable_12::Bool = name1 == name2
+        Indistinguishable_34::Bool = name3 == name4
 
     # ====================================== #
 
     # ========= Load/Create Files ========== #
 
+        println("Loading/Creating Files")
+
         filePath = fileLocation*"\\"*fileName
-        fileExist = isfile(filePath)
 
         Arrays = ScatteringArrays(userInputSerial)
 
@@ -103,17 +104,6 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         dsigmadt::Function = getfield(BoltzmannCollisionIntegral,name_dsigmadt)
 
     # ============================================================================ #
-
-    # ===== Set Particle (normalised) Masses) and Parameters ====== #
-
-        #= mu1::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name1))
-        mu2::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name2))
-        mu3::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name3))
-        mu4::Float64 = getfield(BoltzmannCollisionIntegral,Symbol("mu"*name4))
-
-        Parameters = (mu1,mu2,mu3,mu4,p3_low,p3_up,p3_num,p4_low,p4_up,p4_num,p1_low,p1_up,p1_num,p2_low,p2_up,p2_num,u3_num,u4_num,u1_num,u2_num) =#
-
-    # ============================================================= #
 
     # ===== Run MonteCarlo Integration ==== #
 
@@ -213,12 +203,12 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         p4val = bounds(p4_low,p4_up,p4_num,p4_grid)
         p1val = bounds(p1_low,p1_up,p1_num,p1_grid)
         p2val = bounds(p2_low,p2_up,p2_num,p2_grid)
-        h3val = bounds(phi_low,phi_up,phi3_num,phi3_grid) .* pi
-        h4val = bounds(phi_low,phi_up,phi4_num,phi4_grid) .* pi
-        h1val = bounds(phi_low,phi_up,phi1_num,phi1_grid) .* pi
-        h2val = bounds(phi_low,phi_up,phi2_num,phi2_grid) .* pi
+        h3val = bounds(h_low,h_up,h3_num,h3_grid) .* pi
+        h4val = bounds(h_low,h_up,h4_num,h4_grid) .* pi
+        h1val = bounds(h_low,h_up,h1_num,h1_grid) .* pi
+        h2val = bounds(h_low,h_up,h2_num,h2_grid) .* pi
 
-        println("Applying momentum space factors")
+        println("Applying Momentum Space Factors")
 
         # Momentum space volume elements and symmetries
         PhaseSpaceFactors1!(SMatrix3,SMatrix4,TMatrix1,u3val,h3val,u4val,h4val,p1val,u1val,h1val,p2val,u2val,h2val,Indistinguishable_12)      # applies phase space factors for symmetries                  

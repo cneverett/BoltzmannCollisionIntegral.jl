@@ -4,35 +4,23 @@ This module provides functions for MonteCarlo Integration of S and T Matrices
 =#
 
 """
-    STMonteCarloAxi_Serial!(Arrays,sigma,dsigmadt,UserInputSerial)
+    STMonteCarlo_Serial!(Arrays,sigma,dsigmadt,UserInput)
 
-# Arguments
-- `SAtotal3::Array{Float64,6}` : Array of stored integration totals for S matrix for 12->34 interaction
-- `SAtotal4::Array{Float64,6}` : Array of stored integration totals for S matrix for 12->43 interaction
-- `TAtotal::Array{Float64,4}` : Array of stored integration totals for T matrix
-- `SAtally3::Array{UInt32,5}` : Array of stored integration tallies for S matrix for 12->34 interaction
-- `SAtally4::Array{UInt32,5}` : Array of stored integration tallies for S matrix for 12->43 interaction
-- `TAtally::Array{UInt32,4}` : Array of stored integration tallies for T matrix
-- `p3Max::Array{Float64,5}` : Array of maximum momentum values for species 3
-- `u3MinMax::Array{Float64,6}` : Array of minimum and maximum theta values for species 3
-- `p4Max::Array{Float64,5}` : Array of maximum momentum values for species 4
-- `u3MinMax::Array{Float64,6}` : Array of minimum and maximum theta values for species 4
-- `sigma::Function` : Cross section function for the interaction
-- `dsigmadt::Function` : Differential cross section function for the interaction
-- `Parameters::Tuple{Float64,Float64,Float64,Float64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Float64,Float64,Int64,Int64,Int64,Int64,Int64}` : Tuple of parameters for the interaction
-- `numTiter::Int64` : Number of T iterations
-- `numSiter::Int64` : Number of S iterations
+Performs Monte Carlo Integration of S and T Matrices
 
 # Output:
 - Argument arrays SAtotal,TAtotal,SAtally,TAtally are mutated to include the results of the Monte Carlo Integration.
 
-# Calculation In Breif
+# Calculation In Brief
 - Random Sample points in each of these domains
     - RandomPointSphere for theta and phi (for species 1,2,3,4)
     - RandomPointMomentum for p ( species 1,2 only)
-- Take random points (u3,h3,p1,pu2_grid2,u1,u2,h1,h2) and calculate valid p3 point/points 
+- Calculate T value 
+- Take random points (u3,h3,p1,p2,u1,u2,h1,h2) and calculate valid p3 point/points 
+- Calculate S3 value
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Take random points (u4,h3,p1,p2,u1,u2,h1,h2) and calculate valid p4 point/points 
+- Calculate S4 value
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 """
 function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigmadt::Function,userInputSerial::BinaryUserInput)
@@ -60,8 +48,8 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
     u1_grid_st = Parameters.u1_grid
     u1_num = Parameters.u1_num
 
-    phi1_grid_st = Parameters.phi1_grid
-    phi1_num = Parameters.phi1_num
+    h1_grid_st = Parameters.h1_grid
+    h1_num = Parameters.h1_num
 
     p2_low = Parameters.p2_low
     p2_up = Parameters.p2_up
@@ -71,8 +59,8 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
     u2_grid_st = Parameters.u2_grid
     u2_num = Parameters.u2_num
 
-    phi2_grid_st = Parameters.phi2_grid
-    phi2_num = Parameters.phi2_num
+    h2_grid_st = Parameters.h2_grid
+    h2_num = Parameters.h2_num
 
     p3_low = Parameters.p3_low
     p3_up = Parameters.p3_up
@@ -82,8 +70,8 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
     u3_grid_st = Parameters.u3_grid
     u3_num = Parameters.u3_num
 
-    phi3_grid_st = Parameters.phi3_grid
-    phi3_num = Parameters.phi3_num
+    h3_grid_st = Parameters.h3_grid
+    h3_num = Parameters.h3_num
 
     p4_low = Parameters.p4_low
     p4_up = Parameters.p4_up
@@ -93,8 +81,8 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
     u4_grid_st = Parameters.u4_grid
     u4_num = Parameters.u4_num
 
-    phi4_grid_st = Parameters.phi4_grid
-    phi4_num = Parameters.phi4_num
+    h4_grid_st = Parameters.h4_grid
+    h4_num = Parameters.h4_num
 
     # Set Arrays
     SAtotal3 = Arrays.SAtotal3
@@ -135,17 +123,21 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
     h2loc::Int64 = 0
     p3loc::Int64 = 0
     u3loc::Int64 = 0
+    u3locMirror::Int64 = 0
     h3loc::Int64 = 0
+    h3locMirror::Int64 = 0
     p3ploc::Int64 = 0
     u3ploc::Int64 = 0
     h3ploc::Int64 = 0
     p4loc::Int64 = 0
     u4loc::Int64 = 0
+    u4locMirror::Int64 = 0
     h4loc::Int64 = 0
+    h4locMirror::Int64 = 0
     p4ploc::Int64 = 0
     u4ploc::Int64 = 0
     h4ploc::Int64 = 0
-    #loc12::CartesianIndex{4} = CartesianIndex(0,0,0,0)
+    loc12::CartesianIndex{6} = CartesianIndex(0,0,0,0,0,0)
 
     p1_grid = Grid_String_to_Type(p1_grid_st)
     p2_grid = Grid_String_to_Type(p2_grid_st)
@@ -155,10 +147,10 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
     u2_grid = Grid_String_to_Type(u2_grid_st)
     u3_grid = Grid_String_to_Type(u3_grid_st)
     u4_grid = Grid_String_to_Type(u4_grid_st)
-    h1_grid = Grid_String_to_Type(phi1_grid_st)
-    h2_grid = Grid_String_to_Type(phi2_grid_st)
-    h3_grid = Grid_String_to_Type(phi3_grid_st)
-    h4_grid = Grid_String_to_Type(phi4_grid_st)
+    h1_grid = Grid_String_to_Type(h1_grid_st)
+    h2_grid = Grid_String_to_Type(h2_grid_st)
+    h3_grid = Grid_String_to_Type(h3_grid_st)
+    h4_grid = Grid_String_to_Type(h4_grid_st)
 
     p = Progress(numTiter)
     
@@ -178,8 +170,8 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
         p2loc = location(p2_low,p2_up,p2_num,p2v[1],p2_grid)
         u1loc = location(u_low,u_up,u1_num,p1v[2],u1_grid)
         u2loc = location(u_low,u_up,u2_num,p2v[2],u2_grid)
-        h1loc = location(phi_low,phi_up,phi1_num,p1v[3],h1_grid)
-        h2loc = location(phi_low,phi_up,phi2_num,p2v[3],h2_grid)
+        h1loc = location(h_low,h_up,h1_num,p1v[3],h1_grid)
+        h2loc = location(h_low,h_up,h2_num,p2v[3],h2_grid)
         loc12 = CartesianIndex(p1loc,u1loc,h1loc,p2loc,u2loc,h2loc)
 
         SAtotalView3 = @view SAtotal3[:,:,:,loc12]
@@ -216,8 +208,8 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
                 #if NumStates != 0
                     u3loc = location(u_low,u_up,u3_num,p3v[2],u3_grid)
                     u3locMirror = location(u_low,u_up,u3_num,-p3v[2],u3_grid)
-                    h3loc = location(phi_low,phi_up,phi3_num,p3v[3],h3_grid)
-                    h3locMirror = location(phi_low,phi_up,phi3_num,mod(p3v[3]+1e0,2e0),h3_grid)
+                    h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
+                    h3locMirror = location(h_low,h_up,h3_num,mod(p3v[3]+1e0,2e0),h3_grid)
                     SAtallyView3[u3loc,h3loc] += UInt32(1)
                     SAtallyView3[u3locMirror,h3locMirror] += UInt32(1)
                 #end
@@ -249,14 +241,14 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
                     end
                     if p3p_physical
                         u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
-                        h3ploc = location(phi_low,phi_up,phi3_num,p3pv[3],h3_grid)
+                        h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
                         p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
                         Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView3[p3ploc,u3ploc,h3ploc] += Svalp
                         if MinMax
                             p3MaxView[u3ploc,h3ploc] = max(p3MaxView[u3ploc,h3ploc],p3pv[1])
                             u3MinView[p3ploc,h3ploc] = min(u3MinView[p3ploc,h3ploc],p3pv[2])
-                            u3MaxView[p3plo,h3ploc] = max(u3MaxView[p3ploc,h3ploc],p3pv[2])
+                            u3MaxView[p3ploc,h3ploc] = max(u3MaxView[p3ploc,h3ploc],p3pv[2])
                         end
                     end
                 end
@@ -271,14 +263,13 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
 
                 # S Array Tallies
                 # For each u3,h4 sampled, p4 will be + or -ve, corresponding to a change in sign of u3 and a shift in h4 by pi i.e. Mod(h4+1,2). Therefore by sampling one u3 we are actually sampling u3/h4 and -u3/mod(h4+1,2) with one or both having valid p4 states.
-                #if NumStates != 0
-                    u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
-                    h4loc = location(phi_low,phi_up,phi4_num,p4v[3],h4_grid)
-                    u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
-                    h4locMirror = location(phi_low,phi_up,phi4_num,mod(p4v[3]+1e0,2e0),h4_grid)
-                    SAtallyView4[u4loc,h4loc] += UInt32(1)
-                    SAtallyView4[u4locMirror,h4locMirror] += UInt32(1)
-                #end
+                u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
+                h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
+                u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
+                h4locMirror = location(h_low,h_up,h4_num,mod(p4v[3]+1e0,2e0),h4_grid)
+                SAtallyView4[u4loc,h4loc] += UInt32(1)
+                SAtallyView4[u4locMirror,h4locMirror] += UInt32(1)
+
     
                 # Calculate S Array totals
                 if NumStates == 1
@@ -307,7 +298,7 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
                     end
                     if p4p_physical
                         u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
-                        h4ploc = location(phi_low,phi_up,phi4_num,p4pv[3],h4_grid)
+                        h4ploc = location(h_low,h_up,h4_num,p4pv[3],h4_grid)
                         p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
                         Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
                         SAtotalView4[p4ploc,u4ploc,h4ploc] += Svalp
@@ -319,7 +310,7 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
                     end
                 end
 
-            end # Sloop =#
+            end # Sloop
 
         else # no valid interaction state
             # add one to tally of all relevant S tallies i.e. all momenta and all angles as no emission states are possible
@@ -330,7 +321,7 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
         # assign to T arrays
         TAtotal[loc12] += Tval # ST[3] doesn't change with S loop
         TAtally[loc12] += UInt32(1)
-
+        
         next!(p)
 
     end # Tloop
