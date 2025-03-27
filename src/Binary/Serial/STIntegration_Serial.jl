@@ -5,11 +5,14 @@
 
 Function to run the Monte Carlo integration of the S and T arrays in a serial environment. The function will run the Monte Carlo integration in serial and then calculate the S and T matrices and save the results to a file.
 """
-function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
+function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},Int64,Int64,String,String,Bool}#=userInputSerial::BinaryUserInput=#)
 
     # ========= Load user Parameters ======= #
 
-        Parameters = userInputSerial.Parameters
+        (Parameters,numTiter,numSiter,fileLocation,fileName,MinMax) = userInputSerial
+        (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
+
+        #=Parameters = userInputSerial.Parameters
         numTiter = userInputSerial.numTiter
         numSiter = userInputSerial.numSiter
         fileLocation = userInputSerial.fileLocation
@@ -67,7 +70,7 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         u4_num = Parameters.u4_num
 
         h4_grid = Parameters.h4_grid
-        h4_num = Parameters.h4_num
+        h4_num = Parameters.h4_num=#
 
     # ====================================== #
 
@@ -93,29 +96,7 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         filePath = fileLocation*"\\"*fileName
 
         Arrays = ScatteringArrays(userInputSerial)
-
-    # ====================================== #
-
-    # ======= Define Cross Section Functions Based on Particle Selections ======== #
-
-        name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
-        sigma::Function = getfield(BoltzmannCollisionIntegral,name_sigma)
-        name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
-        dsigmadt::Function = getfield(BoltzmannCollisionIntegral,name_dsigmadt)
-
-    # ============================================================================ #
-
-    # ===== Run MonteCarlo Integration ==== #
-
-        println("Running Monte Carlo Integration")
-
-        STMonteCarloAxi_Serial!(Arrays,sigma,dsigmadt,userInputSerial)
-
-    # ===================================== #
-
-    # ===== Calculate S and T Matrices === #
-
-        println("Building S and T Matrices")
+        #println(fieldtypes(ScatteringArrays))
 
         SMatrix3 = Arrays.SMatrix3
         SAtally3 = Arrays.SAtally3
@@ -136,6 +117,82 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
             p4Max = Arrays.p4Max
             u4MinMax = Arrays.u4MinMax
         end
+
+        #error("stop")
+
+        filePath = fileLocation*"\\"*fileName
+        fileExist = isfile(filePath)
+
+        #=if fileExist
+            f = jldopen(filePath,"r+");
+            SAtotal3 = f["STotal3"];
+            SAtally3 = f["STally3"];
+            SMatrix3 = f["SMatrix3"];
+            SAtotal4 = f["STotal4"];
+            SAtally4 = f["STally4"];
+            SMatrix4 = f["SMatrix4"];
+            TAtotal = f["TTotal"];
+            TAtally = f["TTally"];
+            TMatrix1 = f["TMatrix1"];
+            TMatrix2 = f["TMatrix2"];
+            if MinMax
+                p3Max = f["p3Max"];
+                u3MinMax = f["u3MinMax"];
+                p4Max = f["p4Max"];
+                u4MinMax = f["u4MinMax"];
+            end
+            close(f)
+        else
+            SAtotal3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
+            SAtotal4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
+            TAtotal = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            SAtally3 = zeros(UInt32,u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            SAtally4 = zeros(UInt32,u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            TAtally = zeros(UInt32,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            SMatrix3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            TMatrix1 = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            TMatrix2 = zeros(Float64,p2_num,u2_num,h2_num,p1_num,u1_num,h1_num);
+            SMatrix4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            if MinMax
+                p3Max = zeros(Float64,u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+                u3MinMax = zeros(Float64,2,(p3_num+1),h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+                p4Max = zeros(Float64,u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+                u4MinMax = zeros(Float64,2,(p4_num+1),h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+                fill!(@view(self.u3MinMax[1,:,:,:,:,:,:,:,:]),1e0);
+                fill!(@view(self.u3MinMax[2,:,:,:,:,:,:,:,:]),-1e0);
+                fill!(@view(self.u4MinMax[1,:,:,:,:,:,:,:,:]),1e0);
+                fill!(@view(self.u4MinMax[2,:,:,:,:,:,:,:,:]),-1e0);
+            end
+        end=#
+
+    # ====================================== #
+
+    # ======= Define Cross Section Functions Based on Particle Selections ======== #
+
+        name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
+        sigma::Function = getfield(BoltzmannCollisionIntegral,name_sigma)
+        name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
+        dsigmadt::Function = getfield(BoltzmannCollisionIntegral,name_dsigmadt)
+
+    # ============================================================================ #
+
+    # ===== Run MonteCarlo Integration ==== #
+
+        println("Running Monte Carlo Integration")
+
+        #STMonteCarlo_Serial!(Arrays,sigma,dsigmadt,Parameters,numTiter,numSiter,MinMax)
+        if MinMax
+            STMonteCarlo_Serial!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,sigma,dsigmadt,Parameters,numTiter,numSiter,MinMax;p3Max=p3Max,p4Max=p4Max,u3MinMax=u3MinMax,u4MinMax=u4MinMax)
+        else
+            #STMonteCarlo_Serial!(Arrays.SAtotal3,Arrays.SAtotal4,Arrays.TAtotal,Arrays.SAtally3,Arrays.SAtally4,Arrays.TAtally,sigma,dsigmadt,Parameters,numTiter,numSiter,MinMax)
+            STMonteCarlo_Serial!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,sigma,dsigmadt,Parameters,numTiter,numSiter,MinMax)
+        end
+
+    # ===================================== #
+
+    # ===== Calculate S and T Matrices === #
+
+        println("Building S and T Matrices")
 
         # preallocate
         SMatrixOldSum3 = dropdims(sum(SMatrix3,dims=(4,5,6,7,8,9)),dims=(4,5,6,7,8,9));
@@ -214,7 +271,7 @@ function SpectraEvaluateSerial(userInputSerial::BinaryUserInput)
         PhaseSpaceFactors1!(SMatrix3,SMatrix4,TMatrix1,u3val,h3val,u4val,h4val,p1val,u1val,h1val,p2val,u2val,h2val,Indistinguishable_12)      # applies phase space factors for symmetries                  
         STSymmetry!(SMatrix3,SMatrix4,TMatrix1,mu1,mu2)   # initial states are symmetric -> apply symmetry of interaction to improve MC values
         if Indistinguishable_12 == false
-            perm = [3,4,1,2]
+            perm = [4,5,6,1,2,3]
             TMatrix2 = permutedims(TMatrix1,perm)
         end
         PhaseSpaceFactors2!(SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3val,u3val,h3val,p4val,u4val,h4val,p1val,u1val,h1val,p2val,u2val,h2val)            # corrects phase space factors for application in kinetic models

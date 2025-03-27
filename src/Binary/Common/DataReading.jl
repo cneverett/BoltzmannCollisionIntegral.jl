@@ -104,19 +104,21 @@ function fload_Matrix(fileLocation::String,fileName::String)
         error("no file with name $fileName found at location $fileLocation")
     end
 
-    if Parameters.name1 == Parameters.name2 && Parameters.name3 == Parameters.name4
+    (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
+
+    if name1 == name2 && name3 == name4
         return (Parameters,SMatrix3,TMatrix1)
     end
 
-    if Parameters.name1 == Parameters.name2 && Parameters.name3 != Parameters.name4
+    if name1 == name2 && name3 != name4
         return (Parameters,SMatrix3,SMatrix4,TMatrix1)
     end
 
-    if Parameters.name1 != Parameters.name2 && Parameters.name3 == Parameters.name4
+    if name1 != name2 && name3 == name4
         return (Parameters,SMatrix3,TMatrix1,TMatrix2)
     end
 
-    if Parameters.name1 != Parameters.name2 && Parameters.name3 != Parameters.name4
+    if name1 != name2 && name3 != name4
         return (Parameters,SMatrix3,SMatrix4,TMatrix1,TMatrix2)
     end
 
@@ -202,35 +204,37 @@ function DoesConserve2(Output::Tuple)
 
     Parameters = Output[1] # always Output[1]
 
-    if Parameters.name1 == Parameters.name2 && Parameters.name3 == Parameters.name4
+    (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
+
+    if name1 == name2 && name3 == name4
         SMatrix3 = Output[2]
         SMatrix4 = zeros(size(SMatrix3))
         TMatrix1 = Output[3]
         TMatrix2 = zeros(size(TMatrix1))
     end
 
-    if Parameters.name1 == Parameters.name2 && Parameters.name3 != Parameters.name4
+    if name1 == name2 && name3 != name4
         SMatrix3 = Output[2]
         SMatrix4 = Output[3]
         TMatrix1 = Output[4]
         TMatrix2 = zeros(size(TMatrix1))
     end
 
-    if Parameters.name1 != Parameters.name2 && Parameters.name3 == Parameters.name4
+    if name1 != name2 && name3 == name4
         SMatrix3 = Output[2]
         SMatrix4 = zeros(size(SMatrix3))
         TMatrix1 = Output[3]
         TMatrix2 = Output[4]
     end
 
-    if Parameters.name1 != Parameters.name2 && Parameters.name3 != Parameters.name4
+    if name1 != name2 && name3 != name4
         SMatrix3 = Output[2]
         SMatrix4 = Output[3]
         TMatrix1 = Output[4]
         TMatrix2 = Output[5]
     end
 
-    mu1 = Parameters.mu1
+    #=mu1 = Parameters.mu1
     mu2 = Parameters.mu2    
     mu3 = Parameters.mu3
     mu4 = Parameters.mu4
@@ -242,7 +246,7 @@ function DoesConserve2(Output::Tuple)
     u1_grid = Parameters.u1_grid
     u1_num = Parameters.u1_num
     h1_grid = Parameters.h1_grid
-    h1_num = Parameters.h1_num
+    h1_num = Parameters.h1_num=#
 
     p1_r = bounds(p1_low,p1_up,p1_num,p1_grid);
     p1_d = deltaVector(p1_r);
@@ -254,14 +258,14 @@ function DoesConserve2(Output::Tuple)
     h1_r = bounds(h_low,h_up,h1_num,h1_grid) .* pi
     h1_d = deltaVector(h1_r);
 
-    p2_low = Parameters.p2_low
+    #=p2_low = Parameters.p2_low
     p2_up = Parameters.p2_up
     p2_grid = Parameters.p2_grid
     p2_num = Parameters.p2_num
     u2_grid = Parameters.u2_grid
     u2_num = Parameters.u2_num
     h2_grid = Parameters.h2_grid
-    h2_num = Parameters.h2_num
+    h2_num = Parameters.h2_num=#
 
     p2_r = bounds(p2_low,p2_up,p2_num,p2_grid);
     p2_d = deltaVector(p2_r);
@@ -273,14 +277,14 @@ function DoesConserve2(Output::Tuple)
     h2_r = bounds(h_low,h_up,h2_num,h2_grid) .* pi
     h2_d = deltaVector(h2_r);
 
-    p3_low = Parameters.p3_low
+    #=p3_low = Parameters.p3_low
     p3_up = Parameters.p3_up
     p3_grid = Parameters.p3_grid
     p3_num = Parameters.p3_num
     u3_grid = Parameters.u3_grid
     u3_num = Parameters.u3_num
     h3_grid = Parameters.h3_grid
-    h3_num = Parameters.h3_num
+    h3_num = Parameters.h3_num=#
 
     p3_r = bounds(p3_low,p3_up,p3_num,p3_grid);
     p3_d = deltaVector(p3_r);
@@ -292,14 +296,14 @@ function DoesConserve2(Output::Tuple)
     h3_r = bounds(h_low,h_up,h3_num,h3_grid) .* pi
     h3_d = deltaVector(h3_r);
 
-    p4_low = Parameters.p4_low
+    #=p4_low = Parameters.p4_low
     p4_up = Parameters.p4_up
     p4_grid = Parameters.p4_grid
     p4_num = Parameters.p4_num
     u4_grid = Parameters.u4_grid
     u4_num = Parameters.u4_num
     h4_grid = Parameters.h4_grid
-    h4_num = Parameters.h4_num
+    h4_num = Parameters.h4_num=#
 
     p4_r = bounds(p4_low,p4_up,p4_num,p4_grid);
     p4_d = deltaVector(p4_r);

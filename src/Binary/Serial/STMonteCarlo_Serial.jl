@@ -23,10 +23,14 @@ Performs Monte Carlo Integration of S and T Matrices
 - Calculate S4 value
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 """
-function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigmadt::Function,userInputSerial::BinaryUserInput)
+function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64,9},TAtotal::Array{Float64,6},SAtally3::Array{UInt32,8},SAtally4::Array{UInt32,8},TAtally::Array{UInt32,6}#=Arrays::ScatteringArrays=#,sigma::Function,dsigmadt::Function,#=userInputSerial::BinaryUserInput=#Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiter::Int64,numSiter::Int64,MinMax::Bool;p3Max=nothing,p4Max=nothing,u3MinMax=nothing,u4MinMax=nothing)
 
     # Set Parameters
-    Parameters = userInputSerial.Parameters
+    (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid_st,p1_num,u1_grid_st,u1_num,h1_grid_st,h1_num,p2_low,p2_up,p2_grid_st,p2_num,u2_grid_st,u2_num,h2_grid_st,h2_num,p3_low,p3_up,p3_grid_st,p3_num,u3_grid_st,u3_num,h3_grid_st,h3_num,p4_low,p4_up,p4_grid_st,p4_num,u4_grid_st,u4_num,h4_grid_st,h4_num) = Parameters
+
+    #MinMax = isnothing(p3Max) ? false : true
+
+    #=Parameters = userInputSerial.Parameters
     numTiter = userInputSerial.numTiter
     numSiter = userInputSerial.numSiter
     MinMax = userInputSerial.MinMax
@@ -82,21 +86,21 @@ function STMonteCarloAxi_Serial!(Arrays::ScatteringArrays,sigma::Function,dsigma
     u4_num = Parameters.u4_num
 
     h4_grid_st = Parameters.h4_grid
-    h4_num = Parameters.h4_num
+    h4_num = Parameters.h4_num=#
 
     # Set Arrays
-    SAtotal3 = Arrays.SAtotal3
-    SAtotal4 = Arrays.SAtotal4
-    TAtotal = Arrays.TAtotal
-    SAtally3 = Arrays.SAtally3
-    SAtally4 = Arrays.SAtally4
-    TAtally = Arrays.TAtally
+    #=SAtotal3::Array{Float64,9} = Arrays.SAtotal3
+    SAtotal4::Array{Float64,9} = Arrays.SAtotal4
+    TAtotal::Array{Float64,6} = Arrays.TAtotal
+    SAtally3::Array{UInt32,8} = Arrays.SAtally3
+    SAtally4::Array{UInt32,8} = Arrays.SAtally4
+    TAtally::Array{UInt32,6} = Arrays.TAtally
     if MinMax
         p3Max = Arrays.p3Max
         u3MinMax = Arrays.u3MinMax
         p4Max = Arrays.p4Max
         u4MinMax = Arrays.u4MinMax
-    end
+    end=#
 
     # allocate arrays
     p1v::Vector{Float64} = zeros(Float64,3)

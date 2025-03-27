@@ -86,26 +86,27 @@ mutable struct BinaryUserInput <: Function
 
 end
 
-function FileName(Parameters::BinaryParameters)
+function FileName(Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64}#=Parameters::BinaryParameters=#)
 
-    P = Parameters
+    #P = Parameters
+    (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
     
-    fileName = P.name1*P.name2*P.name3*P.name4
-    fileName *= "#"*string(P.p1_low)*"-"*string(P.p1_up)*P.p1_grid*string(P.p1_num)
-    fileName *= "#"*P.u1_grid*string(P.u1_num)
-    fileName *= "#"*P.h1_grid*string(P.h1_num)
+    fileName = name1*name2*name3*name4
+    fileName *= "#"*string(p1_low)*"-"*string(p1_up)*p1_grid*string(p1_num)
+    fileName *= "#"*u1_grid*string(u1_num)
+    fileName *= "#"*h1_grid*string(h1_num)
 
-    fileName *= "#"*string(P.p2_low)*"-"*string(P.p2_up)*P.p2_grid*string(P.p2_num)
-    fileName *= "#"*P.u2_grid*string(P.u2_num)
-    fileName *= "#"*P.h2_grid*string(P.h2_num)
+    fileName *= "#"*string(p2_low)*"-"*string(p2_up)*p2_grid*string(p2_num)
+    fileName *= "#"*u2_grid*string(u2_num)
+    fileName *= "#"*h2_grid*string(h2_num)
 
-    fileName *= "#"*string(P.p3_low)*"-"*string(P.p3_up)*P.p3_grid*string(P.p3_num)
-    fileName *= "#"*P.u3_grid*string(P.u3_num)
-    fileName *= "#"*P.h3_grid*string(P.h3_num)
+    fileName *= "#"*string(p3_low)*"-"*string(p3_up)*p3_grid*string(p3_num)
+    fileName *= "#"*u3_grid*string(u3_num)
+    fileName *= "#"*h3_grid*string(h3_num)
 
-    fileName *= "#"*string(P.p4_low)*"-"*string(P.p4_up)*P.p4_grid*string(P.p4_num)
-    fileName *= "#"*P.u4_grid*string(P.u4_num)
-    fileName *= "#"*P.h4_grid*string(P.h4_num)
+    fileName *= "#"*string(p4_low)*"-"*string(p4_up)*p4_grid*string(p4_num)
+    fileName *= "#"*u4_grid*string(u4_num)
+    fileName *= "#"*h4_grid*string(h4_num)
     
     fileName *= ".jld2";
 
@@ -117,14 +118,14 @@ mutable struct ScatteringArrays <: Function
     SAtotal3::Array{Float64,9}
     SAtotal4::Array{Float64,9}
 
-    SAtally3::Array{Float64,8}
-    SAtally4::Array{Float64,8}
+    SAtally3::Array{UInt32,8}
+    SAtally4::Array{UInt32,8}
 
     SMatrix3::Array{Float64,9}
     SMatrix4::Array{Float64,9}
 
     TAtotal::Array{Float64,6}
-    TAtally::Array{Float64,6}
+    TAtally::Array{UInt32,6}
     TMatrix1::Array{Float64,6}
     TMatrix2::Array{Float64,6}
 
@@ -133,13 +134,17 @@ mutable struct ScatteringArrays <: Function
     p4Max::Array{Float64,8}
     u4MinMax::Array{Float64,8}
 
-    function ScatteringArrays(UserInput::BinaryUserInput)
+    function ScatteringArrays(userInputSerial::Tuple{Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},Int64,Int64,String,String,Bool}#=UserInput::BinaryUserInput=#)
         self = new()
 
-        filePath = UserInput.fileLocation*"\\"*UserInput.fileName
+        #=filePath = UserInput.fileLocation*"\\"*UserInput.fileName
         fileExist = isfile(filePath)
         MinMax = UserInput.MinMax
-        P = UserInput.Parameters
+        P = UserInput.Parameters=#
+        (Parameters,numTiter,numSiter,fileLocation,fileName,MinMax) = userInputSerial
+        (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
+        filePath = fileLocation*"\\"*fileName
+        fileExist = isfile(filePath)
 
         if fileExist
             f = jldopen(filePath,"r+");
@@ -161,7 +166,7 @@ mutable struct ScatteringArrays <: Function
             end
             close(f)
         else
-            p1_num = P.p1_num
+            #=p1_num = P.p1_num
             u1_num = P.u1_num
             h1_num = P.h1_num
             p2_num = P.p2_num
@@ -172,7 +177,7 @@ mutable struct ScatteringArrays <: Function
             h3_num = P.h3_num
             p4_num = P.p4_num
             u4_num = P.u4_num
-            h4_num = P.h4_num
+            h4_num = P.h4_num=#
 
             self.SAtotal3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
             self.SAtotal4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
