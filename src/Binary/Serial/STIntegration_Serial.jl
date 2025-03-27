@@ -95,8 +95,7 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String
 
         filePath = fileLocation*"\\"*fileName
 
-        Arrays = ScatteringArrays(userInputSerial)
-        #println(fieldtypes(ScatteringArrays))
+        Arrays = ScatteringArrays(Parameters,filePath,MinMax)
 
         SMatrix3 = Arrays.SMatrix3
         SAtally3 = Arrays.SAtally3
@@ -120,8 +119,8 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String
 
         #error("stop")
 
-        filePath = fileLocation*"\\"*fileName
-        fileExist = isfile(filePath)
+        #filePath = fileLocation*"\\"*fileName
+        #fileExist = isfile(filePath)
 
         #=if fileExist
             f = jldopen(filePath,"r+");

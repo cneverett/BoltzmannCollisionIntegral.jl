@@ -10,11 +10,14 @@
 
 Function to run the Monte Carlo integration of the S and T arrays in a multi-threaded environment. The function will run the Monte Carlo integration in parallel across the number of threads specified in the global variable nThreads. The function will then calculate the S and T matrices and save the results to a file.
 """
-function SpectraEvaluateMultiThread(userInput::BinaryUserInput)
+function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},Int64,Int64,Int64,String,String,Bool}#=userInput::BinaryUserInput=#)
 
     # ========= Load user Parameters ======= #
 
-    Parameters = userInput.Parameters
+    (Parameters,numTiterPerThread,numSiterPerThread,nThreads,fileLocation,fileName,MinMax) = userInputMultiThread
+    (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
+
+    #=Parameters = userInput.Parameters
     numTiterPerThread = userInput.numTiter
     numSiterPerThread = userInput.numSiter
     nThreads = userInput.numThreads
@@ -74,6 +77,7 @@ function SpectraEvaluateMultiThread(userInput::BinaryUserInput)
 
     h4_grid = Parameters.h4_grid
     h4_num = Parameters.h4_num
+    =#
 
     # ====================================== #
 
@@ -98,7 +102,27 @@ function SpectraEvaluateMultiThread(userInput::BinaryUserInput)
 
         filePath = fileLocation*"\\"*fileName
 
-        Arrays = ScatteringArrays(userInput)
+        Arrays = ScatteringArrays(Parameters,filePath,MinMax)
+
+        SMatrix3 = Arrays.SMatrix3
+        SAtally3 = Arrays.SAtally3
+        SAtotal3 = Arrays.SAtotal3
+
+        SMatrix4 = Arrays.SMatrix4
+        SAtally4 = Arrays.SAtally4
+        SAtotal4 = Arrays.SAtotal4
+
+        TMatrix1 = Arrays.TMatrix1
+        TAtally = Arrays.TAtally
+        TAtotal = Arrays.TAtotal
+        TMatrix2 = Arrays.TMatrix2
+
+        if MinMax
+            p3Max = Arrays.p3Max
+            u3MinMax = Arrays.u3MinMax
+            p4Max = Arrays.p4Max
+            u4MinMax = Arrays.u4MinMax
+        end
 
     # ====================================== #
 
@@ -124,7 +148,11 @@ function SpectraEvaluateMultiThread(userInput::BinaryUserInput)
         p = Progress(numTiterPerThread*nThreads)
 
         # Set up workers
-        workers = [STMonteCarlo_MultiThread!(Arrays,ArrayOfLocks,sigma,dsigmadt,userInput,p) for _ in 1:nThreads]
+        if MinMax
+            workers = [STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,p;p3Max=p3Max,p4Max=p4Max,u3MinMax=u3MinMax,u4MinMax=u4MinMax) for _ in 1:nThreads]
+        else
+            workers = [STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,p) for _ in 1:nThreads]
+        end
         
         wait.(workers) # Allow all workers to finish
 
@@ -135,26 +163,6 @@ function SpectraEvaluateMultiThread(userInput::BinaryUserInput)
     # ===== Calculate S and T Matrices === #
 
         println("Building S and T Matrices")
-
-        SMatrix3 = Arrays.SMatrix3
-        SAtally3 = Arrays.SAtally3
-        SAtotal3 = Arrays.SAtotal3
-
-        SMatrix4 = Arrays.SMatrix4
-        SAtally4 = Arrays.SAtally4
-        SAtotal4 = Arrays.SAtotal4
-
-        TMatrix1 = Arrays.TMatrix1
-        TAtally = Arrays.TAtally
-        TAtotal = Arrays.TAtotal
-        TMatrix2 = Arrays.TMatrix2
-
-        if MinMax
-            p3Max = Arrays.p3Max
-            u3MinMax = Arrays.u3MinMax
-            p4Max = Arrays.p4Max
-            u4MinMax = Arrays.u4MinMax
-        end
 
         # preallocate
         SMatrixOldSum3 = dropdims(sum(SMatrix3,dims=(4,5,6,7,8,9)),dims=(4,5,6,7,8,9));
@@ -233,7 +241,7 @@ function SpectraEvaluateMultiThread(userInput::BinaryUserInput)
         PhaseSpaceFactors1!(SMatrix3,SMatrix4,TMatrix1,u3val,h3val,u4val,h4val,p1val,u1val,h1val,p2val,u2val,h2val,Indistinguishable_12)      # applies phase space factors for symmetries                  
         STSymmetry!(SMatrix3,SMatrix4,TMatrix1,mu1,mu2)   # initial states are symmetric -> apply symmetry of interaction to improve MC values
         if Indistinguishable_12 == false
-            perm = [3,4,1,2]
+            perm = [4,5,6,1,2,3]
             TMatrix2 = permutedims(TMatrix1,perm)
         end
         PhaseSpaceFactors2!(SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3val,u3val,h3val,p4val,u4val,h4val,p1val,u1val,h1val,p2val,u2val,h2val)            # corrects phase space factors for application in kinetic models

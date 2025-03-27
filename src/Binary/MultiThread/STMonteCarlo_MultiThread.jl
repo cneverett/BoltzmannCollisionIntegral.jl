@@ -22,10 +22,12 @@ This module provides functions for MonteCarlo Integration of S and T Matrices
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarlo_MultiThread!(Arrays::ScatteringArrays,ArrayOfLocks,sigma::Function,dsigmadt::Function,userInput::BinaryUserInput,p)
+function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64,9},TAtotal::Array{Float64,6},SAtally3::Array{UInt32,8},SAtally4::Array{UInt32,8},TAtally::Array{UInt32,6},ArrayOfLocks,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,MinMax::Bool,p;p3Max=nothing,p4Max=nothing,u3MinMax=nothing,u4MinMax=nothing)
 
     # Set Parameters
-    Parameters = userInput.Parameters
+
+    (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid_st,p1_num,u1_grid_st,u1_num,h1_grid_st,h1_num,p2_low,p2_up,p2_grid_st,p2_num,u2_grid_st,u2_num,h2_grid_st,h2_num,p3_low,p3_up,p3_grid_st,p3_num,u3_grid_st,u3_num,h3_grid_st,h3_num,p4_low,p4_up,p4_grid_st,p4_num,u4_grid_st,u4_num,h4_grid_st,h4_num) = Parameters
+    #=Parameters = userInput.Parameters
     numTiterPerThread = userInput.numTiter
     numSiterPerThread = userInput.numSiter
     MinMax = userInput.MinMax
@@ -96,6 +98,7 @@ function STMonteCarlo_MultiThread!(Arrays::ScatteringArrays,ArrayOfLocks,sigma::
         p4Max = Arrays.p4Max
         u4MinMax = Arrays.u4MinMax
     end
+    =#
 
     # Set up worker
     Threads.@spawn begin
@@ -203,7 +206,7 @@ function STMonteCarlo_MultiThread!(Arrays::ScatteringArrays,ArrayOfLocks,sigma::
                 fill!(localu4Max,Float64(0))
             end
                     
-            @inbounds for _ in 1:numSiterPerThread
+            for _ in 1:numSiterPerThread
 
                 # generate random p direction for use in both p3 and p4 calculations
                 RPointSphereCosThetaPhi!(pv)
@@ -224,8 +227,8 @@ function STMonteCarlo_MultiThread!(Arrays::ScatteringArrays,ArrayOfLocks,sigma::
                 u3locMirror = location(u_low,u_up,u3_num,-p3v[2],u3_grid)
                 h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
                 h3locMirror = location(h_low,h_up,h3_num,mod(p3v[3]+1e0,2e0),h3_grid)
-                    localSAtally3[u3loc,h3loc] += UInt32(1)
-                    localSAtally3[u3locMirror,h3locMirror] += UInt32(1)
+                localSAtally3[u3loc,h3loc] += UInt32(1)
+                localSAtally3[u3locMirror,h3locMirror] += UInt32(1)
                 #end
 
                 # Calculate S Array totals
@@ -258,8 +261,8 @@ function STMonteCarlo_MultiThread!(Arrays::ScatteringArrays,ArrayOfLocks,sigma::
                         h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
                         p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
                         Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
+                        localSAtotal3[p3ploc,u3ploc,h3ploc] += Svalp
                         if MinMax
-                            localSAtotal3[p3ploc,u3ploc,h3ploc] += Svalp
                             localp3Max[u3ploc,h3ploc] = max(localp3Max[u3ploc,h3ploc],p3pv[1])
                             localu3Min[p3ploc,h3ploc] = min(localu3Min[p3ploc,h3ploc],p3pv[2])
                             localu3Max[p3ploc,h3ploc] = max(localu3Max[p3ploc,h3ploc],p3pv[2])

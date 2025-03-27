@@ -134,16 +134,17 @@ mutable struct ScatteringArrays <: Function
     p4Max::Array{Float64,8}
     u4MinMax::Array{Float64,8}
 
-    function ScatteringArrays(userInputSerial::Tuple{Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},Int64,Int64,String,String,Bool}#=UserInput::BinaryUserInput=#)
+    function ScatteringArrays(Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},filePath::String,MinMax::Bool#=UserInput::BinaryUserInput=#)
+
         self = new()
 
         #=filePath = UserInput.fileLocation*"\\"*UserInput.fileName
         fileExist = isfile(filePath)
         MinMax = UserInput.MinMax
         P = UserInput.Parameters=#
-        (Parameters,numTiter,numSiter,fileLocation,fileName,MinMax) = userInputSerial
+  
         (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
-        filePath = fileLocation*"\\"*fileName
+        #filePath = fileLocation*"\\"*fileName
         fileExist = isfile(filePath)
 
         if fileExist
