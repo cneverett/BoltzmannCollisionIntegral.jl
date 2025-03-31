@@ -170,7 +170,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
         localu4Max = zeros(Float64,size(u4MinMax)[2:3])
     end
 
-    for _ in 1:numTiterPerThread
+    @inbounds for _ in 1:numTiterPerThread
 
         # generate p1 and p2 vectors initially as to not have to re-calculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
@@ -206,7 +206,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                 fill!(localu4Max,Float64(0))
             end
                     
-            for _ in 1:numSiterPerThread
+            @inbounds for _ in 1:numSiterPerThread
 
                 # generate random p direction for use in both p3 and p4 calculations
                 RPointSphereCosThetaPhi!(pv)
@@ -278,7 +278,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                 p4pv .= pv
 
                 # Calculate p3 value with checks
-                (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p1v,p2v,mu1,mu2,mu4,mu3)
+                (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p2v,p1v,mu2,mu1,mu4,mu3)
 
                 # S Array Tallies
                 # For each u3,h4 sampled, p4 will be + or -ve, corresponding to a change in sign of u3 and a shift in h4 by pi i.e. Mod(h4+1,2). Therefore by sampling one u3 we are actually sampling u3/h4 and -u3/mod(h4+1,2) with one or both having valid p4 states.

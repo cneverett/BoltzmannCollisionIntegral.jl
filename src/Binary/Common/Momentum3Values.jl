@@ -56,9 +56,9 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
     st1::Float64 = sqrt(1e0-ct1^2)
     st2::Float64 = sqrt(1e0-ct2^2)
 
-    ch1h3::Float64 = cospi(p3v[3]-p1v[3])
-    ch1h4::Float64 = cospi(p3v[3]-p2v[3])
-    ch3h4::Float64 = cospi(p1v[3]-p2v[3])
+    ch3h1::Float64 = cospi(p3v[3]-p1v[3])
+    ch3h2::Float64 = cospi(p3v[3]-p2v[3])
+    ch1h2::Float64 = cospi(p1v[3]-p2v[3])
 
     m32::Float64 = m3^2
     m42::Float64 = m4^2
@@ -89,11 +89,11 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
     p3v[1] = 0e0 
     p3pv[1] = 0e0
 
-    C3sqr::Float64 = ((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))^2*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))^2+(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(-m42+2*A2*(-m3+m1)+2*A1*(A2-m3+m2)+(-m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2))*(-m42+2*A2*(m3+m1)+2*A1*(A2+m3+m2)+(m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch3h4*st1st2)) 
+    C3sqr::Float64 = ((p1*ct3ct1+p2*ct3ct2)+(p1*ch3h1*st3st1+p2*ch3h2*st3st2))^2*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1ct2+ch1h2*st1st2))^2+(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch3h1*st3st1+p2*ch3h2*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch3h1*st3st1+p2*ch3h2*st3st2))*(-m42+2*A2*(-m3+m1)+2*A1*(A2-m3+m2)+(-m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch1h2*st1st2))*(-m42+2*A2*(m3+m1)+2*A1*(A2+m3+m2)+(m3+m1+m2)^2-2*p1*p2*(ct1ct2+ch1h2*st1st2)) 
 
-    C2::Float64 =-4*((p1*ct3ct1+p2*ct3ct2)+(p1*ch1h3*st3st1+p2*ch1h4*st3st2))*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1*ct2+ch3h4*st1st2))
+    C2::Float64 =-4*((p1*ct3ct1+p2*ct3ct2)+(p1*ch3h1*st3st1+p2*ch3h2*st3st2))*(m32-m42+2*A2*m1+2*A1*(A2+m2)+(m1+m2)^2-2*p1*p2*(ct1*ct2+ch1h2*st1st2))
 
-    C4::Float64 = -8*(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch1h3*st3st1+p2*ch1h4*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch1h3*st3st1+p2*ch1h4*st3st2))
+    C4::Float64 = -8*(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch3h1*st3st1+p2*ch3h2*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch3h1*st3st1+p2*ch3h2*st3st2))
 
     # C3sqr == 0 was causing issues with SValue calculation often leading to deltacorrect = 0 so we are going to ignore this point and tread it as if p3 were complex.
     #=if C3sqr == 0 # only one state and p3 cannont equal zero

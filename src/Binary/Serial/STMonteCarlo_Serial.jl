@@ -158,7 +158,7 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
 
     p = Progress(numTiter)
     
-    for _ in 1:numTiter
+    @inbounds for _ in 1:numTiter
 
         # generate p1 and p2 vectors initially as to not have to re-calculate
         RPointSphereCosThetaPhi!(p1v)
@@ -194,7 +194,7 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
         
         if Tval != 0e0 # i.e. it is a valid interaction state
 
-            for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
+            @inbounds for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
                 # generate random p direction for use in both p3 and p4 calculations
                 RPointSphereCosThetaPhi!(pv)
