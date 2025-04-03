@@ -96,7 +96,7 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
     C4::Float64 = -8*(A1+A2+m1+m2+(p1*ct3ct1+p2*ct3ct2)+p1*ch3h1*st3st1+p2*ch3h2*st3st2)*(A1+A2+m1+m2-(p1*ct3ct1+p2*ct3ct2)-(p1*ch3h1*st3st1+p2*ch3h2*st3st2))
 
     # C3sqr == 0 was causing issues with SValue calculation often leading to deltacorrect = 0 so we are going to ignore this point and tread it as if p3 were complex.
-    #=if C3sqr == 0 # only one state and p3 cannont equal zero
+    #=if C3sqr == 0 # only one state and p3 cannot equal zero
 
         NumStates = 1
         p3_physical = false
