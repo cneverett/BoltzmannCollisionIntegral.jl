@@ -17,17 +17,17 @@ function SyncKernel(p1v,p2v,m2,z2,B)
     
     E2 = sqrt(p2^2 + m2^2)
 
-    Jfactor1 = (E2*ct1-p2*ct2)/(st1)
+    Jfactor1 = (E2*ct1-p2*ct2)/(st1) # code breaks if st1 = 0 FIX
     Jfactor2 = p2*st2
 
     n = abs((mEle^2*c^2)/(z2*ħ*q*B)) * p1 * (E2-p2*ct1*ct2)
     #println(n)
 
     y = p2 * st2 *st1 / (E2-p2*ct2*ct1) # y=x/n
-    #println(x)
+    #println(y)
 
     # characteristic frequency
-    #ω0 = abs((z2*q*B))/(E2*mEle)
+    ω0 = abs((z2*q*B))/(E2*mEle)
     #println("critical photon momentum: "*string(ħ*ω0/(mEle*c^2)*E2^3))
 
 
@@ -37,6 +37,7 @@ function SyncKernel(p1v,p2v,m2,z2,B)
         K13 = besselk(1/3,n*e^(3/2)/3)
         K23 = besselk(2/3,n*e^(3/2)/3)
         J1 = ((sqrt(e))/(pi*sqrt(3)))*(K13 #=+(e/10)*(K13-2*n*e^(3/2)*K23)=#)
+        #println(K23)
         J2 = (e/(pi*sqrt(3)))*(K23 #=+ (e/5)*(2*K23-(1/(e^(3/2)*n)+n*e^(3/2))*K13)=#)
     elseif n < 1e0
         # omega < omega0 therefore no synchrotron radiation

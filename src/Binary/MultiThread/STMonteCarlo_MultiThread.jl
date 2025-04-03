@@ -22,7 +22,7 @@ This module provides functions for MonteCarlo Integration of S and T Matrices
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64,9},TAtotal::Array{Float64,6},SAtally3::Array{UInt32,8},SAtally4::Array{UInt32,8},TAtally::Array{UInt32,6},ArrayOfLocks,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,MinMax::Bool,p;p3Max=nothing,p4Max=nothing,u3MinMax=nothing,u4MinMax=nothing)
+function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64,9},TAtotal::Array{Float64,6},SAtally3::Array{UInt32,8},SAtally4::Array{UInt32,8},TAtally::Array{UInt32,6},ArrayOfLocks,ErrorCond,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,MinMax::Bool,prog::Progress;p3Max=nothing,p4Max=nothing,u3MinMax=nothing,u4MinMax=nothing)
 
     # Set Parameters
 
@@ -100,8 +100,36 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
     end
     =#
 
+    if Threads.threadid() == 1
+
+        SAtotal3Copy = zeros(Float64,size(SAtotal3))
+        SAtally3Copy = zeros(UInt32,size(SAtally3))
+
+        #@lock ErrorLock begin
+        Threads.atomic_add!(ErrorCond,1)
+        sleep(0.001)
+        SAtally3Copy = copy(SAtally3);
+        SAtotal3Copy = copy(SAtotal3);
+        #SAtally4Old = copy(SAtally4)
+        #SAtotal3Old = copy(SAtotal3)
+        #SAtotal4Old = copy(SAtotal4)
+        #end
+        Threads.atomic_sub!(ErrorCond,1)
+        #notify(ErrorCond)
+
+        SMatrix3 = similar(SAtotal3Copy)
+        SMatrix3Old = copy(SMatrix3)
+        SAtally3Old = copy(SAtally3Copy)
+        SAtotal3Old = copy(SAtotal3Copy)
+
+        for i in axes(SMatrix3Old,1)
+            @. @view(SMatrix3Old[i,:,:,:,:,:,:,:,:]) = @view(SAtotal3Old[i,:,:,:,:,:,:,:,:]) / SAtally3Old
+        end
+
+    end
+
     # Set up worker
-    Threads.@spawn begin
+    #Threads.@spawn begin
 
     # allocate arrays for each thread
     p1v::Vector{Float64} = zeros(Float64,3)
@@ -170,7 +198,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
         localu4Max = zeros(Float64,size(u4MinMax)[2:3])
     end
 
-    @inbounds for _ in 1:numTiterPerThread
+    @inbounds for nt in 1:numTiterPerThread
 
         # generate p1 and p2 vectors initially as to not have to re-calculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
@@ -337,6 +365,9 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
         end
 
         # assign values to arrays
+        while ErrorCond[] == 1
+            sleep(0.001)
+        end
         @lock ArrayOfLocks[p1loc] begin
             TAtotal[loc12] += Tval
             TAtally[loc12] += UInt32(1)
@@ -353,13 +384,49 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                     @view(u4MinMax[1,:,:,loc12]) .= min.(@view(u4MinMax[1,:,:,loc12]),localu4Min)
                     @view(u4MinMax[2,:,:,loc12]) .= max.(@view(u4MinMax[2,:,:,loc12]),localu4Max)
                 end
-            end 
-        end 
+            end
+        end
+
+        if Threads.threadid() == 1 # on main thread
+            next!(prog)
+            if nt%(p1_num*u1_num*h1_num*p2_num*u2_num*h2_num) == 0
+                #reset(ErrorCond)
+                #@lock ErrorLock begin
+                    Threads.atomic_add!(ErrorCond,1)
+                    sleep(0.001)
+                    SAtally3Copy .= SAtally3
+                    SAtotal3Copy .= SAtotal3
+                #end
+                Threads.atomic_sub!(ErrorCond,1)
+                #println(ErrorCond[])
+                #notify(ErrorCond)
+
+                meanNS3 = sum(SAtally3Copy) / length(SAtally3Copy)
+                #meanVS3 = 
+                #meanNS4 = sum(SAtally4) / length(SAtally4)
+
+                for i in axes(SMatrix3,1)
+                    @. @view(SMatrix3[i,:,:,:,:,:,:,:,:]) = @view(SAtotal3Copy[i,:,:,:,:,:,:,:,:]) / SAtally3Copy
+                end
+
+                Error3 = abs.((SMatrix3 .- SMatrix3Old) ./ SMatrix3)
+                replace!(Error3,NaN=>0e0)
+                #println(sum(Error3))
+                meanError3 = sum(Error3) / length(Error3) 
+                sdError3 = sqrt(sum((Error3 .- meanError3).^2) / length(Error3))
+
+                println("$meanNS3, $meanError3, $sdError3")
+
+
+                SAtally3Old .= SAtally3Copy
+                SAtotal3Old .= SAtotal3Copy
+                SMatrix3Old .= SMatrix3
+
+            end
+        end
 
     end # T loop
 
-    next!(p)
-
-    end # Thread spawn 
+    #end # Thread spawn 
 
 end # function 

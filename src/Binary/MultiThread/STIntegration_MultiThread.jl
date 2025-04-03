@@ -137,7 +137,10 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
 
     # ======== Set up Array of Locks ====== #
 
-        ArrayOfLocks = [Threads.SpinLock() for _ in 1:p1_num]    
+        ArrayOfLocks = [Threads.SpinLock() for _ in 1:p1_num] 
+        #ErrorLock = Threads.ReentrantLock() # lock for error checking
+        ErrorCond = Threads.Atomic{Int}(0) 
+        #println(ErrorCond[])  
 
     # ===================================== #
 
@@ -145,18 +148,29 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
 
         println("Running Monte Carlo Integration")
 
-        p = Progress(numTiterPerThread*nThreads)
+        prog = Progress(numTiterPerThread)
+
+        #tasks = Vector{Task}(undef,nThreads)
+        Threads.@threads :static for i in 1:nThreads
+                if MinMax
+                    STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,ErrorCond,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,prog;p3Max=p3Max,p4Max=p4Max,u3MinMax=u3MinMax,u4MinMax=u4MinMax)
+                else
+                    STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,ErrorCond,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,prog)
+                end
+            end
+        #end
 
         # Set up workers
-        if MinMax
-            workers = [STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,p;p3Max=p3Max,p4Max=p4Max,u3MinMax=u3MinMax,u4MinMax=u4MinMax) for _ in 1:nThreads]
+        #=if MinMax
+            workers = [STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,prog;p3Max=p3Max,p4Max=p4Max,u3MinMax=u3MinMax,u4MinMax=u4MinMax) for _ in 1:nThreads]
         else
-            workers = [STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,p) for _ in 1:nThreads]
-        end
+            workers = [STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,prog) for _ in 1:nThreads]
+        end=#
         
-        wait.(workers) # Allow all workers to finish
+        #wait.(tasks) # Wait for all tasks to finish
+        #wait.(workers) # Allow all workers to finish
 
-        finish!(p)
+        finish!(prog)
    
     # ===================================== #
 

@@ -52,13 +52,13 @@ function SyncEvaluateMultiThread(userInputSyncMultiThread::Tuple{Tuple{String,St
 
     # ===== Run MonteCarlo Integration ==== #
 
-        p = Progress(numTiterPerThread*nThreads)
+        prog = Progress(numTiterPerThread*nThreads)
 
-        workers  = [SyncMonteCarloAxi_MultiThread!(SAtotal,SAtally,#=pMax,tMinMax,=#ArrayOfLocks,Parameters,numTiterPerThread,numSiterPerThread,nThreads,p) for _ in 1:nThreads]
+        workers  = [SyncMonteCarloAxi_MultiThread!(SAtotal,SAtally,#=pMax,tMinMax,=#ArrayOfLocks,Parameters,numTiterPerThread,numSiterPerThread,nThreads,prog) for _ in 1:nThreads]
 
         wait.(workers) # Allow all workers to finish
 
-        finish!(p)
+        finish!(prog)
 
     # ===================================== #
 
@@ -66,7 +66,7 @@ function SyncEvaluateMultiThread(userInputSyncMultiThread::Tuple{Tuple{String,St
     # ===== Calculate S and T Matrices === #
 
         # preallocate
-        SMatrixOld = SMatrix;
+        SMatrixOld = copy(SMatrix);
         fill!(SMatrix,0e0);
         
         # divide element wise by tallys

@@ -54,7 +54,7 @@ function SyncEvaluateSerial(userSyncInputSerial::Tuple{Tuple{String,String,Float
     # ===== Calculate S and T Matrices === #
 
         # preallocate
-        SMatrixOld = SMatrix;
+        SMatrixOld = copy(SMatrix);
         fill!(SMatrix,0e0);
         
         # divide element wise by tallys
