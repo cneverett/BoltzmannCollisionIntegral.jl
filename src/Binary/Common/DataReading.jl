@@ -328,10 +328,22 @@ function DoesConserve2(Output::Tuple)
     SsumE4 = 0
     TsumE2 = 0
 
+    NGainMatrix3 = zeros(Float64,size(TMatrix1))
+    NLossMatrix1 = zeros(Float64,size(TMatrix1))
+    EGainMatrix3 = zeros(Float64,size(TMatrix1))
+    ELossMatrix1 = zeros(Float64,size(TMatrix1))
+
+    NGainMatrix4 = zeros(Float64,size(TMatrix1))
+    NLossMatrix2 = zeros(Float64,size(TMatrix1))
+    EGainMatrix4 = zeros(Float64,size(TMatrix1))
+    ELossMatrix2 = zeros(Float64,size(TMatrix1))
+
     for p1 in axes(SMatrix3, 4), u1 in axes(SMatrix3,5), h1 in axes(SMatrix3,6), p2 in axes(SMatrix3,7), u2 in axes(SMatrix3,8), h2 in axes(SMatrix3,9)
         for p3 in axes(SMatrix3,1), u3 in axes(SMatrix3,2), h3 in axes(SMatrix3,3) 
         SsumN3 += SMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*p3_d_full[p3]*u3_d[u3]*h3_d[h3]
         SsumE3 += SMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_Δ_full[p3]*u3_d[u3]*h3_d[h3]
+        NGainMatrix3[p1,u1,h1,p2,u2,h2] += SMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*p3_d_full[p3]*u3_d[u3]*h3_d[h3]
+        EGainMatrix3[p1,u1,h1,p2,u2,h2] += SMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_Δ_full[p3]*u3_d[u3]*h3_d[h3]
         end
     end
 
@@ -339,6 +351,8 @@ function DoesConserve2(Output::Tuple)
         for p4 in axes(SMatrix4,1), u4 in axes(SMatrix4,2), h4 in axes(SMatrix4,3) 
         SsumN4 += SMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*p4_d_full[p4]*u4_d[u4]*h4_d[h4]
         SsumE4 += SMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_Δ_full[p4]*u4_d[u4]*h4_d[h4]
+        NGainMatrix4[p1,u1,h1,p2,u2,h2] += SMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*p4_d_full[p4]*u4_d[u4]*h4_d[h4]
+        EGainMatrix4[p1,u1,h1,p2,u2,h2] += SMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_Δ_full[p4]*u4_d[u4]*h4_d[h4]
         end
     end
 
@@ -347,7 +361,25 @@ function DoesConserve2(Output::Tuple)
         TsumE1 += TMatrix1[p1,u1,h1,p2,u2,h2]*E1_Δ_full[p1]*u1_d[u1]*h1_d[h1]
         TsumN2 += TMatrix2[p2,u2,h2,p1,u1,h1]*p2_d_full[p2]*u2_d[u2]*h2_d[h2]
         TsumE2 += TMatrix2[p2,u2,h2,p1,u1,h1]*E2_Δ_full[p2]*u2_d[u2]*h2_d[h2]
+        NLossMatrix1[p1,u1,h1,p2,u2,h2] += TMatrix1[p1,u1,h1,p2,u2,h2]*p1_d_full[p1]*u1_d[u1]*h1_d[h1]
+        NLossMatrix2[p1,u1,h1,p2,u2,h2] += TMatrix2[p2,u2,h2,p1,u1,h1]*p2_d_full[p2]*u2_d[u2]*h2_d[h2]
+        ELossMatrix1[p1,u1,h1,p2,u2,h2] += TMatrix1[p1,u1,h1,p2,u2,h2]*E1_Δ_full[p1]*u1_d[u1]*h1_d[h1]
+        ELossMatrix2[p1,u1,h1,p2,u2,h2] += TMatrix2[p2,u2,h2,p1,u1,h1]*E2_Δ_full[p2]*u2_d[u2]*h2_d[h2]
     end
+
+    NErrMatrix1 = (NGainMatrix3 .- NLossMatrix1) ./ NLossMatrix1
+    EErrMatrix1 = (EGainMatrix3 .- ELossMatrix1) ./ ELossMatrix1
+    meanNErr1 = sum(abs.(NErrMatrix1)) / length(NLossMatrix1)
+    meanEErr1 = sum(abs.(EErrMatrix1)) / length(NLossMatrix1)
+    stdN1 = sqrt(sum((NErrMatrix1 .- meanNErr1).^2)/length(NLossMatrix1))
+    stdE1 = sqrt(sum((EErrMatrix1 .- meanEErr1).^2)/length(NLossMatrix1))
+
+    NErrMatrix2 = (NGainMatrix4 .- NLossMatrix2) ./ NLossMatrix2
+    EErrMatrix2 = (EGainMatrix4 .- ELossMatrix2) ./ ELossMatrix2
+    meanNErr2 = sum(abs.(NErrMatrix2)) / length(NLossMatrix2)
+    meanEErr2 = sum(abs.(EErrMatrix2)) / length(NLossMatrix2)
+    stdN2 = sqrt(sum((NErrMatrix2 .- meanNErr2).^2)/length(NLossMatrix2))
+    stdE2 = sqrt(sum((EErrMatrix2 .- meanEErr2).^2)/length(NLossMatrix2))
 
     println("sumSN3 = "*string(SsumN3))
     println("sumSN4 = "*string(SsumN4))
@@ -375,6 +407,21 @@ function DoesConserve2(Output::Tuple)
     println("errE = "*string(SsumE-TsumE))
     println("ratioN = "*string(SsumN/TsumN))
     println("ratioE = "*string(SsumE/TsumE))
+
+    println("#")
+    println("#")
+    println("mean error in N = $meanNErr1")
+    println("std of error in  N = $stdN1")
+    println("mean error in E = $meanEErr1")
+    println("std of error in E = $stdE1")
+    println("#")
+    println("#")
+    println("mean error in N = $meanNErr2")
+    println("std of error in  N = $stdN2")
+    println("mean error in E = $meanEErr2")
+    println("std of error in E = $stdE2")
+
+    return NGainMatrix3, NLossMatrix1, NErrMatrix1,NGainMatrix4, NLossMatrix2, NErrMatrix2
 
 end
 
