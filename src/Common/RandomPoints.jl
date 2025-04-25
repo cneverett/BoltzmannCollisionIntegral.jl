@@ -12,7 +12,7 @@ Assumes ``f(x,p,μ)=f(x,\\vec{p})*(2πp^2)=const`` in bin, therefore momentum sp
 If instead ``f(x,\\vec{p})=const`` in bin, momentum space volume element is ``p^2 \\mathrm{d}p`` and uniform sampling corresponds to ``(10^pu)*\\sqrt[3]{U+(1-U)*10^{3pl-3pu}}`` where ``U`` is a uniform random number between 0 and 1.
 """
 function RPointLogMomentum!(pv::Vector{Float64},pu::Float64,pl::Float64,num::Int64) 
-    # Inputs a momentum vector and mometum bounds and mutates first of said vector
+    # Inputs a momentum vector and momentum bounds and mutates first of said vector
     bin = rand(1:num)
     l = (pl + (pu-pl)*(bin-1)/num)
     u = (pl + (pu-pl)*(bin)/num)
@@ -59,4 +59,96 @@ function RPointSphereCosTheta!(a::Vector{Float64})
 
     return nothing
     
+end
+
+"""
+    betaVec!(βv,p1v,p2v)
+
+Mutates the components of the centre of momentum velocity vector `βv` with components `[β,u,phi,γ,γβ] in terms of the incident state vectors `p1v` and `p1v`
+"""
+function betaVec!(βv::Vector{Float64},p1v,p2v,m1,m2)
+
+    p1 = p1v[1]
+    p2 = p2v[1]
+
+    ct1 = p1v[2]
+    ct2 = p2v[2]
+    st1 = sqrt(1-ct1^2)
+    st2 = sqrt(1-ct2^2)
+
+    (sh1,ch1) = sincospi(p1v[3])
+    (sh2,ch2) = sincospi(p2v[3])
+    ch1h2 = cospi(p1v[3]-p2v[3])
+
+    Es1::Float64 = m1 != 0e0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
+    E1::Float64 = Es1 + m1
+    Es2::Float64 = m2 != 0e0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
+    E2::Float64 = Es2 + m2
+
+    βv[1] = (1/(E1+E2)) * sqrt(p1^2 + p2^2 + 2*p1*p2*(ct1*ct2 + ch1h2*st1*st2))
+
+    βv[2] = (1/(E1+E2)) * (p1*ct1 + p2*ct2) / βv[1] # cos(theta) bounded by [-1,1]
+    x = p1*st1*ch1 + p2*st2*ch2
+    y = p1*st1*sh1 + p2*st2*sh2
+    βv[3] = mod(atan(y,x)/pi,2) # atan(y,x), note 1/(E1+E2) is common factor in y,x so ignored. phi bounded by [0,2]
+
+    #gamma
+    βv[4] = (E1+E2)
+    βv[4] /= sqrt((m1+m2)^2 + 2*E1s*E2s+2*E1s*m2+2*E2s*m1-2*p1*p2*(ct1*ct2+ch1h2*st1*st2))
+
+    # beta gamma
+    βv[5] = sqrt(p1^2+p2^2+2*p1*p2*(ct1*ct2+ch1h2*st1*st2))
+    βv[5] /= sqrt((m1+m2)^2 + 2*E1s*E2s+2*E1s*m2+2*E2s*m1-2*p1*p2*(ct1*ct2+ch1h2*st1*st2))
+    
+end
+
+"""
+    RPointSphereBoost!(βv,pvCOM)
+
+Takes the random points on the sphere generated in the centre of momentum frame `pCv=[ct_deboosted,ct,h]` and boosts them back to the lab frame using `βv` to modify the lab frame vector `pLv`.
+"""
+function RPointSphereBoost!(pLv::Vector{Float64},βv::Vector{Float64},pCv::Vector{Float64})
+
+    ctC = pCv[2]
+    stC = sqrt(1-ctC^2)
+    (shC,chC) = sincospi(pCv[3])
+
+    ctβ = βv[2]
+    stβ = sqrt(1-ctβ^2)
+    (shβ,chβ) = sincospi(βv[3])
+
+    pLv[2] = ctC*ctβ - stC*stβ*chC
+    x = -stC*shC*shβ + chβ*(stC*chC*ctβ + ctC*stβ)
+    y = stC*shC*chβ + shβ*(stC*chC*ctβ + ctC*stβ)
+
+    pLv[3] = mod(atan(y,x)/pi,2)
+
+    # deboost ctC to lab frame for probability calculation
+    γ = βv[4]
+    βγ = βv[5]
+    #pCv[1] = (ctC+βv[1]) / (1+βv[1]*ctC)
+    pCv[1] = (γ*ctC+βγ) / (γ+βγ*ctC)
+
+end
+
+"""
+    pdfBoost(βv,pCv)
+
+returns the probability of sampling a point given by `pCv` dependent on the boost `βv`.
+"""
+function pdfBoost(βv::Vector{Float64},ctC::Float64)
+
+    # assumes pv in lab frame is valid and un-mirrored from the boosted frame
+    β=βv[1]
+    γ=βv[4]
+    βγ=βv[5]
+
+    #prob = (1-β^2)
+    #prob /= 2*(1-β*ctC)^2
+    
+    prob = (γ^2-βγ^2)
+    prob /= 2*(γ-βγ*ctC)^2
+    
+    return prob
+
 end

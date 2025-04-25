@@ -3,7 +3,7 @@
 
 Uniform MC sampling of outgoing momentum states in the un-boosted Lab frame.
 """
-function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},#=Sval::Float64,Svalp::Float64,=#dsigmadt::Function,SAtotalView3::Array{Float64,2},SAtotalView4::Array{Float64,2},SAtallyView3::Array{Float64,3},SAtallyView4::Array{Float64,3},Parameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64},#=Locations::Tuple{Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64},=#MinMax::Bool;p3MaxView=nothing,u3MinView=nothing,u3MaxView=nothing,p4MaxView=nothing,u4MinView=nothing,u4MaxView=nothing)
+function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},#=Sval::Float64,Svalp::Float64,=#dsigmadt::Function,SAtotalView3::AbstractArray{Float64,3},SAtotalView4::AbstractArray{Float64,3},SAtallyView3::AbstractArray{UInt32,2},SAtallyView4::AbstractArray{UInt32,2},Parameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64},#=Locations::Tuple{Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64},=#MinMax::Bool;p3MaxView=nothing,u3MinView=nothing,u3MaxView=nothing,p4MaxView=nothing,u4MinView=nothing,u4MaxView=nothing)
 
     # Unpack parameters
     (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,mu1,mu2,mu3,mu4) = Parameters
@@ -16,8 +16,8 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
 
     # === p3 === #
     #set random p3 direction 
-    p3v .= pv
-    p3pv .= pv
+    @view(p3v[1:3]) .= pv
+    @view(p3pv[1:3]) .= pv
 
     # Calculate p3 value
     (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v,mu1,mu2,mu3,mu4)
@@ -76,8 +76,8 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
 
     # === p4 === #
     #set random p4 direction 
-    p4v .= pv
-    p4pv .= pv
+    @view(p4v[1:3]) .= pv
+    @view(p4pv[1:3]) .= pv
 
     # Calculate p4 value
     (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p2v,p1v,mu2,mu1,mu4,mu3)
@@ -621,7 +621,7 @@ function Inv_cdfElePhoElePho(sS::Float64)
 
     tSmol = tSmolN * sS^2/(sS + 1)
 
-    if tS < -1.0 #tS < -sS^2/(sS+1)
+    if ts < -1.0 #tS < -sS^2/(sS+1)
         println("tS = $tS")
         println("sS = $sS")
         println("tS min = $(-sS^2/(sS+1))")
@@ -687,7 +687,7 @@ function p1cv!(p1cv::Vector{Float64},p1cBv::Vector{Float64},p1v::Vector{Float64}
     p1cv[3] = mod(atan(y,x)/pi,2)
 
     # Boost p1c to CM frame
-    LorentzBoost!(p1cBv,p1cv,m1,w)
+    #LorentzBoost!(p1cBv,p1cv,m1,w)
 
     return nothing
 
@@ -734,44 +734,44 @@ function tstar(tS::Float64,sS::Float64,m1::Float64,m2::Float64,m3::Float64,m4::F
 
 end
 
-function p3p4v!(p3v::Vector{Float64},p4v::Vector{Float64},p1cBv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},ts::Float64,hs::Float64,sS::Float64,m1::Float64,m2::Float64,m3::Float64,m4::Float64)
+function p3p4v!(p3v::Vector{Float64},p4v::Vector{Float64},p1cBv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},ts::Float64,hs::Float64,sS::Float64,m1::Float64,m2::Float64,m3::Float64,m4::Float64,p3B::Float64)
 
     t1cB = p1cBv[4]
     (st1cB,ct1cB) = sincospi(t1cB)
 
     (sts,cts) = sincospi(ts)
 
-    p1 = p1v[1]
-    p2 = p2v[1]
+    #p1 = p1v[1]
+    #p2 = p2v[1]
 
-    ct1 = p1v[2]
-    ct2 = p2v[2]
-    st1 = sqrt(1-ct1^2)
-    st2 = sqrt(1-ct2^2)
+    #ct1 = p1v[2]
+    #ct2 = p2v[2]
+    #st1 = sqrt(1-ct1^2)
+    #st2 = sqrt(1-ct2^2)
 
-    (sh1,ch1) = sincospi(p1v[3])
-    (sh2,ch2) = sincospi(p2v[3])
-    ch1h2 = cospi(p1v[3]-p2v[3])
+    #(sh1,ch1) = sincospi(p1v[3])
+    #(sh2,ch2) = sincospi(p2v[3])
+    #ch1h2 = cospi(p1v[3]-p2v[3])
 
-    m12 = m1^2
-    m22 = m2^2
+    #m12 = m1^2
+    #m22 = m2^2
 
-    Es1::Float64 = m1 != 0e0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
-    E1::Float64 = Es1 + m1
-    Es2::Float64 = m2 != 0e0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
-    E2::Float64 = Es2 + m2
+    #Es1::Float64 = m1 != 0e0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
+    #E1::Float64 = Es1 + m1
+    #Es2::Float64 = m2 != 0e0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
+    #E2::Float64 = Es2 + m2
 
-    val1 = (ct1*ct2+ch1h2*st1*st2)
-    val2 = 2*p1*p2*val1
-    val3 = val2 + p1^2 + p2^2
-    val3 = 2*p1*p2*(val1-1) + (p1+p2)^2
+    #val1 = (ct1*ct2+ch1h2*st1*st2)
+    #val2 = 2*p1*p2*val1
+    #val3 = val2 + p1^2 + p2^2
+    #val3 = 2*p1*p2*(val1-1) + (p1+p2)^2
 
-    w = asinh(sqrt(val3)/sqrt(sS+(m1+m2)^2))
+    #w = asinh(sqrt(val3)/sqrt(sS+(m1+m2)^2))
 
     # calculate ct3cs and ct4cs
     #t3cs = acos(cts*ct1cs+cospi(hs)*sts*st1cs)/pi
     if ts <= 1e-5 && t1cB <= 1e-5
-        t3cB = sqrt(-2*cospi(hs)*ts*t1cB+ts^2+t1cB^2)/pi
+        t3cB = sqrt(-2*cospi(hs)*ts*t1cB+ts^2+t1cB^2) # /pi not needed as accounted for in approximation
     else
         t3cB = acos(cts*ct1cB+cospi(hs)*sts*st1cB)/pi
     end
@@ -784,27 +784,23 @@ function p3p4v!(p3v::Vector{Float64},p4v::Vector{Float64},p1cBv::Vector{Float64}
 
     # Boosted frame angles and momenta
     p3v[4] = t3cB
+    p3v[2] = cospi(p3v[4])
     p4v[4] = 1-t3cB
+    p4v[2] = cospi(p4v[4])
     p3v[3] = h3cB
     p4v[3] = mod(h3cB+1e0,2)
-    p3B = InvariantFluxSmall(sS,m3,m4)/sqrt(sS+(m1+m2)^2)
-    p4B = p3B
+    #p3B = InvariantFluxSmall(sS,m3,m4)/sqrt(sS+(m1+m2)^2)
+    #p4B = p3B
     p3v[1] = p3B
-    p4v[1] = p4B
+    p4v[1] = p3B # in COM frame p3B = p4B
 
     # Doppler Factors
-    DopplerFactor!(p3v,m3,-w)
-    DopplerFactor!(p4v,m4,-w)
+    #DopplerFactor!(p3v,m3,-w)
+    #DopplerFactor!(p4v,m4,-w)
 
     # De-boost p3 and p4 (modifies p3v and p4v)
-    LorentzBoost!(p3v,p3v,m3,-w)
-    LorentzBoost!(p4v,p4v,m4,-w)
-
-    # doppler factor
-    #p3v[4] /= (γ+γβ*cospi(t3cs))^2 
-    #p3v[4] = 1/(exp(w)*cospi(t3cB/2)^2+exp(-w)*sinpi(t3cB/2)^2)^2
-    #p4v[4] /= (γ-γβ*cospi(t3cs))^2
-    #p4v[4] = 1/(exp(w)*sinpi(t3cB/2)^2+exp(-w)*cospi(t3cB/2)^2)^2
+    #LorentzBoost!(p3v,p3v,m3,-w)
+    #LorentzBoost!(p4v,p4v,m4,-w)
 
     # p3 value
     #m32 = m3^2
@@ -829,7 +825,7 @@ function p3p4v!(p3v::Vector{Float64},p4v::Vector{Float64},p1cBv::Vector{Float64}
     #p4v[1] = p4c
 
     # rotate to lab frame
-    βc = sqrt(val3)#/(E1+E2) 
+    #=βc = sqrt(val3)#/(E1+E2) 
     tβ = acos((p1*ct1 + p2*ct2)/βc)/pi #/ (E1+E2) # add an approximation here for p1/p2 << 1 etc
     if (y=p1/p2) <= 1e-6
         tβ = acos(ct2 + st2*(-ch1h2*ct2*st1 + ct1*st2)*y)/pi
@@ -847,43 +843,27 @@ function p3p4v!(p3v::Vector{Float64},p4v::Vector{Float64},p1cBv::Vector{Float64}
     (st4c,ct4c) = sincospi(p4v[4])
     (sh3c,ch3c) = sincospi(p3v[3])
     (sh4c,ch4c) = sincospi(p4v[3])
+    (sh3hc,ch3hc) = sincospi(p3v[3]-hβ) 
+    (sh4hc,ch4hc) = sincospi(p4v[3]-hβ) 
 
-    p3v[4] = acos(ct3c*ctβ + st3c*stβ*ch3c)/pi
+    p3v[4] = acos(ct3c*ctβ + st3c*stβ*ch3hc)/pi
     p3v[2] = cospi(p3v[4])
-    x = -st3c*sh3c*shβ + chβ*(st3c*ch3c*ctβ + ct3c*stβ)
-    y = st3c*sh3c*chβ + shβ*(st3c*ch3c*ctβ + ct3c*stβ)
+    #x = -st3c*sh3c*shβ + chβ*(st3c*ch3c*ctβ + ct3c*stβ)
+    x = -sh3c*shβ*st3c+chβ*(ch3c*ctβ*st3c + ct3c*stβ)
+    #y = st3c*sh3c*chβ + shβ*(st3c*ch3c*ctβ + ct3c*stβ)
+    y = chβ*sh3c*st3c+shβ*(ch3c*ctβ*st3c+ct3c*stβ)
     p3v[3] = mod(atan(y,x)/pi,2)
 
-    p4v[4] = acos(ct4c*ctβ + st4c*stβ*ch4c)/pi
+    p4v[4] = acos(ct4c*ctβ + st4c*stβ*ch4hc)/pi
     p4v[2] = cospi(p4v[4])
-    x = -st4c*sh4c*shβ + chβ*(st4c*ch4c*ctβ + ct4c*stβ)
-    y = st4c*sh4c*chβ + shβ*(st4c*ch4c*ctβ + ct4c*stβ)
+    #x = -st4c*sh4c*shβ + chβ*(st4c*ch4c*ctβ + ct4c*stβ)
+    x = -sh4c*shβ*st4c+chβ*(ch4c*ctβ*st4c + ct4c*stβ)
+    #y = st4c*sh4c*chβ + shβ*(st4c*ch4c*ctβ + ct4c*stβ)
+    y = chβ*sh4c*st4c+shβ*(ch4c*ctβ*st4c+ct4c*stβ)
     p4v[3] = mod(atan(y,x)/pi,2)
+    =#
 
-    # energy check
-    eng_error = 1-(sqrt(m3^2+p3v[1]^2)+sqrt(m4^2+p4v[1]^2))/(E1+E2)
-    mom_z_error = 1-(p3v[1]*p3v[2]+p4v[1]*p4v[2])/(p1v[1]*p1v[2]+p2v[1]*p2v[2])
-    mom_x_error = 1-(p3v[1]*sin(acos(p3v[2]))*cospi(p3v[3])+p4v[1]*sin(acos(p4v[2]))*cospi(p4v[3]))/(p1v[1]*sin(acos(p1v[2]))*cospi(p1v[3])+p2v[1]*sin(acos(p2v[2]))*cospi(p2v[3]))
-    #mom_x_error = 1-(p3v[1]*sinpi(p3v[4])*cospi(p3v[3])+p4v[1]*sinpi(p4v[4])*cospi(p4v[3]))/(p1v[1]*sin(acos(p1v[2]))*cospi(p1v[3])+p2v[1]*sin(acos(p2v[2]))*cospi(p2v[3]))
-    if eng_error > 1e-4 || mom_z_error > 1e-4 #|| mom_x_error > 1e-2
-        println("eng_error = $eng_error")
-        println("mom_z_error = $mom_z_error")
-        println("mom_x_error = $mom_x_error")
-        println("w=$w")
-        println("p1 = $(p1v[1])")
-        println("ct1 = $(p1v[2])")
-        println("h1 = $(p1v[3])")
-        println("p2 = $(p2v[1])")
-        println("ct2 = $(p2v[2])")
-        println("h2 = $(p2v[3])")
-        println("p3 = $(p3v[1])")
-        println("ct3 = $(p3v[2])")
-        println("h3 = $(p3v[3])")
-        println("p4 = $(p4v[1])")
-        println("ct4 = $(p4v[2])")
-        println("h4 = $(p4v[3])")
-        println("")
-    end
+
 
     #=if p1 >= 1e4 && p2 <= 1e0 && log10(sS) > 4.0
         println("ss = $sS")
@@ -914,6 +894,8 @@ function importance!(p3v::Vector{Float64},p4v::Vector{Float64},p1v::Vector{Float
     
         st1::Float64 = sqrt(1e0-p1v[2]^2) #sinpi(p1v[2])
         st2::Float64 = sqrt(1e0-p2v[2]^2) #sinpi(p2v[2])
+        (sh1,ch1) = sincospi(p1v[3])
+        (sh2,ch2) = sincospi(p2v[3])
     
         ch1h2::Float64 = cospi(p1v[3]-p2v[3])
     
@@ -930,19 +912,149 @@ function importance!(p3v::Vector{Float64},p4v::Vector{Float64},p1v::Vector{Float
         Es2s::Float64 = Es2/p2
         E2::Float64 = Es2 + m2
 
+        val1 = (ct1*ct2+ch1h2*st1*st2)
+        val2 = 2*p1*p2*val1
+        val3 = val2 + p1^2 + p2^2
+        #println("val3 = $val3")
+        #val3 = 2*p1*p2*(val1-1e0) + (p1+p2)^2
+        #println("val3 = $val3")
+
     sBig::Float64 = (m1+m2)^2
     #sSmol::Float64 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2+ch1h2*st1*st2))
-    sSmol::Float64 = 2*p1*p2*(-ct1*ct2 -ch1h2*st1*st2 + Es1s*Es2s + m1*Es2s/p1 + m2*Es1s/p2)
+    sSmol::Float64 = 2*p1*p2*(-val1 + Es1s*Es2s + m1*Es2s/p1 + m2*Es1s/p2)
+
+    w = asinh(sqrt(val3)/sqrt(sSmol+(m1+m2)^2))
 
     (tSmol,ts,prob) = Inv_cdfElePhoElePho(sSmol)
     hs = RPointPhi()
     #ts = tstar(tSmol,sSmol,m1,m2,m3,m4)
 
-    # calculate p1cv
-    p1cv!(p1cv,p1cBv,p1v,p2v,m1,m2,sSmol)
+    if (z=p1/p2) <= 1e-8 # p1 small
+        tβ = acos(ct2 + st2*(-ch1h2*ct2*st1 + ct1*st2)*z)/pi
+        x = z*st1*ch1 + st2*ch2
+        y = z*st1*sh1 + st2*sh2
+    elseif z >= 1e8 # p1 large
+        tβ = acos(ct1 + st1*(ct2*st1 - ch1h2*ct1*st2)/z)/pi
+        x = st1*ch1 + st2*ch2/z
+        y = st1*sh1 + st2*sh2/z
+    else
+        β = sqrt(val3)
+        tβ = acos((p1*ct1 + p2*ct2)/β)/pi
+        x = p1*st1*ch1 + p2*st2*ch2
+        y = p1*st1*sh1 + p2*st2*sh2
+    end
+    #(stβ,ctβ) = sincospi(tβ)
+    hβ = mod(atan(y,x)/pi,2)
 
-    # calculate p3v and p4v
-    p3p4v!(p3v,p4v,p1cv,p1v,p2v,ts,hs,sSmol,m1,m2,m3,m4)
+    # calculate p1cv
+    @view(p1cv[1:3]) .= p1v
+    p1cv[4] = acos(p1v[2])/pi
+
+    p2cv::Vector{Float64} = zeros(Float64,4)
+    p2cBv::Vector{Float64} = zeros(Float64,4)
+    @view(p2cv[1:3]) .= p2v
+    p2cv[4] = acos(p2v[2])/pi
+
+    RotateToCentre!(p1cv,tβ,hβ)
+
+    RotateToCentre!(p2cv,tβ,hβ)
+    #println("p1cv = $(p1cv)")
+    #println("p2cv = $(p2cv)")
+    #println("p1v = $(p1v)")
+    #println("p2v= $(p2v)")
+    #println("tβ = $(tβ)")
+    #println("hβ = $(hβ)")
+    p1B = InvariantFluxSmall(sSmol,m1,m2)/sqrt(sSmol+sBig)
+    p3B = InvariantFluxSmall(sSmol,m3,m4)/sqrt(sSmol+sBig)
+    #println("p1B = $(p1B)")
+    ForwardLorentzBoost!(p2cBv,p2cv,m2,w,p1B)
+    #println("p2cBv = $(p2cv)")
+    ForwardLorentzBoost!(p1cBv,p1cv,m1,w,p1B)
+    #println("p1cBv = $(p1cBv)")
+    #p1cv!(p1cv,p1cBv,p1v,p2v,m1,m2,sSmol)
+    #println("p1cv = $(p1cv)")
+    #println("")
+
+    # calculate p3v and p4v in COM frame
+    p3p4v!(p3v,p4v,p1cBv,p1v,p2v,ts,hs,sSmol,m1,m2,m3,m4,p3B)
+
+    # energy check in COM
+        #=
+        eng_error = 1-(sqrt(m3^2+p3v[1]^2)+sqrt(m4^2+p4v[1]^2))/(sqrt(m1^2+p1cBv[1]^2)+sqrt(m2^2+p2cBv[1]^2))
+
+        mom_z_error = (p1cBv[1]*p1cBv[2]+p2cBv[1]*p2cBv[2])-(p3v[1]*p3v[2]+p4v[1]*p4v[2])/(p1cBv[1]*p1cBv[2]+p2cBv[1]*p2cBv[2])
+
+        mom_x_error = (p1cBv[1]*sin(acos(p1cBv[2]))*cospi(p1cBv[3])+p2cBv[1]*sin(acos(p2cBv[2]))*cospi(p2cBv[3]))-(p3v[1]*sin(acos(p3v[2]))*cospi(p3v[3])+p4v[1]*sin(acos(p4v[2]))*cospi(p4v[3]))/(p1cBv[1]*sin(acos(p1cBv[2]))*cospi(p1cBv[3])+p2cBv[1]*sin(acos(p2cBv[2]))*cospi(p2cBv[3]))
+        #mom_x_error = 1-(p3v[1]*sinpi(p3v[4])*cospi(p3v[3])+p4v[1]*sinpi(p4v[4])*cospi(p4v[3]))/(p1v[1]*sin(acos(p1v[2]))*cospi(p1v[3])+p2v[1]*sin(acos(p2v[2]))*cospi(p2v[3]))
+        if eng_error > 1e-6 || (mom_z_error > 1e-6 && (1-abs(p2cBv[1]*p2cBv[2]/(p1cBv[1]*p1cBv[2]))) > 1e-6) #|| mom_x_error > 1e-4
+            println("COM")
+            println("eng_error = $eng_error")
+            println("mom_z_error = $mom_z_error")
+            println("mom_x_error = $mom_x_error")
+            println("w=$w")
+            println("p1 = $(p1cBv[1])")
+            println("ct1 = $(p1cBv[2])")
+            println("h1 = $(p1cBv[3])")
+            println("p2 = $(p2cBv[1])")
+            println("ct2 = $(p2cBv[2])")
+            println("h2 = $(p2cBv[3])")
+            println("p3 = $(p3v[1])")
+            println("ct3 = $(p3v[2])")
+            println("h3 = $(p3v[3])")
+            println("p4 = $(p4v[1])")
+            println("ct4 = $(p4v[2])")
+            println("h4 = $(p4v[3])")
+            println("$(p3v[1]*p3v[2]+p4v[1]*p4v[2])")
+            println("unboosed")
+            println("p1/m = $(p1/m1)")
+            println("t1 = $(p1cv[4])")
+            println("p2 = $(p2)")
+            println("t2 = $(p2cv[4])")
+            println("")
+        end
+        
+        =#
+
+    # Doppler Factors
+    DopplerFactor!(p3v,m3,w)
+    DopplerFactor!(p4v,m4,w)
+
+    # De-boost p3 and p4 (modifies p3v and p4v)
+    BackwardsLorentzBoost!(p3v,p3v,m3,w)
+    BackwardsLorentzBoost!(p4v,p4v,m4,w)
+
+    # Rotate p3 p4 back to lab (modifies p3v and p4v)
+    RotateToLab!(p3v,tβ,hβ)
+    RotateToLab!(p4v,tβ,hβ)
+
+        # energy check in lab
+        #=
+        eng_error = 1-(sqrt(m3^2+p3v[1]^2)+sqrt(m4^2+p4v[1]^2))/(E1+E2)
+        mom_z_error = ((p1v[1]*p1v[2]+p2v[1]*p2v[2])-(p3v[1]*p3v[2]+p4v[1]*p4v[2]))/(p1v[1]*p1v[2]+p2v[1]*p2v[2])
+        mom_x_error = 1-(p3v[1]*sin(acos(p3v[2]))*cospi(p3v[3])+p4v[1]*sin(acos(p4v[2]))*cospi(p4v[3]))/(p1v[1]*sin(acos(p1v[2]))*cospi(p1v[3])+p2v[1]*sin(acos(p2v[2]))*cospi(p2v[3]))
+        #mom_x_error = 1-(p3v[1]*sinpi(p3v[4])*cospi(p3v[3])+p4v[1]*sinpi(p4v[4])*cospi(p4v[3]))/(p1v[1]*sin(acos(p1v[2]))*cospi(p1v[3])+p2v[1]*sin(acos(p2v[2]))*cospi(p2v[3]))
+        if eng_error > 1e-4 || mom_z_error > 1e-4 #|| mom_x_error > 1e-2
+            println("lab")
+            println("eng_error = $eng_error")
+            println("mom_z_error = $mom_z_error")
+            println("mom_x_error = $mom_x_error")
+            println("w=$w")
+            println("p1 = $(p1v[1])")
+            println("ct1 = $(p1v[2])")
+            println("h1 = $(p1v[3])")
+            println("p2 = $(p2v[1])")
+            println("ct2 = $(p2v[2])")
+            println("h2 = $(p2v[3])")
+            println("p3 = $(p3v[1])")
+            println("ct3 = $(p3v[2])")
+            println("h3 = $(p3v[3])")
+            println("p4 = $(p4v[1])")
+            println("ct4 = $(p4v[2])")
+            println("h4 = $(p4v[3])")
+            println("")
+        end
+        =#
+        
 
     p3v[5] /= prob
     p4v[5] /= prob
@@ -953,13 +1065,18 @@ end
 
 
 """
-    LorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Float64,w::Float64)
+    ForwardLorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Float64,w::Float64,pB::Float64)
 
-    Calculates the Lorentz boost (in z direction) components of the momentum vector `pv` of a particle with (normalised) mass `m` by the rapidity `w` (can be positive or negative), placing the results in the boosted vector `pBv``. 
+    Calculates the forward Lorentz boost (in z direction) from the lab frame to the COM frame for the momentum vector `pv` of a particle with (normalised) mass `m` by the rapidity `w` (must be positive!), placing the results in the boosted vector `pBv``. Assumes boosted magnitude of momentum `pB` in the COM frame is known, therfore only computes the angle transformations.
 
     Momentum vectors have coponents [p,cos(theta),phi,theta]
 """
-function LorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Float64,w::Float64)
+function ForwardLorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Float64,w::Float64,pB::Float64)
+
+    if w < 0e0
+        println("w=$w")
+        error("w must be positive")
+    end
 
     p::Float64 = pv[1]
     t::Float64 = pv[4]
@@ -970,60 +1087,176 @@ function LorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Float64,w::Fl
     if m == 0e0
 
         ew = exp(w)
-
-        pB = p*(ew*sinpi(t/2)^2+cospi(t/2)^2/ew)
         tB = 2*atan(ew*tanpi(t/2))/pi
 
-    elseif p/m <= 1e-4 # small p approximation 
-        # valid to at least second order in p/m
+    #=elseif t <= 1e-8 # small 
+        # forth order is 1e-20 so beyond numerical precision
 
-        pB = sign(w)*(m*sinh(w)-p*cospi(t)*cosh(w))
-        tB = 2*atan(p*sinpi(t),2(sign(w)*sinh(w)))/pi
+        # tmp is p*cosh(w)-sqrt(m^2+p^2)*sinh(w) # this changes sign
+        tmp = (exp(w)*(p-sqrt(p^2+m^2))+exp(-w)*(p+sqrt(p^2+m^2)))/2
+        # tmp2 is sqrt(m^2+p^2)*cosh(w)-p*sinh(w) # this is +ve
+        #tmp2 = (exp(w)*(sqrt(p^2+m^2)-p)+exp(-w)*(sqrt(p^2+m^2)+p))/2
+        #pBcheck = tmp*sign(tmp)
+        #pBcheck += p*sinh(w)*tmp2/(2*tmp*sign(tmp)) * (pi^2*t^2)
+        #pBcheck -= p*sinh(w)*(tmp2^3-m^2*tmp2+3*m^2*p*sinh(w)) / (24*tmp^3*sign(tmp)) * (pi^4*t^4)
 
-    elseif p/m >= 1e4 # large p approximation
-        # valid to at least second order in m/p
+        #=if isapprox(pBcheck,pB) == false
+            println("small p")
+            println("p = $p")
+            println("w = $w")
+            println("t = $t")
+            println("pBcheck = $pBcheck")
+            println("pB = $pB")
+        end=#
+
+        tB = sign(tmp)
+        tB -= p^2*sign(tmp) / (2*tmp^2) * (pi*t)^2 
+        #tB += p^2*(3*p^3*cosh(w)-2*p^3*cosh(3w)-sqrt(p^2+m^2)*sinh(w)*(-2*m^2+p^2+(2*m^2-4*p^2)*cosh(2w))) / (24*tmp^5*sign(tmp)) * (pi^4*t^4)
+
+        if abs(tB) > 1e0
+            println("tB = $tB")
+            println("p = $p")
+            println("w = $w")
+            println("t = $t")
+            println("pB = $pB")
+            println("tmp= $tmp")
+            error("tB > 1e0")
+        end
+        
+        tB = acos(tB)/pi
+    =#
+    elseif (z=p/m) <= 1e-4 # small p approximation 
+        # valid to at fifth order in p/m
+
+        # pB check
+        #pBcheck = m*sinh(w) 
+        #pBcheck -= m*cospi(t)*cosh(w)*z 
+        #pBcheck += m*(-cospi(2*t) + cosh(2*w))*csch(w)/4 * z^2 
+        #pBcheck += m*(cospi(t)*coth(w)*csch(w)*sinpi(t)^2)/2 * z^3 
+        #pBcheck -= m*((3*cospi(4*t) + (-2 - 4*cospi(2*t) + 2*cospi(4*t))*cosh(2*w) + cosh(4*w))*csch(w)^3)/64 * z^4
+
+        #=if isapprox(pBcheck,pB) == false
+            println("small p")
+            println("z = $z")
+            println("w = $w")
+            println("t = $t")
+            println("pBcheck = $pBcheck")
+            println("pB = $pB")
+        end=#
+
+        tB = 2*sinh(w)/sinpi(t) / z
+        tB -= 2*cosh(w)*cospi(t)/sinpi(t)
+        tB += (sinpi(t)/sinh(w)+2*sinh(w)/sinpi(t))/2 * z
+
+        tB = 2*atan(tB)/pi
+
+        #tB = 2*atan(p*sinpi(t),2(sign(w)*sinh(w)))/pi
+
+    elseif z >= 1e4 # large p approximation
+        # valid to at fifth order in m/p
+
+        # pB check 
+        # tmp is cosh(w)-cospi(t)*sinh(w)
+        tmp = exp(w)*sinpi(t/2)^2 + exp(-w)*cospi(t/2)^2
+        #pBcheck = m*tmp * z 
+        #pBcheck -= m*(1/tmp-cosh(w))/2 / z
+        #tmp2 = exp(2*w)*sinpi(t/2)^2 + exp(-2*w)*cospi(t/2)^2
+        #pBcheck += m*(tmp2/tmp^3-cosh(w))/8 /z^3
+
+        #=if isapprox(pBcheck,pB) == false
+            println("large p")
+            println("z = $z")
+            println("w = $w")
+            println("t = $t")
+            println("pBcheck = $pBcheck")
+            println("pB = $pB")
+        end=#
 
         ew = exp(w)
         ttd2 = tanpi(t/2)
 
-        pB = p*(ew*sinpi(t/2)^2+cospi(t/2)^2/ew)
-        pB += (m^2/(2*p))*sinh(w)*(sinpi(t/2)^2*ew-cospi(t/2)^2/ew)/(sinpi(t/2)^2*ew+cospi(t/2)^2/ew)
+        val = ew*ttd2
+        val += ew*ttd2 * sinh(w)/(2*tmp) / z^2
+        val += ew*ttd2 * sinh(w) * (-1 + 5*cosh(2*w) + 2*(2*cospi(t) + cospi(2*t))*sinh(w)^2 - (2 + 6*cospi(t))*sinh(2*w)) / (32*tmp)^3 / z^4
 
-        tB = 2*atan(ew*ttd2*sqrt(1+(m^2)/(p^2)*(sinh(w))/(cosh(w)-cospi(t)*sinh(w))))/pi
+        #tB = 2*atan(ew*ttd2*sqrt(1+(m^2)/(p^2)*(sinh(w))/(cosh(w)-cospi(t)*sinh(w))))/pi
+
+        tB = 2*atan(val)/pi
 
     else # no approximation
 
-        pB = sqrt((cosh(w)*sqrt(p^2+m^2)-sinh(w)*p*cospi(t))^2-m^2)
+        if w >= 6e0 # not quite accurate
+            # approximate acos(), keep to fifth order in exp(w)
+            ew = exp(-w)
+            val = 1e0
+            val -= 2*p*sinpi(t)/(sqrt(p^2+m^2)-p*cospi(t))/pi * ew
+            val += p*sinpi(t)*(-6*m^2+2*p^2*sinpi(t)^2)/(sqrt(p^2+m^2)-p*cospi(t))^3/(3*pi) * ew^3
+            val -= 2*p*sinpi(t)*(p^2*sinpi(t)^2-5m^2)^2/(sqrt(p^2+m^2)-p*cospi(t))^5/(5*pi) * ew^5
 
-        if pB < 0e0
-            println("pB < 0e0, $pB, setting pB=0e0")
-            pB = 0e0
-        end
+            tB = val
 
-        if w <=-4e0
-            # keep to first order
-            tB = 2*atan(exp(w)*p*sinpi(t),sqrt(p^2+m^2)+p*cospi(t))/pi
+            #tB = 2*atan(z)/pi
 
-        elseif w >= 4e0
-            # keep to first order 
-            tB = 2*atan(exp(w)*(sqrt(p^2+m^2)-p*cospi(t)),p*sinpi(t))/pi 
-
+        #=elseif t <= 1e-8 # small 
+            # forth order is 1e-20 so beyond numerical precision
+    
+            # tmp is p*cosh(w)-sqrt(m^2+p^2)*sinh(w) # this changes sign
+            tmp = (exp(w)*(p-sqrt(p^2+m^2))+exp(-w)*(p+sqrt(p^2+m^2)))/2
+            # tmp2 is sqrt(m^2+p^2)*cosh(w)-p*sinh(w) # this is +ve
+            #tmp2 = (exp(w)*(sqrt(p^2+m^2)-p)+exp(-w)*(sqrt(p^2+m^2)+p))/2
+            #pBcheck = tmp*sign(tmp)
+            #pBcheck += p*sinh(w)*tmp2/(2*tmp*sign(tmp)) * (pi^2*t^2)
+            #pBcheck -= p*sinh(w)*(tmp2^3-m^2*tmp2+3*m^2*p*sinh(w)) / (24*tmp^3*sign(tmp)) * (pi^4*t^4)
+    
+            #=if isapprox(pBcheck,pB) == false
+                println("small p")
+                println("p = $p")
+                println("w = $w")
+                println("t = $t")
+                println("pBcheck = $pBcheck")
+                println("pB = $pB")
+            end=#
+    
+            tB = sign(tmp)
+            println("sign(tmp) = $(sign(tmp))")
+            tB -= p^2*sign(tmp) / (2*tmp^2) * (pi*t)^2 
+            #tB += p^2*(3*p^3*cosh(w)-2*p^3*cosh(3w)-sqrt(p^2+m^2)*sinh(w)*(-2*m^2+p^2+(2*m^2-4*p^2)*cosh(2w))) / (24*tmp^5*sign(tmp)) * (pi^4*t^4)
+    
+            if abs(tB) > 1e0
+                println("tB = $tB")
+                println("p = $p")
+                println("w = $w")
+                println("t = $t")
+                println("pB = $pB")
+                println("tmp= $tmp")
+                error("tB > 1e0")
+            end
+            
+            tB = acos(tB)/pi
+        =#
         else # no approximation
 
-            y = pB+exp(w)*(sqrt(p^2+m^2)-p*cospi(t))/2-exp(-w)*(p*cospi(t)+sqrt(p^2+m^2))/2
-            x = pB-exp(w)*(sqrt(p^2+m^2)-p*cospi(t))/2+exp(-w)*(p*cospi(t)+sqrt(p^2+m^2))/2
+            y = pB+(exp(w)*(sqrt(p^2+m^2)-p*cospi(t))/2-exp(-w)*(p*cospi(t)+sqrt(p^2+m^2))/2)
+            x = pB-(exp(w)*(sqrt(p^2+m^2)-p*cospi(t))/2-exp(-w)*(p*cospi(t)+sqrt(p^2+m^2))/2)
 
             if y<0e0
-                println("")
-                println("warning: x<0,=$x, setting x=0e0")
-                println("x=$x")
-                println("y=$y")
-                println("pB=$pB")
-                println("w=$w")
-                println("p=$p")
-                println("t=$t")
-                println("")
+                #println("")
+                #println("forwards boost")
+                #println("warning: y<0,=$y, setting y=0e0")
+                #println("x=$x")
+                #println("y=$y")
+                #println("pB=$pB")
+                #println("w=$w")
+                #println("p=$p")
+                #println("t=$t")
+                #println("")
                 y = 0e0
+                #tB = acos((-exp(w)*(sqrt(p^2+m^2)-p*cospi(t))/2+exp(-w)*(p*cospi(t)+sqrt(p^2+m^2))/2)/pB)/pi
+                #println("tB = $tB")
+            end
+
+            if x < 0e0
+                x=0e0
             end
 
             # acos(x) can lead to a domain error with x > 1 due to floating point precision, atan approach better 
@@ -1052,9 +1285,157 @@ function LorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Float64,w::Fl
 end
 
 """
+    BackwardsLorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Float64,w::Float64)
+
+    Calculates the backwards Lorentz boost (in z direction) from the COM frame to the lab frame for the momentum vector `pv` of a particle with (normalised) mass `m` by the rapidity `w` (must be positive!), placing the results in the boosted vector `pBv``. 
+
+    Momentum vectors have coponents [p,cos(theta),phi,theta]
+"""
+function BackwardsLorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Float64,w::Float64)
+
+    if w < 0e0
+        println("w=$w")
+        error("w must be positive")
+    end
+
+    p::Float64 = pv[1]
+    t::Float64 = pv[4]
+    h::Float64 = pv[3]
+
+    hB::Float64 = h # phi unaffected by boost
+
+    if m == 0e0
+
+        ew = exp(w)
+
+        pB = p*(ew*cospi(t/2)^2+sinpi(t/2)^2/ew)
+        tB = 2*atan(tanpi(t/2)/ew)/pi
+
+    elseif (z=p/m) <= 1e-4 # small p approximation 
+        # valid to at fifth order in p/m
+
+        # pB
+        pB = m*sinh(w) 
+        pB += m*cospi(t)*cosh(w)*z 
+        pB += m*(-cospi(2*t) + cosh(2*w))*csch(w)/4 * z^2 
+        pB -= m*(cospi(t)*coth(w)*csch(w)*sinpi(t)^2)/2 * z^3 
+        pB -= m*((3*cospi(4*t) + (-2 - 4*cospi(2*t) + 2*cospi(4*t))*cosh(2*w) + cosh(4*w))*csch(w)^3)/64 * z^4
+
+        val = sinpi(t)*csch(w)/2 * z
+        val -= sinpi(2*t)*coth(w)*csch(w)/4 * z^2
+        val += sinpi(t)*csch(w)^3*(3+cospi(2*t)*(3+2*cosh(2*w)))/16 * z^3
+
+        tB = 2*atan(val)/pi
+        
+        #tB = 2*atan(p*sinpi(t),2(sign(w)*sinh(w)))/pi
+
+    elseif z >= 1e4 # large p approximation
+        # valid to at fifth order in m/p
+
+        # pB 
+        tmp = exp(w)*cospi(t/2)^2 + exp(-w)*sinpi(t/2)^2
+        pB = m*tmp * z 
+        pB -= m*(1/tmp-cosh(w))/2 / z
+        tmp2 = exp(2*w)*cospi(t/2)^2 + exp(-2*w)*sinpi(t/2)^2
+        pB += m*(tmp2/tmp^3-cosh(w))/8 /z^3      
+
+        ew = exp(-w)
+        ttd2 = tanpi(t/2)
+
+        val = ew*ttd2
+        val -= ew*sinpi(t)*sinh(w) / ((1+cospi(t))*tmp) /2 / z^2
+        val += ew*ttd2 * sinh(w) * (-1 + 5*cosh(2*w) + 2*(2*cospi(t) + cospi(2*t))*sinh(w)^2 - (2 + 6*cospi(t))*sinh(2*w)) / (-2*sinh(w)*cospi(t)+2*cosh(w))^3 / z^4
+
+        #tB = 2*atan(ew*ttd2*sqrt(1+(m^2)/(p^2)*(sinh(w))/(cosh(w)-cospi(t)*sinh(w))))/pi
+
+        tB = 2*atan(val)/pi
+
+    else # no approximation
+
+        test = (cosh(w)*sqrt(p^2+m^2)-sinh(w)*p*cospi(t))^2-m^2
+        if test < 0e0
+            println("")
+            println("test =$test")
+            println("w=$w")
+            println("p=$p")
+            println("t=$t")
+            println("")
+        end
+
+        pB = sqrt((cosh(w)*sqrt(p^2+m^2)+sinh(w)*p*cospi(t))^2-m^2)
+
+        if pB < 0e0
+            println("pB < 0e0, $pB, setting pB=0e0")
+            pB = 0e0
+        end
+        
+        if w >= 6e0
+            # approximate atan() to fifth order in exp(w)
+            ew = exp(w)
+            val = p*sinpi(t)/(sqrt(p^2+m^2)+p*cospi(t)) / ew
+            val += m^2*p*sinpi(t)/(sqrt(p^2+m^2)+p*cospi(t))^3 / ew^3
+            val += m^2*p*sinpi(t)*(m^2-p^2*sinpi(t)^2)/(sqrt(p^2+m^2)+p*cospi(t))^5 / ew^5
+            #val += m^2*p*sinpi(t)*()/(sqrt(p^2+m^2)+p*cospi(t))^7 / ew^7
+
+            tB = 2*atan(val)/pi
+
+        else # no approximation
+
+            y = pB+(-exp(w)*(sqrt(p^2+m^2)+p*cospi(t))/2+exp(-w)*(sqrt(p^2+m^2)-p*cospi(t))/2)
+            x = pB-(-exp(w)*(sqrt(p^2+m^2)+p*cospi(t))/2+exp(-w)*(sqrt(p^2+m^2)-p*cospi(t))/2)
+
+            #y = pB + sqrt(p^2+m^2)*sinh(w) - p*cosh(w)*cospi(t) 
+            #x = pB + p*cosh(w)*cospi(t) - sqrt(p^2+m^2)*sinh(w)
+
+            if y<0e0
+                #println("")
+                #println("backwards boost")
+                #println("warning: y<0,=$y, setting y=0e0")
+                #println("x=$x")
+                #println("y=$y")
+                #println("pB=$pB")
+                #println("w=$w")
+                #println("p=$p")
+                #println("t=$t")
+                #println("")
+                y = 0e0
+                #tB = acos((exp(w)*(sqrt(p^2+m^2)p*cospi(t))/2-exp(-w)*(-p*cospi(t)+sqrt(p^2+m^2))/2)/pB)/pi
+                #println("tB = $tB")
+            end
+
+            if x < 0e0
+                x=0e0
+            end
+
+            # acos(x) can lead to a domain error with x > 1 due to floating point precision, atan approach better 
+            #tB = acos((cosh(w)*p*cospi(t)+sinh(w)*sqrt(p^2+m^2))/pB)/pi
+
+            #tBtest = 2*atan(sqrt(-p*cosh(w)*cospi(t)+sqrt(p^2+m^2)*sinh(w)+pB),sqrt(+p*cosh(w)*cospi(t)-sqrt(p^2+m^2)*sinh(w)+pB))/pi
+
+            tB = 2*atan(sqrt(y),sqrt(x))/pi
+
+        end
+
+    end
+
+    pBv[1] = pB
+    pBv[2] = cospi(tB)
+    pBv[3] = hB
+    pBv[4] = tB
+
+    if isnan(pBv[1])
+        println("pB=$pB")
+        println("w=$w")
+        println("p=$p")
+        println("t=$t")
+    end
+
+end
+
+"""
     DopplerFactor!(pv::Vector{Float64},m::Float64,w::Float64)
 
-Computes the doppler factor aka cosine angle jacobian for a particle of mass `m` between the CM frame and lab frame, for a boost with rapididty `w` in the z direction. The result is stored in the fifth entry of the vector `pv`. Which is expected to have components [p,cos(theta),phi,theta,doppler].
+Computes the doppler factor aka cosine angle jacobian for a particle of mass `m` between the CM frame and lab frame, for a boost with rapididty `w` in the z direction (w must be +ve). The result is stored in the fifth entry of the vector `pv`. Which is expected to have components [p,cos(theta),phi,theta,doppler].
 """
 function DopplerFactor!(pv::Vector{Float64},m::Float64,w::Float64)
 
@@ -1065,58 +1446,126 @@ function DopplerFactor!(pv::Vector{Float64},m::Float64,w::Float64)
 
         ew = exp(w)
 
-        DF = 1/(ew*sinpi(t/2)^2+cospi(t/2)^2/ew)^2
+        DF = 1/(ew*cospi(t/2)^2+sinpi(t/2)^2/ew)^2
 
-    elseif p/m <= 1e-4 # small p approximation 
+    elseif (z=p/m) <= 1e-4 # small p approximation 
         # valid to at least second order in p/m
 
-        DF = p^2/m^2 * cospi(t)/sinh(w)^2
+        # COULD be more accurate
+        DF = cospi(t)/sinh(w)^2 * z^2
+        DF -= (4-3*sinpi(t)^2)*cosh(w)/(2*sinh(w)^3) * z^3
 
-    elseif p/m >= 1e4 # large p approximation
+    elseif z >= 1e4 # large p approximation
         # valid to at least second order in m/p
 
+        # COULD be more accurate
         ew = exp(w)
-        DF = 1/(ew*sinpi(t/2)^2+cospi(t/2)^2/ew)^2
-        DF += DF^2*(m^2/p^2)*sinh(w)*(2*cospi(t)*cosh(w)+(sinpi(t)-4)*sinh(w))/2
+        # tmp is cosh(w)+cospi(t)*sinh(w)
+        tmp = ew*cospi(t/2)^2+sinpi(t/2)^2/ew
+        # tmp2 is cosh(2w)-cospi(t)*sinh(2w)
+        tmp2 = exp(2*w)*sinpi(t/2)^2+cospi(t/2)^2*exp(-2*w)
+        DF = 1/tmp^2
+        DF += (-1+2*tmp2-tmp^2)/2/tmp^4 / z^2
+
 
     else # no approximation
 
-        DF = p^2*(-p*cosh(w)+cospi(t)*sqrt(p^2+m^2)*sinh(w))*(-m^2+(sqrt(p^2+m^2)*cosh(w)-p*cospi(t)*sinh(w))^2)^(-3/2)
+        #=if w >= 8e0
 
+            ew = exp(w)
+            tmp = (sqrt(p^2+m^2)+p*cospi(t))
+
+            DF = 4*p^2*(p+sqrt(p^2+m^2)*cospi(t))/tmp^3 / ew^2
+            DF += (8*p^2*(2*m^2*p - p^3 + (m^2 - p^2)*sqrt(m^2 + p^2)*cospi(t) + (-m^2*p + p^3)*cospi(t)^2 + p^2*sqrt(m^2 + p^2)*cospi(t)^3))/tmp^5 / ew^4
+
+        else=#
+
+            tmp1 = exp(w)*(p+sqrt(m^2+p^2)*cospi(t))/2 + exp(-w)*(p-sqrt(p^2+m^2)*cospi(t))/2
+            tmp2 = exp(w)*(sqrt(m^2+p^2)+p*cospi(t))/2 + exp(-w)*(sqrt(p^2+m^2)-p*cospi(t))/2
+
+            DF = p^2*tmp1
+            DF /= (-m^2+(tmp2)^2)^(3/2)
+
+        #end
+
+    end
+
+    if isinf(DF)
+        println("DF = $DF")
+        println("w = $w")
+        println("p = $p")
+        println("t = $t")
+        error("DF inf")
     end
 
     pv[5] = abs(DF)
 
 end
 
-eng_error = -4.440892098500626e-16
-mom_z_error = 0.00039123319021949765
-mom_x_error = 1.3199434366839569e-5
-w=4.0244559713931505
-p1 = 128831.68341951884
-ct1 = 0.23036418495849276
-h1 = 0.18025009590902452
-p2 = 46.55860148874508
-ct2 = -0.30034740299314544
-h2 = 1.4088925278594582
-p3 = 41.15085565200894
-ct3 = -0.5129989373463408
-h3 = 1.025737771716258
-p4 = 128837.07902061428
-ct4 = 0.23031977234590043
-h4 = 0.18017578422786484
+"""
+    RotateToCentre(pv::Vector{Float64},t::Float64,h::Float64)
 
-p1*ct1
-p2*ct2
-p3*ct3
-p4*ct4
+    Rotates the momentum vector `pv` from the lab spherical coordinates to the spherical coordinates aligned with the centre of momentum velocity direction, The rotation angle is given by `t` theta from the lab z axis and `h` phi about the lab z axis.
+"""
+function RotateToCentre!(pv::Vector{Float64},tβ::Float64,hβ::Float64)
 
-p1*ct1+p2*ct2
-p3*ct3+p4*ct4
+    tv = pv[4]
+    hv = pv[3]
 
-sqrt(p1^2+1^2)+sqrt(p2^2)
-sqrt(p3^2+1^2)+sqrt(p4^2)
+    if abs(tv-tβ) < 1e-7 && abs(hv-hβ) < 1e-7
 
-p1*sin(acos(ct1))*cospi(h1)+p2*sin(acos(ct2))*cospi(h2)
-p3*sin(acos(ct3))*cospi(h3)+p4*sin(acos(ct4))*cospi(h4)
+        stv = sinpi(tv)
+        stβ = sinpi(tβ)
 
+        t = sqrt((tv-tβ)^2+(hv-hβ)^2*stv*stβ) # /pi not needed as already factored into approximation
+        h = atan((hv-hβ)*stv,tv-tβ)/pi
+        h = mod(h,2)
+        #println("here, $(tv/tβ), $(hv/hβ)")
+
+    else
+
+        (stβ,ctβ) = sincospi(tβ)
+        (stv,ctv) = sincospi(tv)
+        (shvhβ, chvhβ) = sincospi(hv-hβ)
+        
+        # theta 
+        t = acos(ctv*ctβ+chvhβ*stv*stβ)/pi # chvhβ is inaccurate when pv[3] is approx hβ i.e. closely aligned
+        # phi
+        x = -ctv*stβ+chvhβ*stv*ctβ
+        y = shvhβ*stv
+        h = mod(atan(y,x)/pi,2)
+        #println("there,$(tv/tβ), $(hv/hβ)")
+
+    end
+
+    pv[4] = t
+    pv[3] = h
+    pv[2] = cospi(pv[4])
+
+    return nothing
+
+end
+
+"""
+    RotateToLab(pv::Vector{Float64},t::Float64,h::Float64)
+
+    Rotates the momentum vector `pv` from the centre of momentum vector aligned spherical coordinates to the spherical coordinates aligned with the lab frame. This is the inverse rotation from `RotateToCentre` The rotation angle is given by `t` theta from the lab z axis and `h` phi about the lab z axis.
+"""
+function RotateToLab!(pv::Vector{Float64},tβ::Float64,hβ::Float64)
+
+    (stβ,ctβ) = sincospi(tβ)
+    (stv,ctv) = sincospi(pv[4])
+    (shv, chv) = sincospi(pv[3])
+    (shβ,chβ) = sincospi(hβ)
+    
+    # theta 
+    pv[4] = acos(ctv*ctβ - stv*stβ*chv)/pi
+    pv[2] = cospi(pv[4])
+    # phi
+    x = -shβ*shv*stv+chβ*(chv*ctβ*stv + ctv*stβ)
+    y = chβ*shv*stv+shβ*(chv*ctβ*stv+ctv*stβ)
+    pv[3] = mod(atan(y,x)/pi,2)
+
+    return nothing
+
+end

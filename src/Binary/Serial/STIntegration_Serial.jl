@@ -259,10 +259,10 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String
         p4val = bounds(p4_low,p4_up,p4_num,p4_grid)
         p1val = bounds(p1_low,p1_up,p1_num,p1_grid)
         p2val = bounds(p2_low,p2_up,p2_num,p2_grid)
-        h3val = bounds(h_low,h_up,h3_num,h3_grid) .* pi
-        h4val = bounds(h_low,h_up,h4_num,h4_grid) .* pi
-        h1val = bounds(h_low,h_up,h1_num,h1_grid) .* pi
-        h2val = bounds(h_low,h_up,h2_num,h2_grid) .* pi
+        h3val = bounds(h_low,h_up,h3_num,h3_grid).*pi
+        h4val = bounds(h_low,h_up,h4_num,h4_grid).*pi
+        h1val = bounds(h_low,h_up,h1_num,h1_grid).*pi
+        h2val = bounds(h_low,h_up,h2_num,h2_grid).*pi
 
         println("Applying Momentum Space Factors")
 

@@ -24,6 +24,7 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
         include("Binary/Common/STValue.jl")
         include("Binary/Common/UsefulGridValueFunctions.jl")
         include("Binary/Common/PhaseSpaceFactors.jl")
+        include("Binary/Common/Sampling.jl")
         # include serial methods
         include("Binary/Serial/STIntegration_Serial.jl")
         include("Binary/Serial/STMonteCarlo_Serial.jl")

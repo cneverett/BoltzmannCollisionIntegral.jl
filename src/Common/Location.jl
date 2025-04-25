@@ -34,19 +34,19 @@ function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,s
     end
 end
 
-function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,::UniformGridType)
+function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,::UniformGrid)
     # grid location for uniform grid
     return val != low_bound ? ceil(Int64,Float64(num)*(val-low_bound)/(up_bound-low_bound)) : Int64(1) 
 end
 
-function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,::LogTenGridType)
+function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,::LogTenGrid)
     # grid location for log10 grid
     logval = log10(val)
     loc = logval != low_bound ? ceil(Int64,Float64(num)*(logval-low_bound)/(up_bound-low_bound)) : Int64(1) 
     return 1 <= loc <= num ? loc : loc>num ? num+1 : 1 # assigns 1 for under, num+1 for over and loc for in range
 end
 
-function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,::BinaryGridType)
+function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,::BinaryGrid)
     # grid location for binary grid
     logval = log(1/2,1-abs(val))
     num_half = Int64((num-1)/2)

@@ -104,14 +104,20 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
 
     # allocate arrays
     p1v::Vector{Float64} = zeros(Float64,3)
+    p1cv::Vector{Float64} = zeros(Float64,4)
+    p1cBv::Vector{Float64} = zeros(Float64,4)
     p2v::Vector{Float64} = zeros(Float64,3)
     pv::Vector{Float64} = zeros(Float64,3)
-    p3v::Vector{Float64} = zeros(Float64,3)
+    βv::Vector{Float64} = zeros(Float64,3)
+    #p3v::Vector{Float64} = zeros(Float64,3)
+    p3v::Vector{Float64} = zeros(Float64,5)
     p3pv::Vector{Float64} = zeros(Float64,3)
-    p4v::Vector{Float64} = zeros(Float64,3)
+    #p4v::Vector{Float64} = zeros(Float64,3)
+    p4v::Vector{Float64} = zeros(Float64,5)
     p4pv::Vector{Float64} = zeros(Float64,3)
     Sval::Float64 = 0e0
     Svalp::Float64 = 0e0
+    prob::Float64 = 0e0
     Tval::Float64 = 0e0
     p3_physical::Bool = true
     p3p_physical::Bool = true
@@ -143,18 +149,33 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
     h4ploc::Int64 = 0
     loc12::CartesianIndex{6} = CartesianIndex(0,0,0,0,0,0)
 
-    p1_grid = Grid_String_to_Type(p1_grid_st)
-    p2_grid = Grid_String_to_Type(p2_grid_st)
-    p3_grid = Grid_String_to_Type(p3_grid_st)
-    p4_grid = Grid_String_to_Type(p4_grid_st)
-    u1_grid = Grid_String_to_Type(u1_grid_st)
-    u2_grid = Grid_String_to_Type(u2_grid_st)
-    u3_grid = Grid_String_to_Type(u3_grid_st)
-    u4_grid = Grid_String_to_Type(u4_grid_st)
-    h1_grid = Grid_String_to_Type(h1_grid_st)
-    h2_grid = Grid_String_to_Type(h2_grid_st)
-    h3_grid = Grid_String_to_Type(h3_grid_st)
-    h4_grid = Grid_String_to_Type(h4_grid_st)
+    p1_grid::GridType = Grid_String_to_Type(p1_grid_st)
+    p2_grid::GridType = Grid_String_to_Type(p2_grid_st)
+    p3_grid::GridType = Grid_String_to_Type(p3_grid_st)
+    p4_grid::GridType = Grid_String_to_Type(p4_grid_st)
+    u1_grid::GridType = Grid_String_to_Type(u1_grid_st)
+    u2_grid::GridType = Grid_String_to_Type(u2_grid_st)
+    u3_grid::GridType = Grid_String_to_Type(u3_grid_st)
+    u4_grid::GridType = Grid_String_to_Type(u4_grid_st)
+    h1_grid::GridType = Grid_String_to_Type(h1_grid_st)
+    h2_grid::GridType = Grid_String_to_Type(h2_grid_st)
+    h3_grid::GridType = Grid_String_to_Type(h3_grid_st)
+    h4_grid::GridType = Grid_String_to_Type(h4_grid_st)
+
+    SmallParameters = (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,mu1,mu2,mu3,mu4)
+
+    localSAtotal3 = zeros(Float64,size(SAtotal3)[1:3])
+    localSAtally3 = zeros(UInt32,size(SAtally3)[1:2])
+    localSAtotal4 = zeros(Float64,size(SAtotal4)[1:3])
+    localSAtally4 = zeros(UInt32,size(SAtally4)[1:2])
+    if MinMax
+        localp3Max = zeros(Float64,size(p3Max)[1:2])
+        localu3Min = zeros(Float64,size(u3MinMax)[2:3])
+        localu3Max = zeros(Float64,size(u3MinMax)[2:3])
+        localp4Max = zeros(Float64,size(p4Max)[1:2])
+        localu4Min = zeros(Float64,size(u4MinMax)[2:3])
+        localu4Max = zeros(Float64,size(u4MinMax)[2:3])
+    end
 
     p = Progress(numTiter)
     
@@ -178,26 +199,69 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
         h2loc = location(h_low,h_up,h2_num,p2v[3],h2_grid)
         loc12 = CartesianIndex(p1loc,u1loc,h1loc,p2loc,u2loc,h2loc)
 
-        SAtotalView3 = @view SAtotal3[:,:,:,loc12]
-        SAtotalView4 = @view SAtotal4[:,:,:,loc12]
-        SAtallyView3 = @view SAtally3[:,:,loc12]
-        SAtallyView4 = @view SAtally4[:,:,loc12]
+        fill!(localSAtally3,UInt32(0))
+        fill!(localSAtally4,UInt32(0))
 
-        if MinMax
+        #SAtotalView3 = @view SAtotal3[:,:,:,loc12]
+        #SAtotalView4 = @view SAtotal4[:,:,:,loc12]
+        #SAtallyView3 = @view SAtally3[:,:,loc12]
+        #SAtallyView4 = @view SAtally4[:,:,loc12]
+
+        #=if MinMax
             p3MaxView = @view p3Max[:,:,loc12]
             u3MinView = @view u3MinMax[1,:,:,loc12]
             u3MaxView = @view u3MinMax[2,:,:,loc12]
             p4MaxView = @view p4Max[:,:,loc12]
             u4MinView = @view u4MinMax[1,:,:,loc12]
             u4MaxView = @view u4MinMax[2,:,:,loc12]
-        end
+        end=#
         
         if Tval != 0e0 # i.e. it is a valid interaction state
 
+            fill!(localSAtotal3,Float64(0))
+            fill!(localSAtotal4,Float64(0))
+            if MinMax
+                fill!(localp3Max,Float64(0))
+                fill!(localu3Min,Float64(0))
+                fill!(localu3Max,Float64(0))
+                fill!(localp4Max,Float64(0))
+                fill!(localu4Min,Float64(0))
+                fill!(localu4Max,Float64(0))
+            end
+
             @inbounds for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
-                # generate random p direction for use in both p3 and p4 calculations
-                RPointSphereCosThetaPhi!(pv)
+                #COMSampling(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,βv,pCv,dsigmadt,SAtotalView3,SAtotalView4,SAtallyView3,SAtallyView4,SmallParameters,MinMax)
+
+                #UniformSampling!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,dsigmadt,localSAtotal3,localSAtotal4,localSAtally3,localSAtally4,SmallParameters,MinMax)
+
+                #ImportanceSampling2(p1v,p2v,p3v,p4v,p1cv,p1cBv,Tval,localSAtotal3,localSAtotal4,localSAtally3,localSAtally4,SmallParameters,MinMax)
+
+                ImportanceSampling3(p1v,p2v,p3v,p4v,p1cv,p1cBv,dsigmadt,localSAtotal3,localSAtotal4,localSAtally3,localSAtally4,SmallParameters,MinMax)
+
+                #=if p4v[1] <= 1e-8
+                println("p3 before = $(p3v[1])")
+                println("p4 before = $(p4v[1])")
+                println("")
+                end=#
+
+                #p3_physical, p3p_physical, NumStates = Momentum3Value!(p3v,p3pv,p1v,p2v,mu1,mu2,mu3,mu4)
+                #p3_physical, p3p_physical, NumStates = Momentum3Value!(p4v,p4pv,p1v,p2v,mu1,mu2,mu3,mu4)
+
+
+                #println("p3 after = $(p3v[1])")
+                #println("p3p after = $(p3pv[1])")
+                #println("")
+
+                #println("p4 after = $(p4v[1])")
+                #println("p4p after = $(p4pv[1])")
+                #println("")
+
+                #=# generate COM frame velocity vector 
+                betaVec!(βv,p1v,p2v,mu1,mu2)
+                # generate random p direction in COM frame and boost back to Lab frame for use in both p3 and p4 calculations
+                RPointSphereCosThetaPhi!(pCv)
+                RPointSphereBoost!(pv,βv,pCv)
 
             # === p3 === #
                 #set random p3 direction 
@@ -223,7 +287,15 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
                     if p3_physical
                         p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        SAtotalView3[p3loc,u3loc,h3loc] += Sval
+                        prob = pdfBoost(βv[1],p3v[2],pv[2],pCv[1])
+                        SAtotalView3[p3loc,u3loc,h3loc] += Sval/prob
+
+                        if βv[1] > 0.9999
+                            β=βv[1]
+                            ctC=pCv[1]
+                            println("$β,$ctC,$prob,$Sval")
+                        end
+
                         if MinMax
                             p3MaxView[u3loc,h3loc] = max(p3MaxView[u3loc,h3loc],p3v[1])
                             u3MinView[p3loc,h3loc] = min(u3MinView[p3loc,h3loc],p3v[2])
@@ -236,7 +308,16 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
                     if p3_physical
                         p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        SAtotalView3[p3loc,u3loc,h3loc] += Sval
+                        prob = pdfBoost(βv[1],p3v[2],pv[2],pCv[1])
+                        SAtotalView3[p3loc,u3loc,h3loc] += Sval/prob
+
+                        #=if Sval/prob > 1e4
+                            β=βv[1]
+                            println("$β")
+                            ctC=pCv[1]
+                            println("$β,$ctC,$prob,$Sval")
+                        end=#
+
                         if MinMax
                             p3MaxView[u3loc,h3loc] = max(p3MaxView[u3loc,h3loc],p3v[1])
                             u3MinView[p3loc,h3loc] = min(u3MinView[p3loc,h3loc],p3v[2])
@@ -248,7 +329,8 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
                         h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
                         p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
                         Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        SAtotalView3[p3ploc,u3ploc,h3ploc] += Svalp
+                        prob = pdfBoost(βv[1],p3pv[2],pv[2],pCv[1])
+                        SAtotalView3[p3ploc,u3ploc,h3ploc] += Svalp/prob
                         if MinMax
                             p3MaxView[u3ploc,h3ploc] = max(p3MaxView[u3ploc,h3ploc],p3pv[1])
                             u3MinView[p3ploc,h3ploc] = min(u3MinView[p3ploc,h3ploc],p3pv[2])
@@ -280,7 +362,8 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
                     if p4_physical
                         p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        SAtotalView4[p4loc,u4loc,h4loc] += Sval
+                        prob = pdfBoost(βv[1],p4v[2],pv[2],pCv[1])
+                        SAtotalView4[p4loc,u4loc,h4loc] += Sval/prob
                         if MinMax
                             p4MaxView[u4loc,h4loc] = max(p4MaxView[u4loc,h4loc],p4v[1])
                             u4MinView[p4loc,h4loc] = min(u4MinView[p4loc,h4loc],p4v[2])
@@ -293,7 +376,8 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
                     if p4_physical
                         p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        SAtotalView4[p4loc,u4loc,h4loc] += Sval
+                        prob = pdfBoost(βv[1],p4v[2],pv[2],pCv[1])
+                        SAtotalView4[p4loc,u4loc,h4loc] += Sval/prob
                         if MinMax
                             p4MaxView[u4loc,h4loc] = max(p4MaxView[u4loc,h4loc],p4v[1])
                             u4MinView[p4loc,h4loc] = min(u4MinView[p4loc,h4loc],p4v[2])
@@ -305,7 +389,8 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
                         h4ploc = location(h_low,h_up,h4_num,p4pv[3],h4_grid)
                         p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
                         Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        SAtotalView4[p4ploc,u4ploc,h4ploc] += Svalp
+                        prob = pdfBoost(βv[1],p4pv[2],pv[2],pCv[1])
+                        SAtotalView4[p4ploc,u4ploc,h4ploc] += Svalp/prob
                         if MinMax
                             p4MaxView[u4ploc,h4ploc] = max(p4MaxView[u4ploc,h4ploc],p4pv[1])
                             u4MinView[p4ploc,h4ploc] = min(u4MinView[p4ploc,h4ploc],p4pv[2])
@@ -313,18 +398,38 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
                         end
                     end
                 end
+                =#
 
             end # Sloop
 
         else # no valid interaction state
             # add one to tally of all relevant S tallies i.e. all momenta and all angles as no emission states are possible
-            SAtallyView3 .+= UInt32(1)
-            SAtallyView4 .+= UInt32(1)
+            #SAtallyView3 .+= UInt32(1)
+            #SAtallyView4 .+= UInt32(1)
+            localSAtally3 .+= UInt32(1)
+            localSAtally4 .+= UInt32(1)
         end
 
         # assign to T arrays
-        TAtotal[loc12] += Tval # ST[3] doesn't change with S loop
+        #TAtotal[loc12] += Tval # ST[3] doesn't change with S loop
+        #TAtally[loc12] += UInt32(1)
+
+        TAtotal[loc12] += Tval
         TAtally[loc12] += UInt32(1)
+        @view(SAtally3[:,:,loc12]) .+= localSAtally3
+        @view(SAtally4[:,:,loc12]) .+= localSAtally4
+        if Tval != 0e0
+            @view(SAtotal3[:,:,:,loc12]) .+= localSAtotal3
+            @view(SAtotal4[:,:,:,loc12]) .+= localSAtotal4
+            if MinMax
+                @view(p3Max[:,:,loc12]) .= max.(@view(p3Max[:,:,loc12]),localp3Max)
+                @view(u3MinMax[1,:,:,loc12]) .= min.(@view(u3MinMax[1,:,:,loc12]),localu3Min)
+                @view(u3MinMax[2,:,:,loc12]) .= max.(@view(u3MinMax[2,:,:,loc12]),localu3Max)
+                @view(p4Max[:,:,loc12]) .= max.(@view(p4Max[:,:,loc12]),localp4Max)
+                @view(u4MinMax[1,:,:,loc12]) .= min.(@view(u4MinMax[1,:,:,loc12]),localu4Min)
+                @view(u4MinMax[2,:,:,loc12]) .= max.(@view(u4MinMax[2,:,:,loc12]),localu4Max)
+            end
+        end
         
         next!(p)
 

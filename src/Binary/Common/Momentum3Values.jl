@@ -209,11 +209,11 @@ end
 
 
 """
-    p4Vector!(p4v,p3v,p1v,p2v)
+    pVector!(p4v,p3v,p1v,p2v)
 
-Returns the p4 vector (in standard form [p,cos(theta),phi/pi]) given the p1, p2 and p3 vectors using conservation of momentum.
+Returns the p vector (in standard form [p,cos(theta),phi/pi]) of the non-sampled outgoing state, given the p1, p2 and p3 or p4 vectors using conservation of momentum.
 """
-function p4Vector!(p4v::Vector{Float64},p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64})
+function pVector!(p4v::Vector{Float64},p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64})
 
     p1::Float64 = p1v[1]
     p2::Float64 = p2v[1]
@@ -227,23 +227,45 @@ function p4Vector!(p4v::Vector{Float64},p3v::Vector{Float64},p1v::Vector{Float64
     st2::Float64 = sqrt(1e0-p2v[2]^2) 
     st3::Float64 = sqrt(1e0-p3v[2]^2) 
 
-    ch1::Float64 = cospi(p1v[3])
-    ch2::Float64 = cospi(p2v[3])
-    ch3::Float64 = cospi(p3v[3])
+    (sh1::Float64, ch1::Float64) = sincospi(p1v[3])
+    (sh2::Float64, ch2::Float64) = sincospi(p2v[3])
+    (sh3::Float64, ch3::Float64) = sincospi(p3v[3])
+    ch1h2::Float64 = cospi(p1v[3]-p2v[3])
+    ch3h1::Float64 = cospi(p3v[3]-p1v[3])
+    ch3h2::Float64 = cospi(p3v[3]-p2v[3])
 
-    sh1::Float64 = sqrt(1e0-ch1^2) 
-    sh2::Float64 = sqrt(1e0-ch2^2) 
-    sh3::Float64 = sqrt(1e0-ch3^2) 
+    a::Float64 = p1^2+p2^2+p3^2
+    b::Float64 = 2*p1*p2*(ct1*ct2+ch1h2*st1*st2)
+    c::Float64 = -2*p1*p3*(ct1*ct3+ch3h1*st1*st3)
+    d::Float64 = -2*p2*p3*(ct2*ct3+ch3h2*st2*st3)
+    p42::Float64 = a+b+c+d # making this one line seems to cause -ve values??
+    #p42 = p1^1+p2^2+p3^2+2*p1*p2*(ct1*ct2+ch1h2*st1*st2)-2*p1*p3*(ct1*ct3+ch3h1*st1*st3)-2*p2*p3*(ct2*ct3+ch3h2*st2*st3)
 
-    p3xyz = [p3*st3*ch3,p3*st3*sh3,p3*ct3]
-    p1xyz = [p1*st1*ch1,p1*st1*sh1,p1*ct1]
-    p2xyz = [p2*st2*ch2,p2*st2*sh2,p2*ct2]
+    if p42 >= 0e0
+        p4v[1] = sqrt(p42)
+    else
+        a = p1^2+p2^2+p3^2
+        b = 2*p1*p2*(ct1*ct2+ch1h2*st1*st2)
+        c = -2*p1*p3*(ct1*ct3+ch3h1*st1*st3)
+        d = -2*p2*p3*(ct2*ct3+ch3h2*st2*st3)
+        println("$a")
+        println("$b")
+        println("$c")
+        println("$d")
+        error("$p42")
+    end
 
-    p4xyz = p1xyz + p2xyz - p3xyz
+    p4v[2] = (p1*ct1+p2*ct2-p3*ct3)/p4v[1]
 
-    p4v[1] = sqrt(p4xyz[1]^2+p4xyz[2]^2+p4xyz[3]^2)
-    p4v[2] = p4xyz[3]/p4v[1]
-    p4v[3] = atan(p4xyz[2],p4xyz[1])/pi
+    if p4v[2] > 1e0
+        ct4 = p4v[2]
+        println("p4v[2] $ct4")
+    end
+
+    x = p1*st1*ch1+p2*st2*ch2-p3*st3*ch3 
+    y = p1*st1*sh1+p2*st2*sh2-p3*st3*sh3
+
+    p4v[3] = mod(atan(y,x)/pi,2)
 
     return nothing
 

@@ -133,11 +133,16 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
 
     # allocate arrays for each thread
     p1v::Vector{Float64} = zeros(Float64,3)
+    p1cv::Vector{Float64} = zeros(Float64,4)
+    p1cBv::Vector{Float64} = zeros(Float64,4)
     p2v::Vector{Float64} = zeros(Float64,3)
     pv::Vector{Float64} = zeros(Float64,3)
-    p3v::Vector{Float64} = zeros(Float64,3)
+    βv::Vector{Float64} = zeros(Float64,3)
+    #p3v::Vector{Float64} = zeros(Float64,3)
+    p3v::Vector{Float64} = zeros(Float64,5)
     p3pv::Vector{Float64} = zeros(Float64,3)
-    p4v::Vector{Float64} = zeros(Float64,3)
+    #p4v::Vector{Float64} = zeros(Float64,3)
+    p4v::Vector{Float64} = zeros(Float64,5)
     p4pv::Vector{Float64} = zeros(Float64,3)
     Sval::Float64 = 0e0
     Svalp::Float64 = 0e0
@@ -172,18 +177,20 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
     h4ploc::Int64 = 0
     loc12::CartesianIndex{6} = CartesianIndex(0,0,0,0,0,0)
 
-    p1_grid = Grid_String_to_Type(p1_grid_st)
-    p2_grid = Grid_String_to_Type(p2_grid_st)
-    p3_grid = Grid_String_to_Type(p3_grid_st)
-    p4_grid = Grid_String_to_Type(p4_grid_st)
-    u1_grid = Grid_String_to_Type(u1_grid_st)
-    u2_grid = Grid_String_to_Type(u2_grid_st)
-    u3_grid = Grid_String_to_Type(u3_grid_st)
-    u4_grid = Grid_String_to_Type(u4_grid_st)
-    h1_grid = Grid_String_to_Type(h1_grid_st)
-    h2_grid = Grid_String_to_Type(h2_grid_st)
-    h3_grid = Grid_String_to_Type(h3_grid_st)
-    h4_grid = Grid_String_to_Type(h4_grid_st)
+    p1_grid::GridType = Grid_String_to_Type(p1_grid_st)
+    p2_grid::GridType = Grid_String_to_Type(p2_grid_st)
+    p3_grid::GridType = Grid_String_to_Type(p3_grid_st)
+    p4_grid::GridType = Grid_String_to_Type(p4_grid_st)
+    u1_grid::GridType = Grid_String_to_Type(u1_grid_st)
+    u2_grid::GridType = Grid_String_to_Type(u2_grid_st)
+    u3_grid::GridType = Grid_String_to_Type(u3_grid_st)
+    u4_grid::GridType = Grid_String_to_Type(u4_grid_st)
+    h1_grid::GridType = Grid_String_to_Type(h1_grid_st)
+    h2_grid::GridType = Grid_String_to_Type(h2_grid_st)
+    h3_grid::GridType = Grid_String_to_Type(h3_grid_st)
+    h4_grid::GridType = Grid_String_to_Type(h4_grid_st)
+
+    SmallParameters = (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,mu1,mu2,mu3,mu4)
 
     localSAtotal3 = zeros(Float64,size(SAtotal3)[1:3])
     localSAtally3 = zeros(UInt32,size(SAtally3)[1:2])
@@ -199,7 +206,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
     end
 
     @inbounds for nt in 1:numTiterPerThread
-
+        
         # generate p1 and p2 vectors initially as to not have to re-calculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
         RPointSphereCosThetaPhi!(p2v)
@@ -236,6 +243,8 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                     
             @inbounds for _ in 1:numSiterPerThread
 
+                ImportanceSampling3(p1v,p2v,p3v,p4v,p1cv,p1cBv,dsigmadt,localSAtotal3,localSAtotal4,localSAtally3,localSAtally4,SmallParameters,MinMax)
+            #=
                 # generate random p direction for use in both p3 and p4 calculations
                 RPointSphereCosThetaPhi!(pv)
 
@@ -355,6 +364,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                         end
                     end
                 end
+                =#
 
             end # S loop
 
@@ -389,6 +399,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
 
         if Threads.threadid() == 1 # on main thread
             next!(prog)
+            #=
             if nt%(p1_num*u1_num*h1_num*p2_num*u2_num*h2_num) == 0
                 #reset(ErrorCond)
                 #@lock ErrorLock begin
@@ -421,8 +432,9 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                 SAtally3Old .= SAtally3Copy
                 SAtotal3Old .= SAtotal3Copy
                 SMatrix3Old .= SMatrix3
-
+                
             end
+            =#
         end
 
     end # T loop

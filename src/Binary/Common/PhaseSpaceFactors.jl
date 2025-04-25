@@ -23,6 +23,9 @@ function PhaseSpaceFactors1!(SMatrix3::Array{Float64,9},SMatrix4::Array{Float64,
         end
         TMatrix1[p1,u1,h1,p2,u2,h2] *= (u2_bounds[u2+1]-u2_bounds[u2])*(p2_bounds[p2+1]-p2_bounds[p2])*(h2_bounds[h2+1]-h2_bounds[h2]) # dp2du2dh2
         TMatrix1[p1,u1,h1,p2,u2,h2] *= (u1_bounds[u1+1]-u1_bounds[u1])*(p1_bounds[p1+1]-p1_bounds[p1])*(h1_bounds[h1+1]-h1_bounds[h1]) # dp1du1dh1
+
+        # TMatrix2 doesn't exist at this point.
+
     end
 
     return nothing

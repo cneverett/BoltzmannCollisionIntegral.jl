@@ -253,7 +253,7 @@ end
 """
     InvariantFlux(s,mu12,mu22)
 
-returns the value of the invarient flux with 's' mandelstram variable and masses 'mass1' and 'mass2'
+returns the value of the invariant flux with 's' Mandelstram variable and masses 'mass1' and 'mass2'
 """
 function InvariantFlux(s::Float64,mu12::Float64,mu22::Float64)
 
@@ -265,7 +265,7 @@ end
 """
     InvariantFluxSmall(sSmol,mu12,mu22)
 
-returns the value of the invarient flux with smalled 's' mandelstram variable (sSmol = s - (m1+m2)^2)
+returns the value of the invariant flux with smalled 's' Mandelstram variable (sSmol = s - (m1+m2)^2)
 """
 function InvariantFluxSmall(sSmol::Float64,mu1::Float64,mu2::Float64)
     # Better accuracy for small s
@@ -278,7 +278,7 @@ end
 """
     InvariantFlux2(s,mass12,mass22)
 
-returns the value of the squared invarient flux with 's' mandelstram variable and masses 'mass1' and 'mass2'
+returns the value of the squared invariant flux with 's' Mandelstram variable and masses 'mass1' and 'mass2'
 """
 function InvariantFlux2(s::Float64,mu12::Float64,mu22::Float64)
 
@@ -290,7 +290,7 @@ end
 """
     InvariantFluxSmall(sSmol,mass12,mass22)
 
-returns the value of the squared invarient flux with smalled 's' mandelstram variable (sSmol = s - (m1+m2)^2)
+returns the value of the squared invariant flux with smalled 's' Mandelstram variable (sSmol = s - (m1+m2)^2)
 """
 function InvariantFlux2Small(sSmol::Float64,mu1::Float64,mu2::Float64)
     # Better accuracy for small s
@@ -301,5 +301,259 @@ function InvariantFlux2Small(sSmol::Float64,mu1::Float64,mu2::Float64)
 end
 
 
+function SValueTest(p3v::Vector{Float64},p4v::Vector{Float64},Tval::Float64,p1v::Vector{Float64},p2v::Vector{Float64},mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64)
 
+    # define normalise masses
+    m1 = mu1
+    m2 = mu2 
+    m3 = mu3
+    m4 = mu4 
 
+    # pre-defining terms for efficiency 
+    p1::Float64 = p1v[1]
+    p2::Float64 = p2v[1]
+
+    ct1::Float64 = p1v[2] #cospi(p1v[2])
+    ct2::Float64 = p2v[2] #cospi(p2v[2]) 
+
+    st1::Float64 = sqrt(1e0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float64 = sqrt(1e0-p2v[2]^2) #sinpi(p2v[2])
+
+    ch1h2::Float64 = cospi(p1v[3]-p2v[3])
+
+    m32 = m3^2
+    m42 = m4^2
+    m12 = m1^2
+    m22 = m2^2
+    
+    Es1::Float64 = m1 != 0e0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
+    Es1s::Float64 = Es1/p1
+    E1::Float64 = Es1 + m1
+ 
+    Es2::Float64 = m2 != 0e0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
+    Es2s::Float64 = Es2/p2
+    E2::Float64 = Es2 + m2
+
+    sBig::Float64 = (m1+m2)^2
+    #sSmol::Float64 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2+ch1h2*st1*st2))
+    sSmol::Float64 = 2*p1*p2*(-ct1*ct2 -ch1h2*st1*st2 + Es1s*Es2s + m1*Es2s/p1 + m2*Es1s/p2)
+
+    # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
+    val::Float64 = Tval*(sBig+sSmol)/InvariantFluxSmall(sSmol,m3,m4)/pi
+
+    p3::Float64 = p3v[1]
+    ct3::Float64 = p3v[2] 
+    st3::Float64 = sqrt(1e0-p3v[2]^2)
+    ch3h1::Float64 = cospi(p3v[3]-p1v[3])
+    ch3h2::Float64 = cospi(p3v[3]-p2v[3])
+    Es3::Float64 = m3 != 0e0 ? (p3^2)/(sqrt(m32+p3^2)+m3) : p3
+    Es3s::Float64 = Es3/p3
+
+    p4::Float64 = p4v[1]
+    ct4::Float64 = p4v[2] 
+    st4::Float64 = sqrt(1e0-p4v[2]^2)
+    ch4h1::Float64 = cospi(p4v[3]-p1v[3])
+    ch4h2::Float64 = cospi(p4v[3]-p2v[3])
+    Es4::Float64 = m4 != 0e0 ? (p4^2)/(sqrt(m42+p4^2)+m4) : p4
+    Es4s::Float64 = Es4/p4
+
+    theta13 = (ct3*ct1+ch3h1*st3*st1)
+    theta23 = (ct3*ct2+ch3h2*st3*st2)
+    theta14 = (ct4*ct1+ch4h1*st4*st1)
+    theta24 = (ct4*ct2+ch4h2*st4*st2)
+
+    deltacorrect3::Float64 = Es1*p3 - Es3*p1*theta13
+    deltacorrect3 += m1*p3 - m3*p1*theta13
+    deltacorrect3 += Es2*p3 - Es3*p2*theta23    
+    deltacorrect3 += m2*p3 - m3*p2*theta23
+
+    deltacorrect4::Float64 = Es1*p4 - Es4*p1*theta14
+    deltacorrect4 += m1*p4 - m4*p1*theta14
+    deltacorrect4 += Es2*p4 - Es4*p2*theta24
+    deltacorrect4 += m2*p4 - m4*p2*theta24
+    # more Float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
+    #sumTerms .= (Es1, -Es3prime*p1*(ct3*ct1+ch3h1*st3*st1), Es2, -Es3prime*p2*(ct3*ct2+ch3h2*st3*st2), m1, -(m3/p3)*p1*(ct3*ct1+ch3h1*st3*st1), m2, -(m3/p3)*p2*(ct3*ct2+ch3h2*st3*st2))
+    #deltacorrect = p3*sum_oro(sumTerms)
+
+    #if (stuCheck(sSmol,sBig,tSmol,tBig,uSmol,uBig,m1,m2,m3,m4) == false || tCheck(tSmol,tBig,m1,m2,m3,m4) == false || uCheck(uSmol,uBig,m1,m2,m3,m4) == false)
+    #    error("stu check")
+    #end
+
+    Sval3 = val*(p3^2/(deltacorrect3*sign(deltacorrect3)))
+    Sval4 = val*(p4^2/(deltacorrect4*sign(deltacorrect4)))
+
+    return Sval3,Sval4
+
+end
+
+function SValueTest2(p3v::Vector{Float64},p4v::Vector{Float64},dsigmadt::Function,tSmol::Float64,sSmol::Float64,p1v::Vector{Float64},p2v::Vector{Float64},mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64)
+
+    # define normalise masses
+    m1 = mu1
+    m2 = mu2 
+    m3 = mu3
+    m4 = mu4 
+
+    # pre-defining terms for efficiency 
+    p1::Float64 = p1v[1]
+    p2::Float64 = p2v[1]
+
+    ct1::Float64 = p1v[2] #cospi(p1v[2])
+    ct2::Float64 = p2v[2] #cospi(p2v[2]) 
+
+    st1::Float64 = sqrt(1e0-p1v[2]^2) #sinpi(p1v[2])
+    st2::Float64 = sqrt(1e0-p2v[2]^2) #sinpi(p2v[2])
+
+    ch1h2::Float64 = cospi(p1v[3]-p2v[3])
+
+    m32 = m3^2
+    m42 = m4^2
+    m12 = m1^2
+    m22 = m2^2
+
+    Es1::Float64 = m1 != 0e0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
+    Es1s::Float64 = Es1/p1
+    E1::Float64 = Es1 + m1
+ 
+    Es2::Float64 = m2 != 0e0 ? (p2^2)/(sqrt(m22+p2^2)+m2) : p2
+    Es2s::Float64 = Es2/p2
+    E2::Float64 = Es2 + m2
+
+    sBig::Float64 = (m1+m2)^2
+    #sSmol::Float64 = 2*(m1*Es2 + m2*Es1 + Es1*Es2 - p1*p2*(ct1*ct2+ch1h2*st1*st2))
+    #sSmol::Float64 = 2*p1*p2*(-ct1*ct2 -ch1h2*st1*st2 + Es1s*Es2s + m1*Es2s/p1 + m2*Es1s/p2)
+
+    # Sspe anisotropic emission spectrum (to be integrated over d^2p1d^3p3d^3p4). See obsidian note on discrete anisotropic kinetic equation
+    #val::Float64 = (1/E1)*(1/E2)*(sBig+sSmol)*InvariantFluxSmall(sSmol,m1,m2)/InvariantFluxSmall(sSmol,m3,m4)/(pi)
+    val::Float64 = (1/E1)*(1/E2)*InvariantFlux2Small(sSmol,m1,m2)/(pi)
+
+    p3::Float64 = p3v[1]
+    t3::Float64 = p3v[4]
+    (st3::Float64,ct3::Float64) = sincospi(t3)
+    #ct3::Float64 = p3v[2] 
+    #st3::Float64 = sqrt(1e0-p3v[2]^2)
+    ch3h1::Float64 = cospi(p3v[3]-p1v[3])
+    ch3h2::Float64 = cospi(p3v[3]-p2v[3])
+    Es3::Float64 = m3 != 0e0 ? (p3^2)/(sqrt(m32+p3^2)+m3) : p3
+    Es3s::Float64 = Es3/p3
+
+    theta13 = (ct3*ct1+ch3h1*st3*st1)
+    theta23 = (ct3*ct2+ch3h2*st3*st2)
+
+    # t = tBig + tSmol
+    tBig3::Float64 = (m3-m1)^2
+    #tSmol3::Float64 = 2*p3*p1*(theta13 - Es3s*Es1s - m1*Es3s/p1 - m3*Es1s/p3)
+    # u = uBig + uSmol
+    uBig3::Float64 = (m2-m3)^2
+    #uSmol3::Float64 = -2*p2*p3*(-ct2*ct3 -ch3h2*st2*st3 + Es2s*Es3s + m3*Es2s/p3 + m2*Es3s/p2)
+    #println("uSmol3 = $uSmol3")
+
+    #uSmol3 = m1^2+m2^2+m3^2+m4^2-sBig-tBig3-uBig3-sSmol-tSmol3 
+    #println("uSmol3 = $uSmol3") 
+    uSmol3 = m1^2+m2^2+m3^2+m4^2-sBig-tBig3-uBig3-sSmol-tSmol 
+    #println("uSmol3 = $uSmol3") 
+
+    deltacorrect3::Float64 = Es1*p3 - Es3*p1*theta13
+    deltacorrect3 += m1*p3 - m3*p1*theta13
+    deltacorrect3 += Es2*p3 - Es3*p2*theta23    
+    deltacorrect3 += m2*p3 - m3*p2*theta23
+
+    Sval3::Float64 = dsigmadt(sSmol,sBig,tSmol,tBig3,uSmol3,uBig3)*val*(p3^2/(deltacorrect3*sign(deltacorrect3)))
+
+    p4::Float64 = p4v[1]
+    ct4::Float64 = p4v[2] 
+    st4::Float64 = sqrt(1e0-p4v[2]^2)
+    ch4h1::Float64 = cospi(p4v[3]-p1v[3])
+    ch4h2::Float64 = cospi(p4v[3]-p2v[3])
+    Es4::Float64 = m4 != 0e0 ? (p4^2)/(sqrt(m42+p4^2)+m4) : p4
+    Es4s::Float64 = Es4/p4
+
+    # t = tBig + tSmol
+    tBig4::Float64 = (m2-m4)^2
+    #tSmol4::Float64 = 2*p2*p4*(ct2*ct4 +ch4h2*st2*st4 - Es2s*Es4s - m4*Es2s/p4 - m2*Es4s/p2)
+    # u = uBig + uSmol
+    uBig4::Float64 = (m4-m1)^2
+    #uSmol::Float64 = -2*(m1*Es4 + m4*Es1 + Es4*Es1 - p4*p1*(ct4*ct1+ch4h1*st4*st1))
+    #uSmol4::Float64 = -2*p4*p1*(-ct4*ct1 -ch4h1*st4*st1 + Es4s*Es1s + m1*Es4s/p1 + m4*Es1s/p4)
+
+    uSmol4 = m1^2+m2^2+m3^2+m4^2-sBig-tBig3-uBig3-sSmol-tSmol 
+
+    theta14 = (ct4*ct1+ch4h1*st4*st1)
+    theta24 = (ct4*ct2+ch4h2*st4*st2)
+
+    deltacorrect4::Float64 = Es1*p4 - Es4*p1*theta14
+    deltacorrect4 += m1*p4 - m4*p1*theta14
+    deltacorrect4 += Es2*p4 - Es4*p2*theta24
+    deltacorrect4 += m2*p4 - m4*p2*theta24
+
+    Sval4::Float64 = dsigmadt(sSmol,sBig,tSmol,tBig4,uSmol4,uBig4)*val*(p4^2/(deltacorrect4*sign(deltacorrect4)))
+
+    #=t_error = 1-tSmol3/tSmol4
+    if t_error > 1e2 || t_error < -1e2
+        println("t_error: $t_error")
+        println("ts3=$tSmol3")
+        println("ts4=$tSmol4")
+        println("us3=$uSmol3")
+        println("us4=$uSmol4")
+        println("p1=$p1")
+        println("p2=$p2")
+        println("p3=$p3")
+        println("p4=$p4")
+        println("theta13 = $theta13")
+        println("sct1 = $st1,$ct1")
+        println("sct3 = $st3,$ct3")
+        println("ch3h1 = $ch3h1")
+        println("theta24 = $theta24")
+        println("st2,ct2 = $st2,$ct2")
+        println("st4,ct4 = $st4,$ct4")
+        println("ch4h2 = $ch4h2")
+        println("")
+    end=#
+
+    # more Float accurate for when p1 and p2 have large order of magnitude difference as sum uses pairwise summation to reduce round of errors
+    #sumTerms .= (Es1, -Es3prime*p1*(ct3*ct1+ch3h1*st3*st1), Es2, -Es3prime*p2*(ct3*ct2+ch3h2*st3*st2), m1, -(m3/p3)*p1*(ct3*ct1+ch3h1*st3*st1), m2, -(m3/p3)*p2*(ct3*ct2+ch3h2*st3*st2))
+    #deltacorrect = p3*sum_oro(sumTerms)
+
+    #if (stuCheck(sSmol,sBig,tSmol,tBig,uSmol,uBig,m1,m2,m3,m4) == false || tCheck(tSmol,tBig,m1,m2,m3,m4) == false || uCheck(uSmol,uBig,m1,m2,m3,m4) == false)
+    #    error("stu check")
+    #end
+
+    return Sval3,Sval4
+
+end
+
+#=
+tS = -0.2844979694423338
+t_error : -408.8789407386356
+ts3 = -108.9888855988345
+ts4 = -0.2659050630960145
+us3 = -1.1204686725550848
+us4 = -0.5155616751268332
+p1 = 10.890835664944595
+p2 = 0.04332837367344047
+p3 = 6.915797711629199
+p4 = 3.992255891330024
+theta13 = 0.27785649953134167
+st1,ct1 = 0.9689484526950011, 0.24726280759540686
+st3,ct3 = 0.03170243009365831, 0.9994973516353891
+ch3h1 = 0.999998619568608
+m3 = 1.0
+m32= m3^2
+m1 = 1.0
+m12 = m1^2
+
+Es1::Float64 = m1 != 0e0 ? (p1^2)/(sqrt(m12+p1^2)+m1) : p1
+Es1s::Float64 = Es1/p1
+
+Es3::Float64 = m3 != 0e0 ? (p3^2)/(sqrt(m32+p3^2)+m3) : p3
+Es3s::Float64 = Es3/p3
+
+theta13 = (ct3*ct1+ch3h1*st3*st1)
+theta23 = (ct3*ct2+ch3h2*st3*st2)
+
+# t = tBig + tSmol
+tBig3::Float64 = (m3-m1)^2
+tSmol3::Float64 = 2*p3*p1*(theta13 - Es3s*Es1s - m1*Es3s/p1 - m3*Es1s/p3)
+
+tSmoltest = 2*m1*m3-2*(Es1+m1)*(Es3+m3) +2*p1*p3*theta13
+=#
