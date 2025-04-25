@@ -22,7 +22,7 @@ This module provides functions for MonteCarlo Integration of S and T Matrices
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64,9},TAtotal::Array{Float64,6},SAtally3::Array{UInt32,8},SAtally4::Array{UInt32,8},TAtally::Array{UInt32,6},ArrayOfLocks,ErrorCond,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,MinMax::Bool,prog::Progress;p3Max=nothing,p4Max=nothing,u3MinMax=nothing,u4MinMax=nothing)
+function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Array{Float64,9},LossTotal::Array{Float64,6},GainTally3::Array{UInt32,9},GainTally4::Array{UInt32,9},LossTally::Array{UInt32,6},ArrayOfLocks,ErrorCond,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,prog::Progress)
 
     # Set Parameters
 
@@ -86,11 +86,11 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
     h4_num = Parameters.h4_num
 
     # Set Arrays
-    SAtotal3 = Arrays.SAtotal3
-    SAtotal4 = Arrays.SAtotal4
+    GainTotal3 = Arrays.GainTotal3
+    GainTotal4 = Arrays.GainTotal4
     TAtotal = Arrays.TAtotal
-    SAtally3 = Arrays.SAtally3
-    SAtally4 = Arrays.SAtally4
+    GainTally3 = Arrays.GainTally3
+    GainTally4 = Arrays.GainTally4
     TAtally = Arrays.TAtally
     if MinMax
         p3Max = Arrays.p3Max
@@ -99,34 +99,6 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
         u4MinMax = Arrays.u4MinMax
     end
     =#
-
-    if Threads.threadid() == 1
-
-        SAtotal3Copy = zeros(Float64,size(SAtotal3))
-        SAtally3Copy = zeros(UInt32,size(SAtally3))
-
-        #@lock ErrorLock begin
-        Threads.atomic_add!(ErrorCond,1)
-        sleep(0.001)
-        SAtally3Copy = copy(SAtally3);
-        SAtotal3Copy = copy(SAtotal3);
-        #SAtally4Old = copy(SAtally4)
-        #SAtotal3Old = copy(SAtotal3)
-        #SAtotal4Old = copy(SAtotal4)
-        #end
-        Threads.atomic_sub!(ErrorCond,1)
-        #notify(ErrorCond)
-
-        SMatrix3 = similar(SAtotal3Copy)
-        SMatrix3Old = copy(SMatrix3)
-        SAtally3Old = copy(SAtally3Copy)
-        SAtotal3Old = copy(SAtotal3Copy)
-
-        for i in axes(SMatrix3Old,1)
-            @. @view(SMatrix3Old[i,:,:,:,:,:,:,:,:]) = @view(SAtotal3Old[i,:,:,:,:,:,:,:,:]) / SAtally3Old
-        end
-
-    end
 
     # Set up worker
     #Threads.@spawn begin
@@ -192,18 +164,10 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
 
     SmallParameters = (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,mu1,mu2,mu3,mu4)
 
-    localSAtotal3 = zeros(Float64,size(SAtotal3)[1:3])
-    localSAtally3 = zeros(UInt32,size(SAtally3)[1:2])
-    localSAtotal4 = zeros(Float64,size(SAtotal4)[1:3])
-    localSAtally4 = zeros(UInt32,size(SAtally4)[1:2])
-    if MinMax
-        localp3Max = zeros(Float64,size(p3Max)[1:2])
-        localu3Min = zeros(Float64,size(u3MinMax)[2:3])
-        localu3Max = zeros(Float64,size(u3MinMax)[2:3])
-        localp4Max = zeros(Float64,size(p4Max)[1:2])
-        localu4Min = zeros(Float64,size(u4MinMax)[2:3])
-        localu4Max = zeros(Float64,size(u4MinMax)[2:3])
-    end
+    localGainTotal3 = zeros(Float64,size(GainTotal3)[1:3])
+    localGainTally3 = zeros(UInt32,size(GainTally3)[1:3])
+    localGainTotal4 = zeros(Float64,size(GainTotal4)[1:3])
+    localGainTally4 = zeros(UInt32,size(GainTally4)[1:3])
 
     @inbounds for nt in 1:numTiterPerThread
         
@@ -225,25 +189,19 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
         h2loc = location(h_low,h_up,h2_num,p2v[3],h2_grid)
         loc12 = CartesianIndex(p1loc,u1loc,h1loc,p2loc,u2loc,h2loc)
 
-        fill!(localSAtally3,UInt32(0))
-        fill!(localSAtally4,UInt32(0))
+        fill!(localGainTally3,UInt32(0))
+        fill!(localGainTally4,UInt32(0))
 
         if Tval != 0e0 # i.e. it is a valid interaction state
 
-            fill!(localSAtotal3,Float64(0))
-            fill!(localSAtotal4,Float64(0))
-            if MinMax
-                fill!(localp3Max,Float64(0))
-                fill!(localu3Min,Float64(0))
-                fill!(localu3Max,Float64(0))
-                fill!(localp4Max,Float64(0))
-                fill!(localu4Min,Float64(0))
-                fill!(localu4Max,Float64(0))
-            end
+            fill!(localGainTotal3,Float64(0))
+            fill!(localGainTotal4,Float64(0))
                     
             @inbounds for _ in 1:numSiterPerThread
 
-                ImportanceSampling3(p1v,p2v,p3v,p4v,p1cv,p1cBv,dsigmadt,localSAtotal3,localSAtotal4,localSAtally3,localSAtally4,SmallParameters,MinMax)
+                UniformSampling!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters)
+
+                #ImportanceSampling3(p1v,p2v,p3v,p4v,p1cv,p1cBv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters,MinMax)
             #=
                 # generate random p direction for use in both p3 and p4 calculations
                 RPointSphereCosThetaPhi!(pv)
@@ -264,8 +222,8 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                 u3locMirror = location(u_low,u_up,u3_num,-p3v[2],u3_grid)
                 h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
                 h3locMirror = location(h_low,h_up,h3_num,mod(p3v[3]+1e0,2e0),h3_grid)
-                localSAtally3[u3loc,h3loc] += UInt32(1)
-                localSAtally3[u3locMirror,h3locMirror] += UInt32(1)
+                localGainTally3[u3loc,h3loc] += UInt32(1)
+                localGainTally3[u3locMirror,h3locMirror] += UInt32(1)
                 #end
 
                 # Calculate S Array totals
@@ -273,7 +231,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                     if p3_physical
                         p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        localSAtotal3[p3loc,u3loc,h3loc] += Sval
+                        localGainTotal3[p3loc,u3loc,h3loc] += Sval
                         if MinMax
                             localp3Max[u3loc,h3loc] = max(localp3Max[u3loc,h3loc],p3v[1])
                             localu3Min[p3loc,h3loc] = min(localu3Min[p3loc,h3loc],p3v[2])
@@ -286,7 +244,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                     if p3_physical
                         p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
                         Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        localSAtotal3[p3loc,u3loc,h3loc] += Sval
+                        localGainTotal3[p3loc,u3loc,h3loc] += Sval
                         if MinMax
                             localp3Max[u3loc,h3loc] = max(localp3Max[u3loc,h3loc],p3v[1])
                             localu3Min[p3loc,h3loc] = min(localu3Min[p3loc,h3loc],p3v[2])
@@ -298,7 +256,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                         h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
                         p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
                         Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        localSAtotal3[p3ploc,u3ploc,h3ploc] += Svalp
+                        localGainTotal3[p3ploc,u3ploc,h3ploc] += Svalp
                         if MinMax
                             localp3Max[u3ploc,h3ploc] = max(localp3Max[u3ploc,h3ploc],p3pv[1])
                             localu3Min[p3ploc,h3ploc] = min(localu3Min[p3ploc,h3ploc],p3pv[2])
@@ -323,15 +281,15 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                 h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
                 u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
                 h4locMirror = location(h_low,h_up,h4_num,mod(p4v[3]+1e0,2e0),h4_grid)
-                localSAtally4[u4loc,h4loc] += UInt32(1)
-                localSAtally4[u4locMirror,h4locMirror] += UInt32(1)
+                localGainTally4[u4loc,h4loc] += UInt32(1)
+                localGainTally4[u4locMirror,h4locMirror] += UInt32(1)
 
                 # Calculate S Array totals
                 if NumStates == 1
                     if p4_physical
                         p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        localSAtotal4[p4loc,u4loc,h4loc] += Sval
+                        localGainTotal4[p4loc,u4loc,h4loc] += Sval
                         if MinMax
                             localp4Max[u4loc,h4loc] = max(localp4Max[u4loc,h4loc],p4v[1])
                             localu4Min[p4loc,h4loc] = min(localu4Min[p4loc,h4loc],p4v[2])
@@ -344,7 +302,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                     if p4_physical
                         p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
                         Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        localSAtotal4[p4loc,u4loc,h4loc] += Sval
+                        localGainTotal4[p4loc,u4loc,h4loc] += Sval
                         if MinMax
                             localp4Max[u4loc,h4loc] = max(localp4Max[u4loc,h4loc],p4v[1])
                             localu4Min[p4loc,h4loc] = min(localu4Min[p4loc,h4loc],p4v[2])
@@ -356,7 +314,7 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
                         h4ploc = location(h_low,h_up,h4_num,p4pv[3],h4_grid)
                         p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
                         Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-                        localSAtotal4[p4ploc,u4ploc,h4ploc] += Svalp
+                        localGainTotal4[p4ploc,u4ploc,h4ploc] += Svalp
                         if MinMax
                             localp4Max[u4ploc,h4ploc] = max(localp4Max[u4ploc,h4ploc],p4pv[1])
                             localu4Min[p4ploc,h4ploc] = min(localu4Min[p4ploc,h4ploc],p4pv[2])
@@ -370,8 +328,8 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
 
         else # no valid interaction state
             # add one to tally of all relevant S tallies i.e. all momenta and all angles as no emission states are possible
-            localSAtally3 .+= UInt32(1)
-            localSAtally4 .+= UInt32(1)
+            @view(localGainTally3[end,:,:]) .+= UInt32(1)
+            @view(localGainTally4[end,:,:]) .+= UInt32(1)
         end
 
         # assign values to arrays
@@ -379,62 +337,18 @@ function STMonteCarlo_MultiThread!(SAtotal3::Array{Float64,9},SAtotal4::Array{Fl
             sleep(0.001)
         end
         @lock ArrayOfLocks[p1loc] begin
-            TAtotal[loc12] += Tval
-            TAtally[loc12] += UInt32(1)
-            @view(SAtally3[:,:,loc12]) .+= localSAtally3
-            @view(SAtally4[:,:,loc12]) .+= localSAtally4
+            LossTotal[loc12] += Tval
+            LossTally[loc12] += UInt32(1)
+            @view(GainTally3[:,:,:,loc12]) .+= localGainTally3
+            @view(GainTally4[:,:,:,loc12]) .+= localGainTally4
             if Tval != 0e0
-                @view(SAtotal3[:,:,:,loc12]) .+= localSAtotal3
-                @view(SAtotal4[:,:,:,loc12]) .+= localSAtotal4
-                if MinMax
-                    @view(p3Max[:,:,loc12]) .= max.(@view(p3Max[:,:,loc12]),localp3Max)
-                    @view(u3MinMax[1,:,:,loc12]) .= min.(@view(u3MinMax[1,:,:,loc12]),localu3Min)
-                    @view(u3MinMax[2,:,:,loc12]) .= max.(@view(u3MinMax[2,:,:,loc12]),localu3Max)
-                    @view(p4Max[:,:,loc12]) .= max.(@view(p4Max[:,:,loc12]),localp4Max)
-                    @view(u4MinMax[1,:,:,loc12]) .= min.(@view(u4MinMax[1,:,:,loc12]),localu4Min)
-                    @view(u4MinMax[2,:,:,loc12]) .= max.(@view(u4MinMax[2,:,:,loc12]),localu4Max)
-                end
+                @view(GainTotal3[:,:,:,loc12]) .+= localGainTotal3
+                @view(GainTotal4[:,:,:,loc12]) .+= localGainTotal4
             end
         end
 
         if Threads.threadid() == 1 # on main thread
             next!(prog)
-            #=
-            if nt%(p1_num*u1_num*h1_num*p2_num*u2_num*h2_num) == 0
-                #reset(ErrorCond)
-                #@lock ErrorLock begin
-                    Threads.atomic_add!(ErrorCond,1)
-                    sleep(0.001)
-                    SAtally3Copy .= SAtally3
-                    SAtotal3Copy .= SAtotal3
-                #end
-                Threads.atomic_sub!(ErrorCond,1)
-                #println(ErrorCond[])
-                #notify(ErrorCond)
-
-                meanNS3 = sum(SAtally3Copy) / length(SAtally3Copy)
-                #meanVS3 = 
-                #meanNS4 = sum(SAtally4) / length(SAtally4)
-
-                for i in axes(SMatrix3,1)
-                    @. @view(SMatrix3[i,:,:,:,:,:,:,:,:]) = @view(SAtotal3Copy[i,:,:,:,:,:,:,:,:]) / SAtally3Copy
-                end
-
-                Error3 = abs.((SMatrix3 .- SMatrix3Old) ./ SMatrix3)
-                replace!(Error3,NaN=>0e0)
-                #println(sum(Error3))
-                meanError3 = sum(Error3) / length(Error3) 
-                sdError3 = sqrt(sum((Error3 .- meanError3).^2) / length(Error3))
-
-                println("$meanNS3, $meanError3, $sdError3")
-
-
-                SAtally3Old .= SAtally3Copy
-                SAtotal3Old .= SAtotal3Copy
-                SMatrix3Old .= SMatrix3
-                
-            end
-            =#
         end
 
     end # T loop

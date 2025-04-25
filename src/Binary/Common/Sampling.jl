@@ -3,13 +3,10 @@
 
 Uniform MC sampling of outgoing momentum states in the un-boosted Lab frame.
 """
-function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},#=Sval::Float64,Svalp::Float64,=#dsigmadt::Function,SAtotalView3::AbstractArray{Float64,3},SAtotalView4::AbstractArray{Float64,3},SAtallyView3::AbstractArray{UInt32,2},SAtallyView4::AbstractArray{UInt32,2},Parameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64},#=Locations::Tuple{Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64},=#MinMax::Bool;p3MaxView=nothing,u3MinView=nothing,u3MaxView=nothing,p4MaxView=nothing,u4MinView=nothing,u4MaxView=nothing)
+function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},#=Sval::Float64,Svalp::Float64,=#dsigmadt::Function,SAtotalView3::AbstractArray{Float64,3},SAtotalView4::AbstractArray{Float64,3},SAtallyView3::AbstractArray{UInt32,3},SAtallyView4::AbstractArray{UInt32,3},Parameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64})
 
     # Unpack parameters
     (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,mu1,mu2,mu3,mu4) = Parameters
-
-    # Unpack locations, NOT NEEDED
-    #(p3loc,u3loc,u3locMirror,h3loc,h3locMirror,p3ploc,u3ploc,h3ploc,p4loc,u4loc,u4locMirror,h4loc,h4locMirror,p4ploc,u4ploc,h4ploc) = Locations
 
     # generate random p direction in Lab frame for use in both p3 and p4 calculations
     RPointSphereCosThetaPhi!(pv)
@@ -29,8 +26,8 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
         u3locMirror = location(u_low,u_up,u3_num,-p3v[2],u3_grid)
         h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
         h3locMirror = location(h_low,h_up,h3_num,mod(p3v[3]+1e0,2e0),h3_grid)
-        SAtallyView3[u3loc,h3loc] += UInt32(1)
-        SAtallyView3[u3locMirror,h3locMirror] += UInt32(1)
+        SAtallyView3[end,u3loc,h3loc] += UInt32(1)
+        SAtallyView3[end,u3locMirror,h3locMirror] += UInt32(1)
     #end
 
     # Calculate S Array totals
@@ -39,12 +36,7 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
             p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
             Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
             SAtotalView3[p3loc,u3loc,h3loc] += Sval
-
-            if MinMax
-                p3MaxView[u3loc,h3loc] = max(p3MaxView[u3loc,h3loc],p3v[1])
-                u3MinView[p3loc,h3loc] = min(u3MinView[p3loc,h3loc],p3v[2])
-                u3MaxView[p3loc,h3loc] = max(u3MaxView[p3loc,h3loc],p3v[2])
-            end
+            SAtallyView3[p3loc,u3loc,h3loc] += UInt32(1)
         end
     end
 
@@ -53,12 +45,7 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
             p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
             Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
             SAtotalView3[p3loc,u3loc,h3loc] += Sval
-
-            if MinMax
-                p3MaxView[u3loc,h3loc] = max(p3MaxView[u3loc,h3loc],p3v[1])
-                u3MinView[p3loc,h3loc] = min(u3MinView[p3loc,h3loc],p3v[2])
-                u3MaxView[p3loc,h3loc] = max(u3MaxView[p3loc,h3loc],p3v[2])
-            end
+            SAtallyView3[p3loc,u3loc,h3loc] += UInt32(1)
         end
         if p3p_physical
             u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
@@ -66,11 +53,7 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
             p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
             Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
             SAtotalView3[p3ploc,u3ploc,h3ploc] += Svalp
-            if MinMax
-                p3MaxView[u3ploc,h3ploc] = max(p3MaxView[u3ploc,h3ploc],p3pv[1])
-                u3MinView[p3ploc,h3ploc] = min(u3MinView[p3ploc,h3ploc],p3pv[2])
-                u3MaxView[p3ploc,h3ploc] = max(u3MaxView[p3ploc,h3ploc],p3pv[2])
-            end
+            SAtallyView3[p3ploc,u3ploc,h3ploc] += UInt32(1)
         end
     end
 
@@ -88,8 +71,8 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
     h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
     u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
     h4locMirror = location(h_low,h_up,h4_num,mod(p4v[3]+1e0,2e0),h4_grid)
-    SAtallyView4[u4loc,h4loc] += UInt32(1)
-    SAtallyView4[u4locMirror,h4locMirror] += UInt32(1)
+    SAtallyView4[end,u4loc,h4loc] += UInt32(1)
+    SAtallyView4[end,u4locMirror,h4locMirror] += UInt32(1)
 
 
     # Calculate S Array totals
@@ -98,11 +81,7 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
             p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
             Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
             SAtotalView4[p4loc,u4loc,h4loc] += Sval
-            if MinMax
-                p4MaxView[u4loc,h4loc] = max(p4MaxView[u4loc,h4loc],p4v[1])
-                u4MinView[p4loc,h4loc] = min(u4MinView[p4loc,h4loc],p4v[2])
-                u4MaxView[p4loc,h4loc] = max(u4MaxView[p4loc,h4loc],p4v[2])
-            end
+            SAtallyView4[p4loc,u4loc,h4loc] += UInt32(1)
         end
     end
 
@@ -111,11 +90,7 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
             p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
             Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
             SAtotalView4[p4loc,u4loc,h4loc] += Sval
-            if MinMax
-                p4MaxView[u4loc,h4loc] = max(p4MaxView[u4loc,h4loc],p4v[1])
-                u4MinView[p4loc,h4loc] = min(u4MinView[p4loc,h4loc],p4v[2])
-                u4MaxView[p4loc,h4loc] = max(u4MaxView[p4loc,h4loc],p4v[2])
-            end
+            SAtallyView4[p4loc,u4loc,h4loc] += UInt32(1)
         end
         if p4p_physical
             u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
@@ -123,194 +98,7 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
             p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
             Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
             SAtotalView4[p4ploc,u4ploc,h4ploc] += Svalp
-            if MinMax
-                p4MaxView[u4ploc,h4ploc] = max(p4MaxView[u4ploc,h4ploc],p4pv[1])
-                u4MinView[p4ploc,h4ploc] = min(u4MinView[p4ploc,h4ploc],p4pv[2])
-                u4MaxView[p4ploc,h4ploc] = max(u4MaxView[p4ploc,h4ploc],p4pv[2])
-            end
-        end
-    end
-
-end
-
-function UniformSampling2!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},#=Sval::Float64,Svalp::Float64,=#dsigmadt::Function,SAtotalView3::AbstractArray{Float64,3},SAtotalView4::AbstractArray{Float64,3},SAtallyView3::AbstractArray{UInt32,2},SAtallyView4::AbstractArray{UInt32,2},Parameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64},#=Locations::Tuple{Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64,Int64},=#MinMax::Bool;p3MaxView=nothing,u3MinView=nothing,u3MaxView=nothing,p4MaxView=nothing,u4MinView=nothing,u4MaxView=nothing)
-
-    # Unpack parameters
-    (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,mu1,mu2,mu3,mu4) = Parameters
-
-    # Unpack locations, NOT NEEDED
-    #(p3loc,u3loc,u3locMirror,h3loc,h3locMirror,p3ploc,u3ploc,h3ploc,p4loc,u4loc,u4locMirror,h4loc,h4locMirror,p4ploc,u4ploc,h4ploc) = Locations
-
-    # generate random p direction in Lab frame for use in both p3 and p4 calculations
-    RPointSphereCosThetaPhi!(pv)
-
-    # === p3 === #
-    #set random p3 direction 
-    p3v .= pv
-    p3pv .= pv
-
-    # Calculate p3 value
-    (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v,mu1,mu2,mu3,mu4)
-
-    # S Array Tallies
-    # For each u3,h3 sampled, p3 will be + or -ve, corresponding to a change in sign of u3 and a rotation of h3 by pi i.e. mod(h3+1,2). Therefore by sampling one u3,h3 we are actually sampling u3 and -u3 and h3, mod(h3+1,2) with one or both having valid p3 states.
-    #if NumStates != 0
-        u3loc = location(u_low,u_up,u3_num,p3v[2],u3_grid)
-        u3locMirror = location(u_low,u_up,u3_num,-p3v[2],u3_grid)
-        h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
-        h3locMirror = location(h_low,h_up,h3_num,mod(p3v[3]+1e0,2e0),h3_grid)
-        SAtallyView3[u3loc,h3loc] += UInt32(1)
-        SAtallyView3[u3locMirror,h3locMirror] += UInt32(1)
-    #end
-
-    # Calculate S Array totals
-    if NumStates == 1
-        if p3_physical
-            p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-            Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtotalView3[p3loc,u3loc,h3loc] += Sval
-
-            pVector!(p4v,p3v,p1v,p2v)
-            p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-            u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
-            h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
-            Svalp = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtallyView4[u4loc,h4loc] += UInt32(1)
-            SAtotalView4[p4loc,u4loc,h4loc] += Svalp
-
-
-            if MinMax
-                p3MaxView[u3loc,h3loc] = max(p3MaxView[u3loc,h3loc],p3v[1])
-                u3MinView[p3loc,h3loc] = min(u3MinView[p3loc,h3loc],p3v[2])
-                u3MaxView[p3loc,h3loc] = max(u3MaxView[p3loc,h3loc],p3v[2])
-            end
-        end
-    end
-
-    if NumStates == 2
-        if p3_physical
-            p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-            Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtotalView3[p3loc,u3loc,h3loc] += Sval
-
-            pVector!(p4v,p3v,p1v,p2v)
-            p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-            u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
-            h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
-            Svalp = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtallyView4[u4loc,h4loc] += UInt32(1)
-            SAtotalView4[p4loc,u4loc,h4loc] += Svalp
-
-            if MinMax
-                p3MaxView[u3loc,h3loc] = max(p3MaxView[u3loc,h3loc],p3v[1])
-                u3MinView[p3loc,h3loc] = min(u3MinView[p3loc,h3loc],p3v[2])
-                u3MaxView[p3loc,h3loc] = max(u3MaxView[p3loc,h3loc],p3v[2])
-            end
-        end
-        if p3p_physical
-            u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
-            h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
-            p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
-            Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtotalView3[p3ploc,u3ploc,h3ploc] += Svalp
-
-            pVector!(p4v,p3pv,p1v,p2v)
-            p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-            u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
-            h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
-            Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtallyView4[u4loc,h4loc] += UInt32(1)
-            SAtotalView4[p4loc,u4loc,h4loc] += Sval
-
-            if MinMax
-                p3MaxView[u3ploc,h3ploc] = max(p3MaxView[u3ploc,h3ploc],p3pv[1])
-                u3MinView[p3ploc,h3ploc] = min(u3MinView[p3ploc,h3ploc],p3pv[2])
-                u3MaxView[p3ploc,h3ploc] = max(u3MaxView[p3ploc,h3ploc],p3pv[2])
-            end
-        end
-    end
-
-    # === p4 === #
-    #set random p4 direction 
-    p4v .= pv
-    p4pv .= pv
-
-    # Calculate p4 value
-    (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p2v,p1v,mu2,mu1,mu4,mu3)
-
-    # S Array Tallies
-    # For each u3,h4 sampled, p4 will be + or -ve, corresponding to a change in sign of u3 and a shift in h4 by pi i.e. Mod(h4+1,2). Therefore by sampling one u3 we are actually sampling u3/h4 and -u3/mod(h4+1,2) with one or both having valid p4 states.
-    u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
-    h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
-    u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
-    h4locMirror = location(h_low,h_up,h4_num,mod(p4v[3]+1e0,2e0),h4_grid)
-    SAtallyView4[u4loc,h4loc] += UInt32(1)
-    SAtallyView4[u4locMirror,h4locMirror] += UInt32(1)
-
-
-    # Calculate S Array totals
-    if NumStates == 1
-        if p4_physical
-            p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-            Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtotalView4[p4loc,u4loc,h4loc] += Sval
-
-            pVector!(p3v,p4v,p1v,p2v)
-            p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-            u3loc = location(u_low,u_up,u3_num,p3v[2],u3_grid)
-            h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
-            Svalp = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtallyView3[u3loc,h3loc] += UInt32(1)
-            SAtotalView3[p3loc,u3loc,h3loc] += Svalp
-
-            if MinMax
-                p4MaxView[u4loc,h4loc] = max(p4MaxView[u4loc,h4loc],p4v[1])
-                u4MinView[p4loc,h4loc] = min(u4MinView[p4loc,h4loc],p4v[2])
-                u4MaxView[p4loc,h4loc] = max(u4MaxView[p4loc,h4loc],p4v[2])
-            end
-        end
-    end
-
-    if NumStates == 2
-        if p4_physical
-            p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-            Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtotalView4[p4loc,u4loc,h4loc] += Sval
-
-            pVector!(p3v,p4v,p1v,p2v)
-            p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-            u3loc = location(u_low,u_up,u3_num,p3v[2],u3_grid)
-            h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
-            Svalp = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtallyView3[u3loc,h3loc] += UInt32(1)
-            SAtotalView3[p3loc,u3loc,h3loc] += Svalp
- 
-            if MinMax
-                p4MaxView[u4loc,h4loc] = max(p4MaxView[u4loc,h4loc],p4v[1])
-                u4MinView[p4loc,h4loc] = min(u4MinView[p4loc,h4loc],p4v[2])
-                u4MaxView[p4loc,h4loc] = max(u4MaxView[p4loc,h4loc],p4v[2])
-            end
-        end
-        if p4p_physical
-            u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
-            h4ploc = location(h_low,h_up,h4_num,p4pv[3],h4_grid)
-            p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
-            Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtotalView4[p4ploc,u4ploc,h4ploc] += Svalp
-
-            pVector!(p3v,p4v,p1v,p2v)
-            p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-            u3loc = location(u_low,u_up,u3_num,p3v[2],u3_grid)
-            h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
-            Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
-            SAtallyView3[u3loc,h3loc] += UInt32(1)
-            SAtotalView3[p3loc,u3loc,h3loc] += Sval
-
-            if MinMax
-                p4MaxView[u4ploc,h4ploc] = max(p4MaxView[u4ploc,h4ploc],p4pv[1])
-                u4MinView[p4ploc,h4ploc] = min(u4MinView[p4ploc,h4ploc],p4pv[2])
-                u4MaxView[p4ploc,h4ploc] = max(u4MaxView[p4ploc,h4ploc],p4pv[2])
-            end
+            SAtallyView4[p4ploc,u4ploc,h4ploc] += UInt32(1)
         end
     end
 
@@ -1567,5 +1355,42 @@ function RotateToLab!(pv::Vector{Float64},tβ::Float64,hβ::Float64)
     pv[3] = mod(atan(y,x)/pi,2)
 
     return nothing
+
+end
+
+"""
+    WeightedAverage!(GainMatrix3,OldGainMatrix3,GainTally3_K,OldGainTally3_K,GainMatrix4,OldGainMatrix4,GainTally4_K,OldGainTally4_K)
+
+Computes the integral estimate by weighted average of the old and new gain matrices. Mutating the old gain and tally terms.
+"""
+function WeightedAverageGain!(GainMatrix3::Array{Float64,9},OldGainMatrix3::Array{Float64,9},GainTally3_K::AbstractArray{UInt32,9},OldGainTally3::Array{UInt32,9},GainMatrix4::Array{Float64,9},OldGainMatrix4::Array{Float64,9},GainTally4_K::AbstractArray{UInt32,9},OldGainTally4::Array{UInt32,9})
+
+    # weighted average 
+    @. OldGainMatrix3 = (GainMatrix3*GainTally3_K+OldGainMatrix3*OldGainTally3)/(GainTally3_K+OldGainTally3)
+    @. OldGainMatrix4 = (GainMatrix4*GainTally4_K+OldGainMatrix4*OldGainTally4)/(GainTally4_K+OldGainTally4)
+
+    replace!(OldGainMatrix3,NaN=>0e0)
+    replace!(OldGainMatrix4,NaN=>0e0)
+
+    # adding tallies 
+    @. OldGainTally3 += GainTally3_K
+    @. OldGainTally4 += GainTally4_K
+
+end
+
+"""
+    WeightedAverageLoss!(LossMatrix,OldLossMatrix,LossTally,OldLossTally)
+
+Computes the integral estimate by weighted average of the old and new gain matrices. Mutating the old gain and tally terms.
+"""
+function WeightedAverageLoss!(LossMatrix::Array{Float64,6},OldLossMatrix::Array{Float64,6},LossTally::Array{UInt32,6},OldLossTally::Array{UInt32,6})
+
+    # weighted average 
+    @. OldLossMatrix = (LossMatrix*LossTally+OldLossMatrix*OldLossTally)/(LossTally+OldLossTally)
+
+    replace!(OldLossMatrix,NaN=>0e0)
+
+    # adding tallies
+    @. OldLossTally += LossTally
 
 end

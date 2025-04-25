@@ -5,11 +5,11 @@
 
 Function to run the Monte Carlo integration of the S and T arrays in a serial environment. The function will run the Monte Carlo integration in serial and then calculate the S and T matrices and save the results to a file.
 """
-function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},Int64,Int64,String,String,Bool}#=userInputSerial::BinaryUserInput=#)
+function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},Int64,Int64,String,String}#=userInputSerial::BinaryUserInput=#)
 
     # ========= Load user Parameters ======= #
 
-        (Parameters,numTiter,numSiter,fileLocation,fileName,MinMax) = userInputSerial
+        (Parameters,numTiter,numSiter,fileLocation,fileName) = userInputSerial
         (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
 
         #=Parameters = userInputSerial.Parameters
@@ -89,80 +89,23 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String
 
     # ====================================== #
 
-    # ========= Load/Create Files ========== #
+    # ==== Building Monte Carlo Arrays ===== #
 
-        println("Loading/Creating Files")
+        println("Building Monte Carlo Arrays")
 
-        filePath = fileLocation*"\\"*fileName
+        MCArrays = MonteCarloArrays(Parameters)
 
-        Arrays = ScatteringArrays(Parameters,filePath,MinMax)
+        GainTally3 = MCArrays.GainTally3
+        GainTotal3 = MCArrays.GainTotal3
+        GainTally4 = MCArrays.GainTally4
+        GainTotal4 = MCArrays.GainTotal4
+        GainMatrix3 = MCArrays.GainMatrix3
+        GainMatrix4 = MCArrays.GainMatrix4
 
-        SMatrix3 = Arrays.SMatrix3
-        SAtally3 = Arrays.SAtally3
-        SAtotal3 = Arrays.SAtotal3
-
-        SMatrix4 = Arrays.SMatrix4
-        SAtally4 = Arrays.SAtally4
-        SAtotal4 = Arrays.SAtotal4
-
-        TMatrix1 = Arrays.TMatrix1
-        TAtally = Arrays.TAtally
-        TAtotal = Arrays.TAtotal
-        TMatrix2 = Arrays.TMatrix2
-
-        if MinMax
-            p3Max = Arrays.p3Max
-            u3MinMax = Arrays.u3MinMax
-            p4Max = Arrays.p4Max
-            u4MinMax = Arrays.u4MinMax
-        end
-
-        #error("stop")
-
-        #filePath = fileLocation*"\\"*fileName
-        #fileExist = isfile(filePath)
-
-        #=if fileExist
-            f = jldopen(filePath,"r+");
-            SAtotal3 = f["STotal3"];
-            SAtally3 = f["STally3"];
-            SMatrix3 = f["SMatrix3"];
-            SAtotal4 = f["STotal4"];
-            SAtally4 = f["STally4"];
-            SMatrix4 = f["SMatrix4"];
-            TAtotal = f["TTotal"];
-            TAtally = f["TTally"];
-            TMatrix1 = f["TMatrix1"];
-            TMatrix2 = f["TMatrix2"];
-            if MinMax
-                p3Max = f["p3Max"];
-                u3MinMax = f["u3MinMax"];
-                p4Max = f["p4Max"];
-                u4MinMax = f["u4MinMax"];
-            end
-            close(f)
-        else
-            SAtotal3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
-            SAtotal4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
-            TAtotal = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            SAtally3 = zeros(UInt32,u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            SAtally4 = zeros(UInt32,u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            TAtally = zeros(UInt32,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            SMatrix3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            TMatrix1 = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            TMatrix2 = zeros(Float64,p2_num,u2_num,h2_num,p1_num,u1_num,h1_num);
-            SMatrix4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            if MinMax
-                p3Max = zeros(Float64,u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-                u3MinMax = zeros(Float64,2,(p3_num+1),h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-                p4Max = zeros(Float64,u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-                u4MinMax = zeros(Float64,2,(p4_num+1),h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-                fill!(@view(self.u3MinMax[1,:,:,:,:,:,:,:,:]),1e0);
-                fill!(@view(self.u3MinMax[2,:,:,:,:,:,:,:,:]),-1e0);
-                fill!(@view(self.u4MinMax[1,:,:,:,:,:,:,:,:]),1e0);
-                fill!(@view(self.u4MinMax[2,:,:,:,:,:,:,:,:]),-1e0);
-            end
-        end=#
+        LossTally = MCArrays.LossTally
+        LossTotal = MCArrays.LossTotal
+        LossMatrix1 = MCArrays.LossMatrix1
+        LossMatrix2 = MCArrays.LossMatrix2
 
     # ====================================== #
 
@@ -179,151 +122,120 @@ function SpectraEvaluateSerial(userInputSerial::Tuple{Tuple{String,String,String
 
         println("Running Monte Carlo Integration")
 
-        #STMonteCarlo_Serial!(Arrays,sigma,dsigmadt,Parameters,numTiter,numSiter,MinMax)
-        if MinMax
-            STMonteCarlo_Serial!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,sigma,dsigmadt,Parameters,numTiter,numSiter,MinMax;p3Max=p3Max,p4Max=p4Max,u3MinMax=u3MinMax,u4MinMax=u4MinMax)
-        else
-            #STMonteCarlo_Serial!(Arrays.SAtotal3,Arrays.SAtotal4,Arrays.TAtotal,Arrays.SAtally3,Arrays.SAtally4,Arrays.TAtally,sigma,dsigmadt,Parameters,numTiter,numSiter,MinMax)
-            STMonteCarlo_Serial!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,sigma,dsigmadt,Parameters,numTiter,numSiter,MinMax)
-        end
+        STMonteCarlo_Serial!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,sigma,dsigmadt,Parameters,numTiter,numSiter)
 
     # ===================================== #
 
-    # ===== Calculate S and T Matrices === #
+    # === Update Gain and Loss Matrices === #
 
-        println("Building S and T Matrices")
+        println("Loading and Updating Gain and Loss Matrices")
+        
+        filePath = fileLocation*"\\"*fileName
 
-        # preallocate
-        SMatrixOldSum3 = dropdims(sum(SMatrix3,dims=(4,5,6,7,8,9)),dims=(4,5,6,7,8,9));
-        fill!(SMatrix3,0e0);
-        SMatrixOldSum4 = dropdims(sum(SMatrix4,dims=(4,5,6,7,8,9)),dims=(4,5,6,7,8,9));
-        fill!(SMatrix4,0e0);
-        TMatrixOldSum = dropdims(sum(TMatrix1,dims=(4,5,6)),dims=(4,5,6));
-        fill!(TMatrix1,0e0);
+        OldMCArrays = OldMonteCarloArrays(Parameters,filePath)
+        OldGainMatrix3 = OldMCArrays.GainMatrix3
+        OldGainMatrix4 = OldMCArrays.GainMatrix4
+        OldGainTally3 = OldMCArrays.GainTally3
+        OldGainTally4 = OldMCArrays.GainTally4
+        OldLossMatrix1 = OldMCArrays.LossMatrix1
+        OldLossMatrix2 = OldMCArrays.LossMatrix2
+        OldLossTally = OldMCArrays.LossTally
 
-        # divide element wise by tallys
+        # N values are last element of the tally array
+        GainTally3_N = @view(GainTally3[end,:,:,:,:,:,:,:,:])
+        GainTally4_N = @view(GainTally4[end,:,:,:,:,:,:,:,:])
+        # K value are all but last element of the tally array
+        GainTally3_K = @view(GainTally3[1:end-1,:,:,:,:,:,:,:,:])
+        GainTally4_K = @view(GainTally4[1:end-1,:,:,:,:,:,:,:,:])
+
+        println("Applying Symmetries")
+
+        # Apply Symmetries to the Gain and Loss Totals and Tallies
+        GainLossSymmetry!(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,mu1,mu2,mu3,mu4)
+
+        println("Calculating New Gain and Loss Matrices")
+
+        # calculate the gain and loss matrices
         if Indistinguishable_34 == true
-            @. SAtally3 = SAtally3 + SAtally4
-            @. SAtotal3 = SAtotal3 + SAtotal4
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:,:,:,:]) / SAtally3
+            # Only need to calculate GainMatrix3
+            for i in axes(GainTotal3,1)
+                @. @view(GainMatrix3[i,:,:,:,:,:,:,:,:]) = @view(GainTotal3[i,:,:,:,:,:,:,:,:]) / GainTally3_N
             end
-            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
-            if MinMax
-                @. p3Max = max(p3Max,p4Max)
-                @view(u3MinMax[1,:,:,:,:,:,:,:,:]) .= min.(u3MinMax[1,:,:,:,:,:,:,:,:],u4MinMax[1,:,:,:,:,:,:,:,:])
-                @view(u3MinMax[2,:,:,:,:,:,:,:,:]) .= max.(u3MinMax[2,:,:,:,:,:,:,:,:],u4MinMax[2,:,:,:,:,:,:,:,:])
-                # reset arrays to avoid overcounting when multiple runs are made
-                fill!(SAtally4,UInt32(0))
-                fill!(SAtotal4,0e0)
-                fill!(p4Max,0e0)
-                fill!(@view(u4MinMax[1,:,:,:,:,:,:,:,:]),1e0);
-                fill!(@view(u4MinMax[2,:,:,:,:,:,:,:,:]),-1e0);
-            end
-        elseif mu3 == mu4 # system symmetric in 34 interchange
-            @. SAtally3 = SAtally3 + SAtally4
-            @. SAtally4 = SAtally3
-            @. SAtotal3 = SAtotal3 + SAtotal4
-            @. SAtotal4 = SAtotal3
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:,:,:,:]) / SAtally3
-            end
-            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
-            @. SMatrix4 = SMatrix3
-            if MinMax
-                @. p3Max = max(p3Max,p4Max)
-                @. p4Max = p3Max
-                @view(u3MinMax[1,:,:,:,:,:,:,:,:]) .= min.(u3MinMax[1,:,:,:,:,:,:,:,:],u4MinMax[1,:,:,:,:,:,:,:,:])
-                @view(u3MinMax[2,:,:,:,:,:,:,:,:]) .= max.(u3MinMax[2,:,:,:,:,:,:,:,:],u4MinMax[2,:,:,:,:,:,:,:,:])
-                @. u4MinMax = u3MinMax
+            replace!(GainMatrix3,NaN=>0e0); # remove NaN caused by / 0
+            if mu3 == mu4 
+                @. GainMatrix4 = GainMatrix3
+            else
+                GainMatrix4 = zeros(similar(GainMatrix3))
             end
         else
-            for i in axes(SMatrix3,1)
-                @. @view(SMatrix3[i,:,:,:,:,:,:,:,:]) = @view(SAtotal3[i,:,:,:,:,:,:,:,:]) / SAtally3
+            for i in axes(GainTotal3,1)
+                @. @view(GainMatrix3[i,:,:,:,:,:,:,:,:]) = @view(GainTotal3[i,:,:,:,:,:,:,:,:]) / GainTally3_N
             end
-            replace!(SMatrix3,NaN=>0e0); # remove NaN caused by /0e0
-            for i in axes(SMatrix4,1)
-                @. @view(SMatrix4[i,:,:,:,:,:,:,:,:]) = @view(SAtotal4[i,:,:,:,:,:,:,:,:]) / SAtally4
+            replace!(GainMatrix3,NaN=>0e0); # remove NaN caused by /0e0
+            for i in axes(GainTotal4,1)
+                @. @view(GainMatrix4[i,:,:,:,:,:,:,:,:]) = @view(GainTotal4[i,:,:,:,:,:,:,:,:]) / GainTally4_N
             end
-            replace!(SMatrix4,NaN=>0e0); # remove NaN caused by /0e0
+            replace!(GainMatrix4,NaN=>0e0); # remove NaN caused by /0e0
         end
-        TMatrix1 = TAtotal ./ TAtally;
-        replace!(TMatrix1,NaN=>0e0);
+        LossMatrix1 = LossTotal ./ LossTally;
+        replace!(LossMatrix1,NaN=>0e0);
+        
+
+        println("Applying Momentum Space Factors")
 
         # Angle / Momentum Ranges
         u3val = bounds(u_low,u_up,u3_num,u3_grid)
         u4val = bounds(u_low,u_up,u4_num,u4_grid)
-        u1val = bounds(u_low,u_up,u1_num,u1_grid)
-        u2val = bounds(u_low,u_up,u2_num,u2_grid)
-        p3val = bounds(p3_low,p3_up,p3_num,p3_grid)
-        p4val = bounds(p4_low,p4_up,p4_num,p4_grid)
-        p1val = bounds(p1_low,p1_up,p1_num,p1_grid)
-        p2val = bounds(p2_low,p2_up,p2_num,p2_grid)
         h3val = bounds(h_low,h_up,h3_num,h3_grid).*pi
         h4val = bounds(h_low,h_up,h4_num,h4_grid).*pi
-        h1val = bounds(h_low,h_up,h1_num,h1_grid).*pi
-        h2val = bounds(h_low,h_up,h2_num,h2_grid).*pi
-
-        println("Applying Momentum Space Factors")
 
         # Momentum space volume elements and symmetries
-        PhaseSpaceFactors1!(SMatrix3,SMatrix4,TMatrix1,u3val,h3val,u4val,h4val,p1val,u1val,h1val,p2val,u2val,h2val,Indistinguishable_12)      # applies phase space factors for symmetries                  
-        STSymmetry!(SMatrix3,SMatrix4,TMatrix1,mu1,mu2)   # initial states are symmetric -> apply symmetry of interaction to improve MC values
+        MomentumSpaceFactorsNew!(GainMatrix3,GainMatrix4,u3val,h3val,u4val,h4val,Indistinguishable_12)
+                                    
+        println("Weighting average of New and Old Gain and Loss Matrices")
+
+        WeightedAverageGain!(GainMatrix3,OldGainMatrix3,GainTally3_K,OldGainTally3,GainMatrix4,OldGainMatrix4,GainTally4_K,OldGainTally4)
+        
+        WeightedAverageLoss!(LossMatrix1,OldLossMatrix1,LossTally,OldLossTally)
+
         if Indistinguishable_12 == false
             perm = [4,5,6,1,2,3]
-            TMatrix2 = permutedims(TMatrix1,perm)
+            OldLossMatrix2 = permutedims(OldLossMatrix1,perm)
+        else
+            OldLossMatrix2 = zeros(similar(OldLossMatrix1))
         end
-        PhaseSpaceFactors2!(SMatrix3,SMatrix4,TMatrix1,TMatrix2,p3val,u3val,h3val,p4val,u4val,h4val,p1val,u1val,h1val,p2val,u2val,h2val)            # corrects phase space factors for application in kinetic models
-                                            
-        # correction to better conserve particle number and account for statistical noise of MC method
-        #SCorrection2!(SMatrix,TMatrix) 
 
-        # output a measure of convergence, i.e. new-old/old
-        SMatrixSum3 = dropdims(sum(SMatrix3,dims=(4,5,6,7,8,9)),dims=(4,5,6,7,8,9));
-        SConverge3 = (SMatrixSum3 .- SMatrixOldSum3)./SMatrixOldSum3
-        SMatrixSum4 = dropdims(sum(SMatrix4,dims=(4,5,6,7,8,9)),dims=(4,5,6,7,8,9));
-        SConverge4 = (SMatrixSum4 .- SMatrixOldSum4)./SMatrixOldSum4
-        TMatrixSum = dropdims(sum(TMatrix1,dims=(4,5,6)),dims=(4,5,6));
-        TConverge = (TMatrixSum .- TMatrixOldSum)./TMatrixOldSum
+    # ===================================== #
+    
+    # ============= Error Estimates ======= # 
 
-    # ===================================== # 
+        println("Calculating Error Estimates")
+
+        ErrorOutput =  DoesConserve2((Parameters,OldGainMatrix3,OldGainMatrix4,OldLossMatrix1,OldLossMatrix2))
+
+    # ===================================== #
 
     # ========== Save Arrays ============== #
-
-        #OutputParameters = Parameters
 
         println("Saving Arrays")
 
         f = jldopen(filePath,"w") # creates file and overwrites previous file if one existed
-        write(f,"STotal3",SAtotal3)
-        write(f,"STally3",SAtally3)
-        write(f,"SMatrix3",SMatrix3)
-        write(f,"SConverge3",SConverge3)
+        write(f,"GainTally3",OldGainTally3)
+        write(f,"GainMatrix3",OldGainMatrix3)
 
-        write(f,"STotal4",SAtotal4)
-        write(f,"STally4",SAtally4)
-        write(f,"SMatrix4",SMatrix4)
-        write(f,"SConverge4",SConverge4)
+        write(f,"GainTally4",OldGainTally4)
+        write(f,"GainMatrix4",OldGainMatrix4)
 
-        write(f,"TTotal",TAtotal)
-        write(f,"TTally",TAtally)
-        write(f,"TMatrix1",TMatrix1)
-        write(f,"TMatrix2",TMatrix2)
-
-        write(f,"TConverge",TConverge)
-
-        if MinMax
-            write(f,"p3Max",p3Max)
-            write(f,"u3MinMax",u3MinMax)
-            write(f,"p4Max",p4Max)
-            write(f,"u4MinMax",u4MinMax)
-        end
+        write(f,"LossTally",OldLossTally)
+        write(f,"LossMatrix1",OldLossMatrix1)
+        write(f,"LossMatrix2",OldLossMatrix2)
 
         write(f,"Parameters",Parameters)
+        write(f,"ErrorEstimates",ErrorOutput)
         close(f)
 
     # ===================================== #
 
-        return nothing
+    return nothing
 
 end #function

@@ -113,28 +113,66 @@ function FileName(Parameters::Tuple{String,String,String,String,Float64,Float64,
     return fileName
 end
 
-mutable struct ScatteringArrays <: Function
+mutable struct MonteCarloArrays <: Function
 
-    SAtotal3::Array{Float64,9}
-    SAtotal4::Array{Float64,9}
+    GainTotal3::Array{Float64,9}
+    GainTotal4::Array{Float64,9}
 
-    SAtally3::Array{UInt32,8}
-    SAtally4::Array{UInt32,8}
+    GainTally3::Array{UInt32,9}
+    GainTally4::Array{UInt32,9}
 
-    SMatrix3::Array{Float64,9}
-    SMatrix4::Array{Float64,9}
+    LossTotal::Array{Float64,6}
+    LossTally::Array{UInt32,6}
 
-    TAtotal::Array{Float64,6}
-    TAtally::Array{UInt32,6}
-    TMatrix1::Array{Float64,6}
-    TMatrix2::Array{Float64,6}
+    GainMatrix3::Array{Float64,9}
+    GainMatrix4::Array{Float64,9}
+    LossMatrix1::Array{Float64,6}
+    LossMatrix2::Array{Float64,6}
 
-    p3Max::Array{Float64,8}
-    u3MinMax::Array{Float64,8}
-    p4Max::Array{Float64,8}
-    u4MinMax::Array{Float64,8}
+    function MonteCarloArrays(Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64})
 
-    function ScatteringArrays(Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},filePath::String,MinMax::Bool#=UserInput::BinaryUserInput=#)
+        self = new()
+
+        #=filePath = UserInput.fileLocation*"\\"*UserInput.fileName
+        fileExist = isfile(filePath)
+        MinMax = UserInput.MinMax
+        P = UserInput.Parameters=#
+  
+        (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
+
+
+        self.GainTotal3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
+        self.GainTotal4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
+        self.LossTotal = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+        # GainTally have first dimension elements [k1,k2,k3,...,k(n+1),N]
+        self.GainTally3 = zeros(UInt32,(p3_num+2),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+        self.GainTally4 = zeros(UInt32,(p4_num+2),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+        self.LossTally = zeros(UInt32,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+
+        self.GainMatrix3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+        self.GainMatrix4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+        self.LossMatrix1 = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+        self.LossMatrix2 = zeros(Float64,p2_num,u2_num,h2_num,p1_num,u1_num,h1_num);
+
+        return self
+
+    end
+
+end
+
+mutable struct OldMonteCarloArrays <: Function
+
+    GainTally3::Array{UInt32,9}
+    GainTally4::Array{UInt32,9}
+
+    GainMatrix3::Array{Float64,9}
+    GainMatrix4::Array{Float64,9}
+
+    LossTally::Array{UInt32,6}
+    LossMatrix1::Array{Float64,6}
+    LossMatrix2::Array{Float64,6}
+
+    function OldMonteCarloArrays(Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},filePath::String)
 
         self = new()
 
@@ -149,22 +187,13 @@ mutable struct ScatteringArrays <: Function
 
         if fileExist
             f = jldopen(filePath,"r+");
-            self.SAtotal3 = f["STotal3"];
-            self.SAtally3 = f["STally3"];
-            self.SMatrix3 = f["SMatrix3"];
-            self.SAtotal4 = f["STotal4"];
-            self.SAtally4 = f["STally4"];
-            self.SMatrix4 = f["SMatrix4"];
-            self.TAtotal = f["TTotal"];
-            self.TAtally = f["TTally"];
-            self.TMatrix1 = f["TMatrix1"];
-            self.TMatrix2 = f["TMatrix2"];
-            if MinMax
-                self.p3Max = f["p3Max"];
-                self.u3MinMax = f["u3MinMax"];
-                self.p4Max = f["p4Max"];
-                self.u4MinMax = f["u4MinMax"];
-            end
+            self.GainTally3 = f["GainTally3"];
+            self.GainMatrix3 = f["GainMatrix3"];
+            self.GainTally4 = f["GainTally4"];
+            self.GainMatrix4 = f["GainMatrix4"];
+            self.LossTally = f["LossTally"];
+            self.LossMatrix1 = f["LossMatrix1"];
+            self.LossMatrix2 = f["LossMatrix2"];
             close(f)
         else
             #=p1_num = P.p1_num
@@ -180,26 +209,14 @@ mutable struct ScatteringArrays <: Function
             u4_num = P.u4_num
             h4_num = P.h4_num=#
 
-            self.SAtotal3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
-            self.SAtotal4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num); 
-            self.TAtotal = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            self.SAtally3 = zeros(UInt32,u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            self.SAtally4 = zeros(UInt32,u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            self.TAtally = zeros(UInt32,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            self.SMatrix3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            self.TMatrix1 = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            self.TMatrix2 = zeros(Float64,p2_num,u2_num,h2_num,p1_num,u1_num,h1_num);
-            self.SMatrix4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-            if MinMax
-                self.p3Max = zeros(Float64,u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-                self.u3MinMax = zeros(Float64,2,(p3_num+1),h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-                self.p4Max = zeros(Float64,u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-                self.u4MinMax = zeros(Float64,2,(p4_num+1),h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
-                fill!(@view(self.u3MinMax[1,:,:,:,:,:,:,:,:]),1e0);
-                fill!(@view(self.u3MinMax[2,:,:,:,:,:,:,:,:]),-1e0);
-                fill!(@view(self.u4MinMax[1,:,:,:,:,:,:,:,:]),1e0);
-                fill!(@view(self.u4MinMax[2,:,:,:,:,:,:,:,:]),-1e0);
-            end
+            # GainTally have first dimension elements [k1,k2,k3,...,k(n+1)], N is not needed to be saved
+            self.GainTally3 = zeros(UInt32,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            self.GainTally4 = zeros(UInt32,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            self.LossTally = zeros(UInt32,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            self.GainMatrix3 = zeros(Float64,(p3_num+1),u3_num,h3_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            self.GainMatrix4 = zeros(Float64,(p4_num+1),u4_num,h4_num,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            self.LossMatrix1 = zeros(Float64,p1_num,u1_num,h1_num,p2_num,u2_num,h2_num);
+            self.LossMatrix2 = zeros(Float64,p2_num,u2_num,h2_num,p1_num,u1_num,h1_num);
         end
 
         return self

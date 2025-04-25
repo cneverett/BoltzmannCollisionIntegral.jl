@@ -6,10 +6,10 @@ This module provides functions for MonteCarlo Integration of S and T Matrices
 """
     STMonteCarlo_Serial!(Arrays,sigma,dsigmadt,UserInput)
 
-Performs Monte Carlo Integration of S and T Matrices
+Performs Monte Carlo Integration of Gain and Loss Matrices
 
 # Output:
-- Argument arrays SAtotal,TAtotal,SAtally,TAtally are mutated to include the results of the Monte Carlo Integration.
+- Argument arrays GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally are mutated to include the results of the Monte Carlo Integration.
 
 # Calculation In Brief
 - Random Sample points in each of these domains
@@ -18,12 +18,12 @@ Performs Monte Carlo Integration of S and T Matrices
 - Calculate T value 
 - Take random points (u3,h3,p1,p2,u1,u2,h1,h2) and calculate valid p3 point/points 
 - Calculate S3 value
-- Find position in local S and T arrays and allocated tallies and totals accordingly.
+- Find position in local Gain and Loss arrays and allocated tallies and totals accordingly.
 - Take random points (u4,h3,p1,p2,u1,u2,h1,h2) and calculate valid p4 point/points 
 - Calculate S4 value
-- Find position in local S and T arrays and allocated tallies and totals accordingly.
+- Find position in local Gain and Loss arrays and allocated tallies and totals accordingly.
 """
-function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64,9},TAtotal::Array{Float64,6},SAtally3::Array{UInt32,8},SAtally4::Array{UInt32,8},TAtally::Array{UInt32,6}#=Arrays::ScatteringArrays=#,sigma::Function,dsigmadt::Function,#=userInputSerial::BinaryUserInput=#Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiter::Int64,numSiter::Int64,MinMax::Bool;p3Max=nothing,p4Max=nothing,u3MinMax=nothing,u4MinMax=nothing)
+function STMonteCarlo_Serial!(GainTotal3::Array{Float64,9},GainTotal4::Array{Float64,9},LossTotal::Array{Float64,6},GainTally3::Array{UInt32,9},GainTally4::Array{UInt32,9},LossTally::Array{UInt32,6}#=Arrays::ScatteringArrays=#,sigma::Function,dsigmadt::Function,#=userInputSerial::BinaryUserInput=#Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiter::Int64,numSiter::Int64)
 
     # Set Parameters
     (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid_st,p1_num,u1_grid_st,u1_num,h1_grid_st,h1_num,p2_low,p2_up,p2_grid_st,p2_num,u2_grid_st,u2_num,h2_grid_st,h2_num,p3_low,p3_up,p3_grid_st,p3_num,u3_grid_st,u3_num,h3_grid_st,h3_num,p4_low,p4_up,p4_grid_st,p4_num,u4_grid_st,u4_num,h4_grid_st,h4_num) = Parameters
@@ -88,20 +88,6 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
     h4_grid_st = Parameters.h4_grid
     h4_num = Parameters.h4_num=#
 
-    # Set Arrays
-    #=SAtotal3::Array{Float64,9} = Arrays.SAtotal3
-    SAtotal4::Array{Float64,9} = Arrays.SAtotal4
-    TAtotal::Array{Float64,6} = Arrays.TAtotal
-    SAtally3::Array{UInt32,8} = Arrays.SAtally3
-    SAtally4::Array{UInt32,8} = Arrays.SAtally4
-    TAtally::Array{UInt32,6} = Arrays.TAtally
-    if MinMax
-        p3Max = Arrays.p3Max
-        u3MinMax = Arrays.u3MinMax
-        p4Max = Arrays.p4Max
-        u4MinMax = Arrays.u4MinMax
-    end=#
-
     # allocate arrays
     p1v::Vector{Float64} = zeros(Float64,3)
     p1cv::Vector{Float64} = zeros(Float64,4)
@@ -164,18 +150,10 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
 
     SmallParameters = (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,mu1,mu2,mu3,mu4)
 
-    localSAtotal3 = zeros(Float64,size(SAtotal3)[1:3])
-    localSAtally3 = zeros(UInt32,size(SAtally3)[1:2])
-    localSAtotal4 = zeros(Float64,size(SAtotal4)[1:3])
-    localSAtally4 = zeros(UInt32,size(SAtally4)[1:2])
-    if MinMax
-        localp3Max = zeros(Float64,size(p3Max)[1:2])
-        localu3Min = zeros(Float64,size(u3MinMax)[2:3])
-        localu3Max = zeros(Float64,size(u3MinMax)[2:3])
-        localp4Max = zeros(Float64,size(p4Max)[1:2])
-        localu4Min = zeros(Float64,size(u4MinMax)[2:3])
-        localu4Max = zeros(Float64,size(u4MinMax)[2:3])
-    end
+    localGainTotal3 = zeros(Float64,size(GainTotal3)[1:3])
+    localGainTally3 = zeros(UInt32,size(GainTally3)[1:3])
+    localGainTotal4 = zeros(Float64,size(GainTotal4)[1:3])
+    localGainTally4 = zeros(UInt32,size(GainTally4)[1:3])
 
     p = Progress(numTiter)
     
@@ -199,45 +177,26 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
         h2loc = location(h_low,h_up,h2_num,p2v[3],h2_grid)
         loc12 = CartesianIndex(p1loc,u1loc,h1loc,p2loc,u2loc,h2loc)
 
-        fill!(localSAtally3,UInt32(0))
-        fill!(localSAtally4,UInt32(0))
+        fill!(localGainTally3,UInt32(0))
+        fill!(localGainTally4,UInt32(0))
 
         #SAtotalView3 = @view SAtotal3[:,:,:,loc12]
         #SAtotalView4 = @view SAtotal4[:,:,:,loc12]
-        #SAtallyView3 = @view SAtally3[:,:,loc12]
-        #SAtallyView4 = @view SAtally4[:,:,loc12]
-
-        #=if MinMax
-            p3MaxView = @view p3Max[:,:,loc12]
-            u3MinView = @view u3MinMax[1,:,:,loc12]
-            u3MaxView = @view u3MinMax[2,:,:,loc12]
-            p4MaxView = @view p4Max[:,:,loc12]
-            u4MinView = @view u4MinMax[1,:,:,loc12]
-            u4MaxView = @view u4MinMax[2,:,:,loc12]
-        end=#
+        #SAtallyView3 = @view GainTally3[:,:,loc12]
+        #SAtallyView4 = @view GainTally4[:,:,loc12]
         
         if Tval != 0e0 # i.e. it is a valid interaction state
 
-            fill!(localSAtotal3,Float64(0))
-            fill!(localSAtotal4,Float64(0))
-            if MinMax
-                fill!(localp3Max,Float64(0))
-                fill!(localu3Min,Float64(0))
-                fill!(localu3Max,Float64(0))
-                fill!(localp4Max,Float64(0))
-                fill!(localu4Min,Float64(0))
-                fill!(localu4Max,Float64(0))
-            end
+            fill!(localGainTotal3,Float64(0))
+            fill!(localGainTotal4,Float64(0))
 
             @inbounds for _ in 1:numSiter # loop over a number of p3 orientations for a given p1 p2 state
 
                 #COMSampling(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,βv,pCv,dsigmadt,SAtotalView3,SAtotalView4,SAtallyView3,SAtallyView4,SmallParameters,MinMax)
 
-                #UniformSampling!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,dsigmadt,localSAtotal3,localSAtotal4,localSAtally3,localSAtally4,SmallParameters,MinMax)
+                UniformSampling!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters)
 
-                #ImportanceSampling2(p1v,p2v,p3v,p4v,p1cv,p1cBv,Tval,localSAtotal3,localSAtotal4,localSAtally3,localSAtally4,SmallParameters,MinMax)
-
-                ImportanceSampling3(p1v,p2v,p3v,p4v,p1cv,p1cBv,dsigmadt,localSAtotal3,localSAtotal4,localSAtally3,localSAtally4,SmallParameters,MinMax)
+                #ImportanceSampling3(p1v,p2v,p3v,p4v,p1cv,p1cBv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters,MinMax)
 
                 #=if p4v[1] <= 1e-8
                 println("p3 before = $(p3v[1])")
@@ -404,31 +363,17 @@ function STMonteCarlo_Serial!(SAtotal3::Array{Float64,9},SAtotal4::Array{Float64
 
         else # no valid interaction state
             # add one to tally of all relevant S tallies i.e. all momenta and all angles as no emission states are possible
-            #SAtallyView3 .+= UInt32(1)
-            #SAtallyView4 .+= UInt32(1)
-            localSAtally3 .+= UInt32(1)
-            localSAtally4 .+= UInt32(1)
+            @view(localGainTally3[end,:,:]) .+= UInt32(1)
+            @view(localGainTally4[end,:,:]) .+= UInt32(1)
         end
 
-        # assign to T arrays
-        #TAtotal[loc12] += Tval # ST[3] doesn't change with S loop
-        #TAtally[loc12] += UInt32(1)
-
-        TAtotal[loc12] += Tval
-        TAtally[loc12] += UInt32(1)
-        @view(SAtally3[:,:,loc12]) .+= localSAtally3
-        @view(SAtally4[:,:,loc12]) .+= localSAtally4
+        LossTotal[loc12] += Tval
+        LossTally[loc12] += UInt32(1)
+        @view(GainTally3[:,:,:,loc12]) .+= localGainTally3
+        @view(GainTally4[:,:,:,loc12]) .+= localGainTally4
         if Tval != 0e0
-            @view(SAtotal3[:,:,:,loc12]) .+= localSAtotal3
-            @view(SAtotal4[:,:,:,loc12]) .+= localSAtotal4
-            if MinMax
-                @view(p3Max[:,:,loc12]) .= max.(@view(p3Max[:,:,loc12]),localp3Max)
-                @view(u3MinMax[1,:,:,loc12]) .= min.(@view(u3MinMax[1,:,:,loc12]),localu3Min)
-                @view(u3MinMax[2,:,:,loc12]) .= max.(@view(u3MinMax[2,:,:,loc12]),localu3Max)
-                @view(p4Max[:,:,loc12]) .= max.(@view(p4Max[:,:,loc12]),localp4Max)
-                @view(u4MinMax[1,:,:,loc12]) .= min.(@view(u4MinMax[1,:,:,loc12]),localu4Min)
-                @view(u4MinMax[2,:,:,loc12]) .= max.(@view(u4MinMax[2,:,:,loc12]),localu4Max)
-            end
+            @view(GainTotal3[:,:,:,loc12]) .+= localGainTotal3
+            @view(GainTotal4[:,:,:,loc12]) .+= localGainTotal4
         end
         
         next!(p)
