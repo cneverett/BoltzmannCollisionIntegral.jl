@@ -216,11 +216,7 @@ function sigma_ElePhoElePho(sSmol::Float64,sBig::Float64)
 
     #(1/(4*(s-1)))*((1-4/(s-1)-8/(s-1)^2)*log(s)+1/2+8/(s-1)-1/(2*s^2))
     s = sBig+sSmol
-    if sSmol < 1e-3 # small approximation
-        1-sSmol+13*sSmol^2/10
-    else
-        (3/(4*(sSmol)))*((1-4/(sSmol)-8/(sSmol)^2)*log(s)+1/2+8/(sSmol)-1/(2*s^2))
-    end
+    (3/(4*(sSmol)))*((1-4/(sSmol)-8/(sSmol)^2)*log1p(sSmol)+8/sSmol+sSmol*(s+1)/(2*s^2))
 
 end
 
