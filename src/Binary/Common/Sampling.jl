@@ -1,5 +1,5 @@
 """
-    UniformSampling()
+    UniformSampling!()
 
 Uniform MC sampling of outgoing momentum states in the un-boosted Lab frame.
 """
@@ -99,6 +99,199 @@ function UniformSampling!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{F
             Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
             SAtotalView4[p4ploc,u4ploc,h4ploc] += Svalp
             SAtallyView4[p4ploc,u4ploc,h4ploc] += UInt32(1)
+        end
+    end
+
+end
+
+"""
+    ImportanceSampling4!()
+
+Importance MC sampling of outgoing momentum states weighted towards the direction of the incoming particle with highest momentum.
+"""
+function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},#=Sval::Float64,Svalp::Float64,=#dsigmadt::Function,SAtotalView3::AbstractArray{Float64,3},SAtotalView4::AbstractArray{Float64,3},SAtallyView3::AbstractArray{UInt32,3},SAtallyView4::AbstractArray{UInt32,3},SmallParameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64},WeightFactors::Tuple{Float64,Float64,Float64})
+
+    # Unpack parameters
+    (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,m1,m2,m3,m4) = SmallParameters
+
+    # weighting parameters
+    (w,t,h) = WeightFactors
+
+   
+    #y = (ratio^2-1)/(ratio^2+1)
+    #=if 1e-7 <= ratio <= 1e7
+        y = E1^2/(E1^2+E2^2) - E2^2/(E1^2+E2^2) # y = (p1v[1]^2-p2v[2]^2+m1^2-m2^2)/(p1v[1]^2+p2v[2]^2+m1^2+m2^2)
+    elseif ratio > 1e7
+        y = 1e0-1e-14 # hard limit
+    elseif ratio < 1e-7
+        y = -1e0+1e-14 # hard limit
+    end=#
+    #y = (p1v[1]^2-p2v[2]^2+m1^2-m2^2)/(p1v[1]^2+p2v[2]^2+m1^2+m2^2) 
+    #abs_y = abs(y)
+
+    #w = scale*atanh(abs_y) # rapidity for boosted angle sampling
+
+    prob = RPointSphereWeighted!(pv,w)
+
+    RotateToLab!(pv,t,h)
+
+    #= if w>=7e0 && p1v[1] <= 1e1
+        println("pv = $pv")
+        println("p1v = $p1v")
+        println("p2v = $p2v")
+    end =#
+
+    # === p3 === #
+    #set random p3 direction 
+    p3v .= pv
+    p3pv .= pv
+
+    # Calculate p3 value
+    (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v,m1,m2,m3,m4)
+    #(p3_physical,p3p_physical,NumStates) = Momentum3Value_NoSignChange!(p3v,p3pv,p1v,p2v,m1,m2,m3,m4)
+
+    # S Array Tallies
+    # For each u3,h3 sampled, p3 will be + or -ve, corresponding to a change in sign of u3 and a rotation of h3 by pi i.e. mod(h3+1,2). Therefore by sampling one u3,h3 we are actually sampling u3 and -u3 and h3, mod(h3+1,2) with one or both having valid p3 states.
+    #if NumStates != 0
+        u3loc = location(u_low,u_up,u3_num,p3v[2],u3_grid)
+        h3loc = location(h_low,h_up,h3_num,p3v[3],h3_grid)
+        u3locMirror = location(u_low,u_up,u3_num,-p3v[2],u3_grid)
+        h3locMirror = location(h_low,h_up,h3_num,mod(p3v[3]+1e0,2e0),h3_grid)
+        SAtallyView3[end,u3loc,h3loc] += UInt32(1)
+        SAtallyView3[end,u3locMirror,h3locMirror] += UInt32(1)
+    #end
+
+    # Calculate S Array totals
+    if NumStates == 1
+        if p3_physical
+            p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
+            Sval = SValue3(p3v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            SAtotalView3[p3loc,u3loc,h3loc] += Sval/prob
+            SAtallyView3[p3loc,u3loc,h3loc] += UInt32(1)
+
+#=             if w >= 7e0 #p2v[1] <= 1e-8 && p1v[1] >= 1e5
+                println("w = $w")
+                println("p3v = $p3v")
+                println("p1v = $p1v")
+                println("p2v = $p2v")
+                println("prob = $prob")
+                println("Sval = $Sval")
+            end =#
+            println("here")
+        end
+    end
+
+    if NumStates == 2
+        if p3_physical
+            p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
+            Sval = SValue3(p3v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            SAtotalView3[p3loc,u3loc,h3loc] += Sval/prob
+            SAtallyView3[p3loc,u3loc,h3loc] += UInt32(1)
+#=             if w>= 7e0# p2v[1] <= 1e-8 && p1v[1] >= 1e5
+                println("w = $w")
+                println("p3v = $p3v")
+                println("p1v = $p1v")
+                println("p2v = $p2v")
+                println("prob = $prob")
+                println("Sval = $Sval")
+            end =#
+        end
+        if p3p_physical
+            u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
+            h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
+            p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
+            Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            SAtotalView3[p3ploc,u3ploc,h3ploc] += Svalp/prob
+            SAtallyView3[p3ploc,u3ploc,h3ploc] += UInt32(1)
+#=             if (Svalp / prob) >= 1e2
+                println("w = $w")
+                println("p3pv = $p3pv")
+                println("p1v = $p1v")
+                println("p2v = $p2v")
+                println("prob = $prob")
+                println("Svalp = $Svalp")
+                println("Svalp/prob = $(Svalp/prob)")
+                println("")
+            end=#
+        end
+    end
+
+    # === p4 === #
+    #set random p4 direction 
+    p4v .= pv
+    p4pv .= pv
+
+    # Calculate p4 value
+    (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p2v,p1v,m2,m1,m4,m3)
+    #(p4_physical,p4p_physical,NumStates) = Momentum3Value_NoSignChange!(p4v,p4pv,p2v,p1v,m2,m1,m4,m3)
+
+    # S Array Tallies
+    # For each u3,h4 sampled, p4 will be + or -ve, corresponding to a change in sign of u3 and a shift in h4 by pi i.e. Mod(h4+1,2). Therefore by sampling one u3 we are actually sampling u3/h4 and -u3/mod(h4+1,2) with one or both having valid p4 states.
+    u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
+    h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
+    #u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
+    #h4locMirror = location(h_low,h_up,h4_num,mod(p4v[3]+1e0,2e0),h4_grid)
+    SAtallyView4[end,u4loc,h4loc] += UInt32(1)
+    #SAtallyView4[end,u4locMirror,h4locMirror] += UInt32(1)
+
+    # Calculate S Array totals
+    if NumStates == 1
+        if p4_physical
+            p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
+            Sval = SValue4(p4v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            SAtotalView4[p4loc,u4loc,h4loc] += Sval/prob
+            SAtallyView4[p4loc,u4loc,h4loc] += UInt32(1)
+            if (Sval/prob) >= 1e5
+                println("w = $w")
+                println("p4v = $p4v")
+                println("pv = $pv")
+                println("p1v = $p1v")
+                println("p2v = $p2v")
+                println("prob = $prob")
+                println("Sval = $Sval")
+                println("Sval/prob = $(Sval/prob)")
+                println("")
+            end
+        end
+    end
+
+    if NumStates == 2
+        if p4_physical
+            p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
+            Sval = SValue4(p4v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            SAtotalView4[p4loc,u4loc,h4loc] += Sval/prob
+            SAtallyView4[p4loc,u4loc,h4loc] += UInt32(1)
+            if (Sval/prob) >= 1e5
+                println("w = $w")
+                println("p4v = $p4v")
+                println("pv = $pv")
+                println("p1v = $p1v")
+                println("p2v = $p2v")
+                println("prob = $prob")
+                println("Sval = $Sval")
+                println("Sval/prob = $(Sval/prob)")
+                println("")
+            end
+        end
+        if p4p_physical
+            u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
+            h4ploc = location(h_low,h_up,h4_num,p4pv[3],h4_grid)
+            p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
+            Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            SAtotalView4[p4ploc,u4ploc,h4ploc] += Svalp/prob
+            SAtallyView4[p4ploc,u4ploc,h4ploc] += UInt32(1)
+
+#=             if (Svalp/prob) >= 1e5
+                println("w = $w")
+                println("p4pv = $p4pv")
+                println("pv = $pv")
+                println("p1v = $p1v")
+                println("p2v = $p2v")
+                println("prob = $prob")
+                println("Svalp = $Svalp")
+                println("Svalp/prob = $(Svalp/prob)")
+                println("")
+            end =#
         end
     end
 
@@ -1221,6 +1414,76 @@ function BackwardsLorentzBoost!(pBv::Vector{Float64},pv::Vector{Float64},m::Floa
 end
 
 """
+    Weight!(pv::Vector{Float64},w::Float64)
+
+Computes the doppler factor aka cosine angle jacobian for a particle of mass `m` between the CM frame and lab frame, for a boost with rapididty `w` in the z direction (w must be +ve). The result is stored in the fifth entry of the vector `pv`. Which is expected to have components [p,cos(theta),phi,theta,doppler].
+"""
+function Weight!(pv::Vector{Float64},m::Float64,w::Float64)
+
+    p::Float64 = pv[1]
+    t::Float64 = pv[4]
+
+    if m == 0e0
+
+        ew = exp(w)
+
+        DF = 1/(ew*cospi(t/2)^2+sinpi(t/2)^2/ew)^2
+
+    elseif (z=p/m) <= 1e-4 # small p approximation 
+        # valid to at least second order in p/m
+
+        # COULD be more accurate
+        DF = cospi(t)/sinh(w)^2 * z^2
+        DF -= (4-3*sinpi(t)^2)*cosh(w)/(2*sinh(w)^3) * z^3
+
+    elseif z >= 1e4 # large p approximation
+        # valid to at least second order in m/p
+
+        # COULD be more accurate
+        ew = exp(w)
+        # tmp is cosh(w)+cospi(t)*sinh(w)
+        tmp = ew*cospi(t/2)^2+sinpi(t/2)^2/ew
+        # tmp2 is cosh(2w)-cospi(t)*sinh(2w)
+        tmp2 = exp(2*w)*sinpi(t/2)^2+cospi(t/2)^2*exp(-2*w)
+        DF = 1/tmp^2
+        DF += (-1+2*tmp2-tmp^2)/2/tmp^4 / z^2
+
+
+    else # no approximation
+
+        #=if w >= 8e0
+
+            ew = exp(w)
+            tmp = (sqrt(p^2+m^2)+p*cospi(t))
+
+            DF = 4*p^2*(p+sqrt(p^2+m^2)*cospi(t))/tmp^3 / ew^2
+            DF += (8*p^2*(2*m^2*p - p^3 + (m^2 - p^2)*sqrt(m^2 + p^2)*cospi(t) + (-m^2*p + p^3)*cospi(t)^2 + p^2*sqrt(m^2 + p^2)*cospi(t)^3))/tmp^5 / ew^4
+
+        else=#
+
+            tmp1 = exp(w)*(p+sqrt(m^2+p^2)*cospi(t))/2 + exp(-w)*(p-sqrt(p^2+m^2)*cospi(t))/2
+            tmp2 = exp(w)*(sqrt(m^2+p^2)+p*cospi(t))/2 + exp(-w)*(sqrt(p^2+m^2)-p*cospi(t))/2
+
+            DF = p^2*tmp1
+            DF /= (-m^2+(tmp2)^2)^(3/2)
+
+        #end
+
+    end
+
+    if isinf(DF)
+        println("DF = $DF")
+        println("w = $w")
+        println("p = $p")
+        println("t = $t")
+        error("DF inf")
+    end
+
+    pv[5] = abs(DF)
+
+end
+
+"""
     DopplerFactor!(pv::Vector{Float64},m::Float64,w::Float64)
 
 Computes the doppler factor aka cosine angle jacobian for a particle of mass `m` between the CM frame and lab frame, for a boost with rapididty `w` in the z direction (w must be +ve). The result is stored in the fifth entry of the vector `pv`. Which is expected to have components [p,cos(theta),phi,theta,doppler].
@@ -1350,7 +1613,7 @@ function RotateToLab!(pv::Vector{Float64},tβ::Float64,hβ::Float64)
     pv[4] = acos(ctv*ctβ - stv*stβ*chv)/pi
     pv[2] = cospi(pv[4])
     # phi
-    x = -shβ*shv*stv+chβ*(chv*ctβ*stv + ctv*stβ)
+    x = -shβ*shv*stv+chβ*(chv*ctβ*stv+ctv*stβ)
     y = chβ*shv*stv+shβ*(chv*ctβ*stv+ctv*stβ)
     pv[3] = mod(atan(y,x)/pi,2)
 
