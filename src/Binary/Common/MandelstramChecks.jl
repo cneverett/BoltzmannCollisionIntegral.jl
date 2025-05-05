@@ -49,12 +49,22 @@ function stuCheck(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig::Float64,uSmo
     b = (mu1*mu3-mu2*mu4)*(mu1^2+mu3^2-mu2^2-mu4^2)/h
     c = (mu1*mu4-mu3*mu2)*(mu1^2+mu4^2-mu3^2-mu2^2)/h
 
-    check2::Bool = s*t*u >= a*s+b*t+c*u
+    #check::Bool = s*t*u >= a*s+b*t+c*u
+    #check::Bool = (sSmol+sBig)*(tSmol+tBig)*(uSmol+uBig) >= a*(sSmol+sBig)+b*(tSmol+tBig)+c*(uSmol+uBig)
 
-    if check2 == false
-        println(s+t+u)
+    check::Bool = sSmol*tSmol*uSmol + sSmol*tSmol*uBig + sSmol*tBig*uSmol + sBig*tSmol*uSmol + sBig*tSmol*uBig + sSmol*tBig*uBig + sBig*tBig*uSmol + sBig*tBig*uBig - a*sSmol - b*tSmol - c*uSmol >=  a*sBig+b*tBig+c*uBig
+
+    if check == false
+        println("")
+        println("sSmol = $sSmol")
+        println("sBig = $sBig")
+        println("tSmol = $tSmol")
+        println("tBig = $tBig")
+        println("uSmol = $uSmol")
+        println("uBig = $uBig")
+        println("s+t+u = $(s+t+u)")
     end
 
-    return check2
+    return check
 
 end
