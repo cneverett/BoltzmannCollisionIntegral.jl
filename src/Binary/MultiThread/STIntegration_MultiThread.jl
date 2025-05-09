@@ -142,9 +142,12 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
 
         prog = Progress(numTiterPerThread)
 
+        scale = range(0.0,1.0,length=nThreads)
+
         #tasks = Vector{Task}(undef,nThreads)
         Threads.@threads :static for i in 1:nThreads
-            STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,ErrorCond,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,prog)
+            scale = i / nThreads
+            STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,ErrorCond,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,scale,prog)
         end
         #end
 

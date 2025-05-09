@@ -109,14 +109,13 @@ end
 
 Importance MC sampling of outgoing momentum states weighted towards the direction of the incoming particle with highest momentum.
 """
-function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},#=Sval::Float64,Svalp::Float64,=#dsigmadt::Function,SAtotalView3::AbstractArray{Float64,3},SAtotalView4::AbstractArray{Float64,3},SAtallyView3::AbstractArray{UInt32,3},SAtallyView4::AbstractArray{UInt32,3},SmallParameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64},WeightFactors::Tuple{Float64,Float64,Float64})
+function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},sBig::Float64,sSmol::Float64,dsigmadt::Function,SAtotalView3::AbstractArray{Float64,3},SAtotalView4::AbstractArray{Float64,3},SAtallyView3::AbstractArray{UInt32,3},SAtallyView4::AbstractArray{UInt32,3},SmallParameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64},WeightFactors::Tuple{Float64,Float64,Float64})
 
     # Unpack parameters
     (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,m1,m2,m3,m4) = SmallParameters
 
     # weighting parameters
     (w,t,h) = WeightFactors
-
    
     #y = (ratio^2-1)/(ratio^2+1)
     #=if 1e-7 <= ratio <= 1e7
@@ -147,7 +146,7 @@ function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vect
     p3pv .= pv
 
     # Calculate p3 value
-    (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v,m1,m2,m3,m4)
+    (p3_physical,p3p_physical,NumStates) = Momentum3Value2!(p3v,p3pv,p1v,p2v,m1,m2,m3,m4)
     #(p3_physical,p3p_physical,NumStates) = Momentum3Value_NoSignChange!(p3v,p3pv,p1v,p2v,m1,m2,m3,m4)
 
     # S Array Tallies
@@ -165,18 +164,17 @@ function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vect
     if NumStates == 1
         if p3_physical
             p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-            Sval = SValue3(p3v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            Sval = SValue3(p3v,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob)
             SAtotalView3[p3loc,u3loc,h3loc] += Sval/prob
             SAtallyView3[p3loc,u3loc,h3loc] += UInt32(1)
-
-#=             if w >= 7e0 #p2v[1] <= 1e-8 && p1v[1] >= 1e5
+            if (Sval / prob) >= 1e13
                 println("w = $w")
                 println("p3v = $p3v")
                 println("p1v = $p1v")
                 println("p2v = $p2v")
                 println("prob = $prob")
                 println("Sval = $Sval")
-            end =#
+            end
             println("here")
         end
     end
@@ -184,26 +182,26 @@ function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vect
     if NumStates == 2
         if p3_physical
             p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-            Sval = SValue3(p3v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            Sval = SValue3(p3v,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob)
             SAtotalView3[p3loc,u3loc,h3loc] += Sval/prob
             SAtallyView3[p3loc,u3loc,h3loc] += UInt32(1)
-#=             if w>= 7e0# p2v[1] <= 1e-8 && p1v[1] >= 1e5
+            if (Sval / prob) >= 1e13
                 println("w = $w")
                 println("p3v = $p3v")
                 println("p1v = $p1v")
                 println("p2v = $p2v")
                 println("prob = $prob")
                 println("Sval = $Sval")
-            end =#
+            end
         end
         if p3p_physical
             u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
             h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
             p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
-            Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            Svalp = SValue3(p3pv,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob)
             SAtotalView3[p3ploc,u3ploc,h3ploc] += Svalp/prob
             SAtallyView3[p3ploc,u3ploc,h3ploc] += UInt32(1)
-#=             if (Svalp / prob) >= 1e2
+            if (Svalp / prob) >= 1e13
                 println("w = $w")
                 println("p3pv = $p3pv")
                 println("p1v = $p1v")
@@ -212,7 +210,7 @@ function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vect
                 println("Svalp = $Svalp")
                 println("Svalp/prob = $(Svalp/prob)")
                 println("")
-            end=#
+            end
         end
     end
 
@@ -222,23 +220,23 @@ function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vect
     p4pv .= pv
 
     # Calculate p4 value
-    (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p2v,p1v,m2,m1,m4,m3)
+    (p4_physical,p4p_physical,NumStates) = Momentum3Value2!(p4v,p4pv,p2v,p1v,m2,m1,m4,m3)
     #(p4_physical,p4p_physical,NumStates) = Momentum3Value_NoSignChange!(p4v,p4pv,p2v,p1v,m2,m1,m4,m3)
 
     # S Array Tallies
     # For each u3,h4 sampled, p4 will be + or -ve, corresponding to a change in sign of u3 and a shift in h4 by pi i.e. Mod(h4+1,2). Therefore by sampling one u3 we are actually sampling u3/h4 and -u3/mod(h4+1,2) with one or both having valid p4 states.
     u4loc = location(u_low,u_up,u4_num,p4v[2],u4_grid)
     h4loc = location(h_low,h_up,h4_num,p4v[3],h4_grid)
-    #u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
-    #h4locMirror = location(h_low,h_up,h4_num,mod(p4v[3]+1e0,2e0),h4_grid)
+    u4locMirror = location(u_low,u_up,u4_num,-p4v[2],u4_grid)
+    h4locMirror = location(h_low,h_up,h4_num,mod(p4v[3]+1e0,2e0),h4_grid)
     SAtallyView4[end,u4loc,h4loc] += UInt32(1)
-    #SAtallyView4[end,u4locMirror,h4locMirror] += UInt32(1)
+    SAtallyView4[end,u4locMirror,h4locMirror] += UInt32(1)
 
     # Calculate S Array totals
     if NumStates == 1
         if p4_physical
             p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-            Sval = SValue4(p4v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            Sval = SValue4(p4v,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob)
             SAtotalView4[p4loc,u4loc,h4loc] += Sval/prob
             SAtallyView4[p4loc,u4loc,h4loc] += UInt32(1)
             if (Sval/prob) >= 1e5
@@ -258,7 +256,7 @@ function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vect
     if NumStates == 2
         if p4_physical
             p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-            Sval = SValue4(p4v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            Sval = SValue4(p4v,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob)
             SAtotalView4[p4loc,u4loc,h4loc] += Sval/prob
             SAtallyView4[p4loc,u4loc,h4loc] += UInt32(1)
             if (Sval/prob) >= 1e5
@@ -277,11 +275,10 @@ function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vect
             u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
             h4ploc = location(h_low,h_up,h4_num,p4pv[3],h4_grid)
             p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
-            Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,m1,m2,m3,m4)
+            Svalp = SValue4(p4pv,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob)
             SAtotalView4[p4ploc,u4ploc,h4ploc] += Svalp/prob
             SAtallyView4[p4ploc,u4ploc,h4ploc] += UInt32(1)
-
-#=             if (Svalp/prob) >= 1e5
+            if (Svalp/prob) >= 1e5
                 println("w = $w")
                 println("p4pv = $p4pv")
                 println("pv = $pv")
@@ -291,7 +288,7 @@ function ImportanceSampling4!(pv::Vector{Float64},p1v::Vector{Float64},p2v::Vect
                 println("Svalp = $Svalp")
                 println("Svalp/prob = $(Svalp/prob)")
                 println("")
-            end =#
+            end
         end
     end
 

@@ -195,7 +195,16 @@ function dsigmadt_ElePhoElePho(sSmol::Float64,sBig::Float64,tSmol::Float64,tBig:
     # sSmol = -tSmol-uSmol
     
     #(3/(sSmol)^2)*((1/(sSmol)+1/(uSmol))^2+(1/(sSmol)+1/(uSmol))-(1/4)*((sSmol)/(uSmol)+(uSmol)/(sSmol)))
-    (3/(sSmol)^2)*((-1/(tSmol+uSmol)+1/(uSmol))^2+(-1/(tSmol+uSmol)+1/(uSmol))-(1/4)*(-(tSmol+uSmol)/(uSmol)-(uSmol)/(tSmol+uSmol)))
+    #(3/(sSmol)^2)*((-1/(tSmol+uSmol)+1/(uSmol))^2+(-1/(tSmol+uSmol)+1/(uSmol))-(1/4)*(-(tSmol+uSmol)/(uSmol)-(uSmol)/(tSmol+uSmol)))
+    #(3/(sSmol)^2)*((tSmol/(tSmol+uSmol)/uSmol)^2+(tSmol/(tSmol+uSmol)/uSmol)+(1/4)*((tSmol+uSmol)/(uSmol)+(uSmol)/(tSmol+uSmol)))
+
+    #(3/(sSmol)^2)*(1/2 + tSmol/(sSmol*(sSmol+tSmol)) + (tSmol/(sSmol*(sSmol+tSmol)))^2 + (1/4)*tSmol^2/(sSmol*(sSmol+tSmol)))
+
+    val = (3/(sSmol)^2)*(1/2 - tSmol/(sSmol*uSmol) + (tSmol/(sSmol*uSmol))^2 - (1/4)*tSmol^2/(sSmol*uSmol))
+
+    valmax = 3/4 * (2/sSmol^2 + 1/(sSmol+sBig)) # maximum value of the differential cross section to avoid float precision issues exceeding this value.
+
+    return min(val,valmax)
 
 end
 
@@ -216,7 +225,11 @@ function sigma_ElePhoElePho(sSmol::Float64,sBig::Float64)
 
     #(1/(4*(s-1)))*((1-4/(s-1)-8/(s-1)^2)*log(s)+1/2+8/(s-1)-1/(2*s^2))
     s = sBig+sSmol
-    (3/(4*(sSmol)))*((1-4/(sSmol)-8/(sSmol)^2)*log1p(sSmol)+8/sSmol+sSmol*(s+1)/(2*s^2))
+    if sSmol < 1e-6 # small approximation
+        1-sSmol+13*sSmol^2/10-133*sSmol^3/80
+    else
+        (3/(4*(sSmol)))*((1-4/(sSmol)-8/(sSmol)^2)*log1p(sSmol)+1/2+8/(sSmol)-1/(2*s^2))
+    end
 
 end
 

@@ -22,11 +22,11 @@ This module provides functions for MonteCarlo Integration of S and T Matrices
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Array{Float64,9},LossTotal::Array{Float64,6},GainTally3::Array{UInt32,9},GainTally4::Array{UInt32,9},LossTally::Array{UInt32,6},ArrayOfLocks,ErrorCond,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,prog::Progress)
+function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Array{Float64,9},LossTotal::Array{Float64,6},GainTally3::Array{UInt32,9},GainTally4::Array{UInt32,9},LossTally::Array{UInt32,6},ArrayOfLocks,ErrorCond,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,scale::Float64,prog::Progress)
 
     # Set Parameters
 
-    (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid_st,p1_num,u1_grid_st,u1_num,h1_grid_st,h1_num,p2_low,p2_up,p2_grid_st,p2_num,u2_grid_st,u2_num,h2_grid_st,h2_num,p3_low,p3_up,p3_grid_st,p3_num,u3_grid_st,u3_num,h3_grid_st,h3_num,p4_low,p4_up,p4_grid_st,p4_num,u4_grid_st,u4_num,h4_grid_st,h4_num) = Parameters
+    (name1,name2,name3,name4,m1,m2,m3,m4,p1_low,p1_up,p1_grid_st,p1_num,u1_grid_st,u1_num,h1_grid_st,h1_num,p2_low,p2_up,p2_grid_st,p2_num,u2_grid_st,u2_num,h2_grid_st,h2_num,p3_low,p3_up,p3_grid_st,p3_num,u3_grid_st,u3_num,h3_grid_st,h3_num,p4_low,p4_up,p4_grid_st,p4_num,u4_grid_st,u4_num,h4_grid_st,h4_num) = Parameters
     #=Parameters = userInput.Parameters
     numTiterPerThread = userInput.numTiter
     numSiterPerThread = userInput.numSiter
@@ -36,10 +36,10 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
     name2 = Parameters.name2
     name3 = Parameters.name3
     name4 = Parameters.name4
-    mu1 = Parameters.mu1
-    mu2 = Parameters.mu2
-    mu3 = Parameters.mu3
-    mu4 = Parameters.mu4
+    m1 = Parameters.m1
+    m2 = Parameters.m2
+    m3 = Parameters.m3
+    m4 = Parameters.m4
 
     p1_low = Parameters.p1_low
     p1_up = Parameters.p1_up
@@ -104,18 +104,21 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
     #Threads.@spawn begin
 
     # allocate arrays for each thread
-    p1v::Vector{Float64} = zeros(Float64,3)
+    p1v::Vector{Float64} = zeros(Float64,4)
     p1cv::Vector{Float64} = zeros(Float64,4)
     p1cBv::Vector{Float64} = zeros(Float64,4)
-    p2v::Vector{Float64} = zeros(Float64,3)
-    pv::Vector{Float64} = zeros(Float64,3)
+    p2v::Vector{Float64} = zeros(Float64,4)
+    #pv::Vector{Float64} = zeros(Float64,3)
+    pv::Vector{Float64} = zeros(Float64,4)
     βv::Vector{Float64} = zeros(Float64,3)
     #p3v::Vector{Float64} = zeros(Float64,3)
-    p3v::Vector{Float64} = zeros(Float64,5)
-    p3pv::Vector{Float64} = zeros(Float64,3)
+    p3v::Vector{Float64} = zeros(Float64,4)
+    #p3pv::Vector{Float64} = zeros(Float64,3)
+    p3pv::Vector{Float64} = zeros(Float64,4)
     #p4v::Vector{Float64} = zeros(Float64,3)
-    p4v::Vector{Float64} = zeros(Float64,5)
-    p4pv::Vector{Float64} = zeros(Float64,3)
+    p4v::Vector{Float64} = zeros(Float64,4)
+    #p4pv::Vector{Float64} = zeros(Float64,3)
+    p4pv::Vector{Float64} = zeros(Float64,4)
     Sval::Float64 = 0e0
     Svalp::Float64 = 0e0
     Tval::Float64 = 0e0
@@ -148,6 +151,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
     u4ploc::Int64 = 0
     h4ploc::Int64 = 0
     loc12::CartesianIndex{6} = CartesianIndex(0,0,0,0,0,0)
+    WeightFactors::Tuple{Float64,Float64,Float64} = (0e0,0e0,0e0)
 
     p1_grid::GridType = Grid_String_to_Type(p1_grid_st)
     p2_grid::GridType = Grid_String_to_Type(p2_grid_st)
@@ -162,7 +166,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
     h3_grid::GridType = Grid_String_to_Type(h3_grid_st)
     h4_grid::GridType = Grid_String_to_Type(h4_grid_st)
 
-    SmallParameters = (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,mu1,mu2,mu3,mu4)
+    SmallParameters = (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,m1,m2,m3,m4)
 
     localGainTotal3 = zeros(Float64,size(GainTotal3)[1:3])
     localGainTally3 = zeros(UInt32,size(GainTally3)[1:3])
@@ -179,7 +183,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
         RPointLogMomentum!(p2v,p2_up,p2_low,p2_num)
 
         # Tval
-        Tval = TValue(p1v,p2v,sigma,mu1,mu2,mu3,mu4)
+        (Tval,sBig,sSmol) = TValue(p1v,p2v,sigma,m1,m2,m3,m4)
         # Calculate T Array Location
         p1loc = location(p1_low,p1_up,p1_num,p1v[1],p1_grid)
         p2loc = location(p2_low,p2_up,p2_num,p2v[1],p2_grid)
@@ -194,12 +198,16 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
 
         if Tval != 0e0 # i.e. it is a valid interaction state
 
+            WeightFactors = WeightedFactors(p1v,p2v,m1,m2,scale) 
+
             fill!(localGainTotal3,Float64(0))
             fill!(localGainTotal4,Float64(0))
                     
             @inbounds for _ in 1:numSiterPerThread
 
-                UniformSampling!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters)
+                #UniformSampling!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters)
+
+                ImportanceSampling4!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,sBig,sSmol,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters,WeightFactors)
 
                 #ImportanceSampling3(p1v,p2v,p3v,p4v,p1cv,p1cBv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters,MinMax)
             #=
@@ -213,7 +221,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
                 p3pv .= pv
 
                 # Calculate p3 value with checks
-                (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v,mu1,mu2,mu3,mu4)
+                (p3_physical,p3p_physical,NumStates) = Momentum3Value!(p3v,p3pv,p1v,p2v,m1,m2,m3,m4)
 
                 # S Array Tallies
                 # For each u3,h3 sampled, p3 will be + or -ve, corresponding to a change in sign of u3 and a rotation of h3 by pi i.e. mod(h3+1,2). Therefore by sampling one u3,h3 we are actually sampling u3 and -u3 and h3, mod(h3+1,2) with one or both having valid p3 states.
@@ -230,7 +238,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
                 if NumStates == 1
                     if p3_physical
                         p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-                        Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
+                        Sval = SValue3(p3v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
                         localGainTotal3[p3loc,u3loc,h3loc] += Sval
                         if MinMax
                             localp3Max[u3loc,h3loc] = max(localp3Max[u3loc,h3loc],p3v[1])
@@ -243,7 +251,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
                 if NumStates == 2
                     if p3_physical
                         p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
-                        Sval = SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
+                        Sval = SValue3(p3v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
                         localGainTotal3[p3loc,u3loc,h3loc] += Sval
                         if MinMax
                             localp3Max[u3loc,h3loc] = max(localp3Max[u3loc,h3loc],p3v[1])
@@ -255,7 +263,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
                         u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
                         h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
                         p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
-                        Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
+                        Svalp = SValue3(p3pv,p1v,p2v,dsigmadt,m1,m2,m3,m4)
                         localGainTotal3[p3ploc,u3ploc,h3ploc] += Svalp
                         if MinMax
                             localp3Max[u3ploc,h3ploc] = max(localp3Max[u3ploc,h3ploc],p3pv[1])
@@ -266,14 +274,14 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
                 end
 
             # ========= p4 ========= #
-                # only need to swap mu3 for mu4
+                # only need to swap m3 for m4
 
                 #set random p4 direction 
                 p4v .= pv
                 p4pv .= pv
 
                 # Calculate p3 value with checks
-                (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p2v,p1v,mu2,mu1,mu4,mu3)
+                (p4_physical,p4p_physical,NumStates) = Momentum3Value!(p4v,p4pv,p2v,p1v,m2,m1,m4,m3)
 
                 # S Array Tallies
                 # For each u3,h4 sampled, p4 will be + or -ve, corresponding to a change in sign of u3 and a shift in h4 by pi i.e. Mod(h4+1,2). Therefore by sampling one u3 we are actually sampling u3/h4 and -u3/mod(h4+1,2) with one or both having valid p4 states.
@@ -288,7 +296,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
                 if NumStates == 1
                     if p4_physical
                         p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-                        Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
+                        Sval = SValue4(p4v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
                         localGainTotal4[p4loc,u4loc,h4loc] += Sval
                         if MinMax
                             localp4Max[u4loc,h4loc] = max(localp4Max[u4loc,h4loc],p4v[1])
@@ -301,7 +309,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
                 if NumStates == 2
                     if p4_physical
                         p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
-                        Sval = SValue4(p4v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
+                        Sval = SValue4(p4v,p1v,p2v,dsigmadt,m1,m2,m3,m4)
                         localGainTotal4[p4loc,u4loc,h4loc] += Sval
                         if MinMax
                             localp4Max[u4loc,h4loc] = max(localp4Max[u4loc,h4loc],p4v[1])
@@ -313,7 +321,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
                         u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
                         h4ploc = location(h_low,h_up,h4_num,p4pv[3],h4_grid)
                         p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
-                        Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
+                        Svalp = SValue4(p4pv,p1v,p2v,dsigmadt,m1,m2,m3,m4)
                         localGainTotal4[p4ploc,u4ploc,h4ploc] += Svalp
                         if MinMax
                             localp4Max[u4ploc,h4ploc] = max(localp4Max[u4ploc,h4ploc],p4pv[1])

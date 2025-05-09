@@ -168,12 +168,12 @@ function WeightedFactors(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,m
     ratio::Float64 = E1/E2
 
     if ratio >= 1e0 # p1 has higher energy
-        w = scale*log(ratio)*rand(Float64)
-        t = acos(p1v[2])/pi
+        w = scale*log(ratio) #*rand(Float64)
+        t = p1v[4]
         h = p1v[3]
     else
-        w = scale*log(1/ratio)*rand(Float64)
-        t = acos(p2v[2])/pi
+        w = scale*log(1/ratio) #*rand(Float64)
+        t = p2v[4]
         h = p2v[3]
     end
 
@@ -194,13 +194,27 @@ function RPointSphereWeighted!(a::Vector{Float64},w::Float64)
     # prob is then the probability of sampling the random points on the sphere given the doppler boosting.
 
     v::Float64 = rand(Float64)
-    tB::Float64 = acos(2*v-1)/pi # "boosted" theta
+    #tB::Float64 = acos(2*v-1)/pi # "boosted" theta
+
+    costBdiv2sqr::Float64 = v
+    sintBdiv2sqr::Float64 = 1-v
+    tantBdiv2::Float64 = sqrt((1-v)/v)
+
+
     h::Float64 = 2*rand(Float64) # phi points are normalised by pi
-    t::Float64 = 2*atan(exp(-w)*tanpi(tB/2))/pi  # "unboosted" theta divided by pi
+    #t::Float64 = 2*atan(exp(-w)*tanpi(tB/2))/pi  # "unboosted" theta divided by pi
+    x::Float64 = exp(-w)*tantBdiv2
+    t::Float64 = 2*atan(exp(-w)*tantBdiv2)/pi  # "unboosted" theta divided by pi
+    
+    sintdiv2sqr::Float64 = x^2/(1+x^2)
+    costdiv2sqr::Float64 = 1/(1+x^2)
 
     ew::Float64 = exp(w)
     #prob::Float64 = (ew*sinpi(t/2)^2+cospi(t/2)^2/ew)^-2
-    prob::Float64 = (ew*cospi(tB/2)^2+sinpi(tB/2)^2/ew)^2
+    prob::Float64 = (ew*sintdiv2sqr+costdiv2sqr/ew)^-2
+    #prob::Float64 = (ew*cospi(tB/2)^2+sinpi(tB/2)^2/ew)^2
+    #prob::Float64 = (ew*costBdiv2sqr+sintBdiv2sqr/ew)^2
+    #prob::Float64 = (ew*v+(1-v)/ew)^2
 
     a[2] = cospi(t)
     a[3] = h
