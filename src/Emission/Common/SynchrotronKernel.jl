@@ -1,34 +1,34 @@
 """
-    SyncKernel(p1v,p2v,m2,z2,B)
+    SyncKernel(p3v,p1v,m1,z1,B)
 
-Returns the emission rate for a single photon ``p1v`` state emitted by a charged particle in state ``p2v`` with charge ``z2`` relative to the fundamental charge and mass ``m2`` relative to the mass of the electron, in a uniform magnetic field ``B``.
+Returns the emission rate for a single photon ``p3v`` state emitted by a charged particle in state ``p1v`` with charge ``z1`` relative to the fundamental charge and mass ``m1`` relative to the mass of the electron, in a uniform magnetic field ``B``.
 """
-function SyncKernel(p1v,p2v,m2,z2,B)
+function SyncKernel(p3v,p1v,m1,z1,B)
 
-    # p1 is Photon
-    # p2 is Charged Particle
+    # p3is Photon
+    # p1 is Charged Particle
 
+    p3 = p3v[1]
     p1 = p1v[1]
-    p2 = p2v[1]
+    ct3 = p3v[2]
     ct1 = p1v[2]
-    ct2 = p2v[2]
+    st3 = sqrt(1-ct3^2)
     st1 = sqrt(1-ct1^2)
-    st2 = sqrt(1-ct2^2)
     
-    E2 = sqrt(p2^2 + m2^2)
+    E1 = sqrt(p1^2 + m1^2)
 
-    Jfactor1 = (E2*ct1-p2*ct2)/(st1) # code breaks if st1 = 0 FIX
-    Jfactor2 = p2*st2
+    Jfactor1 = (E1*ct3-p1*ct1)/(st3) # code breaks if st3 = 0 FIX
+    Jfactor2 = p1*st1
 
-    n = abs((mEle^2*c^2)/(z2*ħ*q*B)) * p1 * (E2-p2*ct1*ct2)
+    n = abs((mEle^2*c^2)/(z1*ħ*q*B)) * p3* (E1-p1*ct3*ct1)
     #println(n)
 
-    y = p2 * st2 *st1 / (E2-p2*ct2*ct1) # y=x/n
+    y = p1 * st1 *st3 / (E1-p1*ct1*ct3) # y=x/n
     #println(y)
 
     # characteristic frequency
-    ω0 = abs((z2*q*B))/(E2*mEle)
-    #println("critical photon momentum: "*string(ħ*ω0/(mEle*c^2)*E2^3))
+    ω0 = abs((z1*q*B))/(E1*mEle)
+    #println("critical photon momentum: "*string(ħ*ω0/(mEle*c^2)*E1^3))
 
 
     if n > 1e2 #&& 1-y < 0.01
@@ -49,10 +49,10 @@ function SyncKernel(p1v,p2v,m2,z2,B)
         J2 = 1/2 * (besselj(n-1,n*y) - besselj(n+1,n*y))
     end
 
-    val = (p1/E2)*((Jfactor1*J1)^2+(Jfactor2*J2)^2)
+    val = (p3/E1)*((Jfactor1*J1)^2+(Jfactor2*J2)^2)
     #println(val)
 
-    factor = (abs(z2/B))*(3*c^4*mEle^5)/(4*pi*ħ^3*μ0*q^3) # synchrotron emission rate divided by c*σT
+    factor = (abs(z1/B))*(3*c^4*mEle^5)/(4*pi*ħ^3*μ0*q^3) # synchrotron emission rate divided by c*σT
 
     #println(factor)
 

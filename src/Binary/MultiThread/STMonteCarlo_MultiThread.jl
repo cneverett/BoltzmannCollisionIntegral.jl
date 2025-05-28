@@ -22,7 +22,7 @@ This module provides functions for MonteCarlo Integration of S and T Matrices
 - Find position in local S and T arrays and allocated tallies and totals accordingly.
 - Update global S and T arrays with locks to prevent data races
 """
-function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Array{Float64,9},LossTotal::Array{Float64,6},GainTally3::Array{UInt32,9},GainTally4::Array{UInt32,9},LossTally::Array{UInt32,6},ArrayOfLocks,ErrorCond,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,scale::Float64,prog::Progress)
+function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Array{Float64,9},LossTotal::Array{Float64,6},GainTally3::Array{UInt32,9},GainTally4::Array{UInt32,9},LossTally::Array{UInt32,6},ArrayOfLocks,sigma::Function,dsigmadt::Function,Parameters::Tuple{String,String,String,String,Float64,Float64,Float64,Float64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64, Float64,Float64,String,Int64,String,Int64,String,Int64},numTiterPerThread::Int64,numSiterPerThread::Int64,scale::Float64,prog::Progress,thread_id::Int64)
 
     # Set Parameters
 
@@ -101,7 +101,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
     =#
 
     # Set up worker
-    #Threads.@spawn begin
+    Threads.@spawn begin
 
     # allocate arrays for each thread
     p1v::Vector{Float64} = zeros(Float64,4)
@@ -151,7 +151,7 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
     u4ploc::Int64 = 0
     h4ploc::Int64 = 0
     loc12::CartesianIndex{6} = CartesianIndex(0,0,0,0,0,0)
-    WeightFactors::Tuple{Float64,Float64,Float64} = (0e0,0e0,0e0)
+    WeightFactors::Tuple{Float64,Float64,Float64,Float64} = (0e0,0e0,0e0,0e0)
 
     p1_grid::GridType = Grid_String_to_Type(p1_grid_st)
     p2_grid::GridType = Grid_String_to_Type(p2_grid_st)
@@ -168,12 +168,12 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
 
     SmallParameters = (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,m1,m2,m3,m4)
 
-    localGainTotal3 = zeros(Float64,size(GainTotal3)[1:3])
-    localGainTally3 = zeros(UInt32,size(GainTally3)[1:3])
-    localGainTotal4 = zeros(Float64,size(GainTotal4)[1:3])
-    localGainTally4 = zeros(UInt32,size(GainTally4)[1:3])
+    localGainTotal3::Array{Float64,3} = zeros(Float64,size(GainTotal3)[1:3])
+    localGainTally3::Array{UInt32,3} = zeros(UInt32,size(GainTally3)[1:3])
+    localGainTotal4::Array{Float64,3} = zeros(Float64,size(GainTotal4)[1:3])
+    localGainTally4::Array{UInt32,3} = zeros(UInt32,size(GainTally4)[1:3])
 
-    @inbounds for nt in 1:numTiterPerThread
+    @inbounds for _ in 1:numTiterPerThread
         
         # generate p1 and p2 vectors initially as to not have to re-calculate, but not p2 magnitude as we need one free parameter to vary
         RPointSphereCosThetaPhi!(p1v)
@@ -198,18 +198,18 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
 
         if Tval != 0e0 # i.e. it is a valid interaction state
 
-            WeightFactors = WeightedFactors(p1v,p2v,m1,m2,scale) 
+            #WeightFactors = WeightedFactors(p1v,p2v,m1,m2,sBig,sSmol,scale) 
+            WeightFactors = WeightedFactors2(p1v,p2v,m1,m2,m3,m4,sBig,sSmol,scale) 
 
             fill!(localGainTotal3,Float64(0))
             fill!(localGainTotal4,Float64(0))
                     
             @inbounds for _ in 1:numSiterPerThread
 
-                #UniformSampling!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters)
 
-                ImportanceSampling4!(pv,p1v,p2v,p3v,p4v,p3pv,p4pv,sBig,sSmol,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters,WeightFactors)
+                ImportanceSampling4!(p1v,p2v,p3v,p4v,p3pv,p4pv,sBig,sSmol,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters,WeightFactors)
 
-                #ImportanceSampling3(p1v,p2v,p3v,p4v,p1cv,p1cBv,dsigmadt,localGainTotal3,localGainTotal4,localGainTally3,localGainTally4,SmallParameters,MinMax)
+            
             #=
                 # generate random p direction for use in both p3 and p4 calculations
                 RPointSphereCosThetaPhi!(pv)
@@ -341,9 +341,6 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
         end
 
         # assign values to arrays
-        while ErrorCond[] == 1
-            sleep(0.001)
-        end
         @lock ArrayOfLocks[p1loc] begin
             LossTotal[loc12] += Tval
             LossTally[loc12] += UInt32(1)
@@ -355,12 +352,12 @@ function STMonteCarlo_MultiThread!(GainTotal3::Array{Float64,9},GainTotal4::Arra
             end
         end
 
-        if Threads.threadid() == 1 # on main thread
+        if thread_id == 1 # on main thread
             next!(prog)
         end
 
     end # T loop
 
-    #end # Thread spawn 
+    end # Thread spawn 
 
 end # function 

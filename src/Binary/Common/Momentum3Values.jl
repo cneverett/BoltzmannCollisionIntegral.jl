@@ -287,18 +287,11 @@ function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector
         C3 = 4*sqrt(C3sqr)
         p3 = (C2-C3)/C4
 
-        if p3 == 0e0
+        if p3 <= 0e0
             NumStates = 1
+            p3_physical = false
         else
-            if p3 > 0e0
-                p3v[1] = p3
-            else
-                p3v[1] = -p3
-                p3v[2] *= -1
-                p3v[3] = mod(p3v[3]+1e0,2e0)
-                p3v[4] = 1-p3v[4]
-            end
-
+            p3v[1] = p3
             if (p12/(E1+m1)+p22/(E2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m1-m2+m4
                 p3_physical = true
             end
@@ -306,59 +299,37 @@ function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector
 
         if NumStates == 2
             p3p = (C2+C3)/C4
-            if p3p == 0e0
+            if p3p <= 0e0
                 NumStates = 1
+                p3p_physical = false
             else
-                if p3p > 0e0
-                    p3pv[1] = p3p
-                else
-                    p3pv[1] = -p3p
-                    p3pv[2] *= -1
-                    p3pv[3] = mod(p3pv[3]+1e0,2e0)
-                    p3pv[4] = 1-p3pv[4]
-                end
-
+                p3pv[1] = p3p
                 if (p12/(E1+m1)+p22/(E2+m2)-p3p^2/(sqrt(m32+p3p^2)+m3)) > m3-m1-m2+m4
                     p3p_physical = true
                 end
             end
         else # NumStates == 1
             p3 = (C2+C3)/C4
-            if p3 == 0
+            if p3 <= 0e0
                 NumStates = 0
+                p3_physical = false
             else
-                if p3 > 0e0
-                    p3v[1] = p3
-                else
-                    p3v[1] = -p3
-                    p3v[2] *= -1
-                    p3v[3] = mod(p3v[3]+1e0,2e0)
-                    p3v[4] = 1-p3v[4]
-                end
+                p3v[1] = p3
                 if (p12/(E1+m1)+p22/(E2+m2)-p3^2/(sqrt(m32+p3^2)+m3)) > m3-m1-m2+m4
                     p3_physical = true
                 end
             end    
-
         end
 
     else # imaginary C3sqr < 0e0
 
-        NumStates = 1 # two states but both in same bin so same as one
+        NumStates = 2 # two states but both in same bin
         p3p_physical = false
         p3_physical = false
 
         p3Real = C2/C4
-        if p3Real == 0e0
+        if p3Real <= 0e0
             NumStates = 0
-        else
-            if p3Real < 0e0
-            p3v[2] *= -1
-            p3v[3] = mod(p3v[3]+1e0,2e0)
-            p3v[4] = 1-p3v[4]
-            #p3pv[2] *= -1
-            #p3pv[3] = mod(p3pv[3]+1e0,2e0)
-            end
         end
 
     end

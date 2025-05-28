@@ -23,7 +23,7 @@ function fload_All_Sync(fileLocation::String,fileName::String)
 
     if fileExist
         f = jldopen(filePath,"r+");
-        Run_Parameters = f["Parameters"]
+        Parameters = f["Parameters"]
 
         SAtot = f["STotal"];
         SAtal = f["STally"];
@@ -37,7 +37,7 @@ function fload_All_Sync(fileLocation::String,fileName::String)
         error("no file with name $fileName found at location $fileLocation")
     end
 
-    return (Run_Parameters,SAtot,SAtal,SMatrix,#=pMax,tMinMax,=#SConv);
+    return (Parameters,SAtot,SAtal,SMatrix,#=pMax,tMinMax,=#SConv);
 
 end
 
@@ -62,13 +62,13 @@ function fload_Matrix_Sync(fileLocation::String,fileName::String)
     if fileExist
         f = jldopen(filePath,"r+");
         Parameters = f["Parameters"]
-        SMatrix = f["SMatrix"];
+        GainMatrix3 = f["GainMatrix3"];
         close(f)  
     else
         error("no file with name $fileName found at location $fileLocation")
     end
 
-    return (Parameters,SMatrix)
+    return (Parameters,GainMatrix3)
 
 end
 

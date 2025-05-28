@@ -156,28 +156,115 @@ end
 
 
 """
-    WeightedFactors!()
+    WeightedFactors!(p1v,p2v,m1,m2,scale)
 
-Returns the weighting rapidity `w` and the direction an angles `t` and `h` for rotations on a sphere. 
-Weighting rapidity can be scaled by `scale`.
+Returns the weighting rapidity `w` and the direction an angles `t` and `h` for rotations on a sphere. Weighting rapidity can be scaled by `scale`. Weight is dependant on the ratio of the energies of the two particles `p1v` and `p2v`. With angles `t` and `h` being the angles of the particle with the higher energy. 
 """
-function WeightedFactors(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,m2::Float64,scale::Float64) 
+function WeightedFactors(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,m2::Float64,sBig::Float64,sSmol::Float64,scale::Float64) 
 
     E1::Float64 = sqrt(p1v[1]^2+m1^2)
     E2::Float64 = sqrt(p2v[1]^2+m2^2)
     ratio::Float64 = E1/E2
+    gammaCOM::Float64 = (E1+E2)/sqrt(sBig+sSmol)
 
-    if ratio >= 1e0 # p1 has higher energy
-        w = scale*log(ratio) #*rand(Float64)
+    if ratio > 1e2 # p1 has higher energy
+        w3 = scale*log(ratio)
         t = p1v[4]
         h = p1v[3]
-    else
-        w = scale*log(1/ratio) #*rand(Float64)
+        # set w4 using (sBig+sSmol)/sBig i.e. how relativistic is the interaction is
+        w4 = scale*log(gammaCOM)*4 # sqrt
+    elseif ratio < 1e-2 # p2 has higher energy
+        w4 = scale*log(1/ratio)
         t = p2v[4]
         h = p2v[3]
+        # set w3 using (sBig+sSmol)/sBig i.e. how relativistic is the interaction is
+        w3 = scale*log(gammaCOM)*4
+    else # no weighting as uniform does well
+        w3 = 0e0
+        w4 = 0e0
+        t = 0e0
+        h = 0e0
     end
 
-    #w = min(15e0,w) # limit the rapidity so that unboosted angle is not 1.0 to numerical precision. 
+    return (w3,w4,t,h)
+    
+end
+
+function WeightedFactors2(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,m2::Float64,m3::Float64,m4::Float64,sBig::Float64,sSmol::Float64,scale::Float64) 
+
+    p1 = p1v[1]
+    p2 = p2v[1]
+
+    (st1,ct1) = sincospi(p1v[4])
+    (st2,ct2) = sincospi(p2v[4])
+    (sh1,ch1) = sincospi(p1v[3])
+    (sh2,ch2) = sincospi(p2v[3])
+    ch1h2 = cospi(p1v[3]-p2v[3])
+
+    s::Float64 = sBig + sSmol
+    E1::Float64 = sqrt(p1v[1]^2+m1^2)
+    E2::Float64 = sqrt(p2v[1]^2+m2^2)
+    z::Float64 = sqrt(p1^2+p2^2+2*p1*p2*(ct1*ct2+ch1h2*st1*st2))
+    x::Float64 = p1*st1*ch1 + p2*st2*ch2
+    y::Float64 = p1*st1*sh1 + p2*st2*sh2
+
+    # COM frame vector and angles
+    γC::Float64 = (E1+E2)/sqrt(s)
+    wC::Float64 = acosh(γC)
+    tC::Float64 = acos((p1*ct1+p2*ct2)/z)/pi
+    hC::Float64 = mod(atan(y,x)/pi,2)
+
+    # outgoing COM frame momentum
+    pC = InvariantFluxSmall(sSmol,m3,m4)/sqrt(s)
+
+    # Lab Frame Angle limits
+    # Due to conservation laws there is a limit on the lab frame scattering angle with respect to the COM frame direction. This angle is then mapped to a rapidity that "boosts" the lab frame angle samples such that 50% of samples lie within this angle limit.
+    if m3 > m4
+        w4Limit = 0e0
+        tmp =  pC/(m3*sinh(wC))
+        if tmp < 1e0
+            w3Limit = min(atanh(sqrt(1-tmp^2)),10e0) # limit to 10 to avoid inf
+        else
+            w3Limit = 0e0
+        end
+    elseif m3 < m4
+        w3Limit = 0e0
+        tmp = pC/(m4*sinh(wC))
+        if tmp < 1e0
+            w4Limit = min(atanh(sqrt(1-tmp^2)),10e0) # limit to 10 to avoid inf
+        else
+            w4Limit = 0e0
+        end
+    else
+        w3Limit = 0e0
+        w4Limit = 0e0
+    end
+
+    wScale::Float64 = asinh(sqrt(sSmol/sBig)) # rough measure
+
+    #w3::Float64 = min(w3Limit+wC+scale*wScale,18e0)
+    #w4::Float64 = min(w4Limit+wC+scale*wScale,18e0)
+    w3::Float64 = w3Limit != 0e0 ? w3Limit+scale*(wC+wScale) : scale*(wC + wScale)
+    w4::Float64 = w4Limit != 0e0 ? w4Limit+scale*(wC*wScale) : scale*(wC + wScale)
+
+    return (w3,w4,tC,hC)
+    
+end
+
+
+"""
+    WeightedFactorsEmission!(p1v,m1,scale)
+
+Returns the weighting rapidity `w` and the direction an angles `t` and `h` for rotations on a sphere. Weighting rapidity can be scaled by `scale`. Weight is dependant on the energy of the emitting particle `p1v`. With angles `t` and `h` being the angles of the emitting particle. 
+"""
+function WeightedFactorsEmission(p1v::Vector{Float64},m1::Float64,scale::Float64) 
+
+    E1::Float64 = sqrt(p1v[1]^2+m1^2)
+    gamma::Float64 = E1/m1
+
+    w = scale*acosh(gamma)
+    t = p1v[4]
+    h = p1v[3]
 
     return (w,t,h)
     
@@ -196,8 +283,8 @@ function RPointSphereWeighted!(a::Vector{Float64},w::Float64)
     v::Float64 = rand(Float64)
     #tB::Float64 = acos(2*v-1)/pi # "boosted" theta
 
-    costBdiv2sqr::Float64 = v
-    sintBdiv2sqr::Float64 = 1-v
+    #costBdiv2sqr::Float64 = v
+    #sintBdiv2sqr::Float64 = 1-v
     tantBdiv2::Float64 = sqrt((1-v)/v)
 
 
@@ -206,15 +293,15 @@ function RPointSphereWeighted!(a::Vector{Float64},w::Float64)
     x::Float64 = exp(-w)*tantBdiv2
     t::Float64 = 2*atan(exp(-w)*tantBdiv2)/pi  # "unboosted" theta divided by pi
     
-    sintdiv2sqr::Float64 = x^2/(1+x^2)
-    costdiv2sqr::Float64 = 1/(1+x^2)
+    #sintdiv2sqr::Float64 = x^2/(1+x^2)
+    #costdiv2sqr::Float64 = 1/(1+x^2)
 
     ew::Float64 = exp(w)
     #prob::Float64 = (ew*sinpi(t/2)^2+cospi(t/2)^2/ew)^-2
-    prob::Float64 = (ew*sintdiv2sqr+costdiv2sqr/ew)^-2
+    #prob::Float64 = (ew*sintdiv2sqr+costdiv2sqr/ew)^-2
     #prob::Float64 = (ew*cospi(tB/2)^2+sinpi(tB/2)^2/ew)^2
     #prob::Float64 = (ew*costBdiv2sqr+sintBdiv2sqr/ew)^2
-    #prob::Float64 = (ew*v+(1-v)/ew)^2
+    prob::Float64 = (ew*v+(1-v)/ew)^2
 
     a[2] = cospi(t)
     a[3] = h
@@ -230,6 +317,23 @@ function RPointSphereWeighted!(a::Vector{Float64},w::Float64)
         println("")
     end  =#
 
-    return prob
+    return prob #/ (2*pi)
+    
+end
+
+"""
+    WeightedFactorsSync!()
+
+Returns the weighting rapidity `w` and the direction an angles `t` and `h` for rotations on a sphere. Weighting rapidity can be scaled by `scale`. 
+"""
+function WeightedFactorsSync(pv::Vector{Float64},m::Float64,scale::Float64) 
+
+    E1::Float64 = sqrt(pv[1]^2+m^2) # non dimensional units energy is gamma * m
+
+    w = scale*acosh(E1/m) #*rand(Float64)
+    t = pv[4]
+    h = pv[3]
+
+    return (w,t,h)
     
 end

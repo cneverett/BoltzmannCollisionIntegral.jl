@@ -84,9 +84,10 @@ To follow 'PhaseSpaceFactors1'. Physical nature of binary interaction has certai
 """
 function STSymmetry!(SMatrix3::Array{Float64,9},SMatrix4::Array{Float64,9},TMatrix1::Array{Float64,6},mu1::Float64,mu2::Float64)
 
-    # The S and T matrices are symmetric in two ways. 
+    # The S and T matrices are symmetric in three ways. 
     # FIRST: they are ALWAYS symmetric with respect to θ->π-θ for all particle momentum states
-    # SECOND: if the incident masses are equal (mu1==mu2) then S and T are symmetric to swapping the incident particles 
+    # SECOND: if the incident masses are equal (mu1==mu2) then S and T are symmetric to swapping the incident particles
+    # THIRD: if outgoing masses are equal (mu3==mu4) then S is symmetric to swapping the outgoing particles (outgoing particles must have same grid size)
 
     avgT = 0e0
     avgS3 = zeros(Float64,size(SMatrix3[:,:,1,1,1,1,1,1,1]))
@@ -164,11 +165,11 @@ function STSymmetry!(SMatrix3::Array{Float64,9},SMatrix4::Array{Float64,9},TMatr
 end
 
 """
-    GainLossSymmetry(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,Indistinguishable_34,m1,m2,m3,m4)
+    GainLossSymmetryBinary(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,Indistinguishable_34,m1,m2,m3,m4)
 
-Applies various physical symmetries to the Gain and Loss terms in order to improve Monte Carlo sampling error. 
+Applies various physical symmetries to the Gain and Loss terms for Binary (12->34) interactions to improve Monte Carlo sampling error. 
 """
-function GainLossSymmetry!(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,m1,m2,m3,m4)
+function GainLossSymmetryBinary!(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,m1,m2,m3,m4)
 
     # if the outgoing particles are indistinguishable or have identical masses (both conditions give m3==m4) then the Gain terms are identical assuming they have the same discretisation
     if m3 == m4
@@ -317,11 +318,11 @@ function GainLossSymmetry!(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal
 end
 
 """
-    MomentumSpaceFactorsNew!(GainMatrix3,GainMatrix4,u3_bounds,u4_bounds,h3_bounds,h3_bounds,Indistinguishable_12)
+    MomentumSpaceFactorsNewBinary!(GainMatrix3,GainMatrix4,u3_bounds,u4_bounds,h3_bounds,h3_bounds,Indistinguishable_12)
 
 Applies momentum space volume element to the Gain and Loss matrices such that they have the correct dimensions for use in particle transport, i.e. they have units of 1/time (normalised)
 """
-function MomentumSpaceFactorsNew!(GainMatrix3::Array{Float64,9},GainMatrix4::Array{Float64,9},u3_bounds::Vector{Float64},h3_bounds::Vector{Float64},u4_bounds::Vector{Float64},h4_bounds::Vector{Float64},Indistinguishable_12::Bool)
+function MomentumSpaceFactorsNewBinary!(GainMatrix3::Array{Float64,9},GainMatrix4::Array{Float64,9},u3_bounds::Vector{Float64},h3_bounds::Vector{Float64},u4_bounds::Vector{Float64},h4_bounds::Vector{Float64},Indistinguishable_12::Bool)
 
     # Momentum space volume elements
     for h2 in axes(GainMatrix3,9), u2 in axes(GainMatrix3,8), p2 in axes(GainMatrix3,7), h1 in axes(GainMatrix3,6), u1 in axes(GainMatrix3,5), p1 in axes(GainMatrix3,4) # common axes

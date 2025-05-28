@@ -36,13 +36,13 @@ end
 
 function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,::UniformGrid)
     # grid location for uniform grid
-    return val != low_bound ? ceil(Int64,Float64(num)*(val-low_bound)/(up_bound-low_bound)) : Int64(1) 
+    return val != low_bound ? ceil(Int64,num*(val-low_bound)/(up_bound-low_bound)) : Int64(1) 
 end
 
 function location(low_bound::Float64,up_bound::Float64,num::Int64,val::Float64,::LogTenGrid)
     # grid location for log10 grid
     logval = log10(val)
-    loc = logval != low_bound ? ceil(Int64,Float64(num)*(logval-low_bound)/(up_bound-low_bound)) : Int64(1) 
+    loc = logval != low_bound ? ceil(Int64,num*(logval-low_bound)/(up_bound-low_bound)) : Int64(1) 
     return 1 <= loc <= num ? loc : loc>num ? num+1 : 1 # assigns 1 for under, num+1 for over and loc for in range
 end
 

@@ -33,13 +33,7 @@ T_\\text{val} = \\frac{1}{p^0_1p^0_2}\\sigma(s)F_12(s)
 If initial state fails `sCheck`, i.e. cannot generate a physical output state, Tval is set to 0e0. 
 Assumes f(x,p,u,ϕ)=f(x,vec{p})/p^2=constant over bin
 """
-function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64)
-
-    # define normalised masses
-    m1 = mu1
-    m2 = mu2
-    m3 = mu3
-    m4 = mu4
+function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,m1::Float64,m2::Float64,m3::Float64,m4::Float64)
 
     # pre-defining terms for efficiency 
     p1::Float64 = p1v[1]
@@ -98,7 +92,7 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,mu1::F
         Tval = 0e0
     end
 
-    return Tval,sBig,sSmol
+    return (Tval,sBig,sSmol)
 
 end
 
@@ -111,13 +105,7 @@ S_\\text{val}=\\frac{\\mathrm{d}\\sigma_{12|34}}{\\mathrm{d}t}\\frac{\\mathcal{F
 ``` 
 Assumes f(x,p,u,ϕ)=f(x,vec{p})/p^2=constant over bin
 """
-function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},sBig::Float64,sSmol::Float64,dsigmadt::Function,mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64,prob::Float64)
-
-    # define normalise masses
-    m1 = mu1
-    m2 = mu2 
-    m3 = mu3
-    m4 = mu4 
+function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},sBig::Float64,sSmol::Float64,dsigmadt::Function,m1::Float64,m2::Float64,m3::Float64,m4::Float64,prob::Float64)
 
     # pre-defining terms for efficiency 
     p1::Float64 = p1v[1]
@@ -217,17 +205,18 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
         error("Sval Inf")  
     end
 
-    if (Sval/prob) >= 1e13
+    #=     if (Sval/prob) >= 1e13
         println("")
         println("sSmol = $sSmol")
         println("tSmol = $tSmol")
         println("uSmol = $uSmol")
         println("check = $(sSmol+tSmol+uSmol+sBig+tBig+uBig)")
-    end
+    end =#
 
     return Sval
 
 end
+
 
 """
     SValue4(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3,mu4)
@@ -235,13 +224,7 @@ end
 Returns `Sval` from MC integration based on initial momentum states `p1v` and `p2v` and final state `p4v` and differential cross section `dsigmadt` based on particle selection 12->34.  
 Assumes f(x,p,μ)=constant over bin
 """
-function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},sBig::Float64,sSmol::Float64,dsigmadt::Function,mu1::Float64,mu2::Float64,mu3::Float64,mu4::Float64,prob::Float64)
-
-    # define normalise masses
-    m1 = mu1
-    m2 = mu2 
-    m3 = mu3
-    m4 = mu4 
+function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},sBig::Float64,sSmol::Float64,dsigmadt::Function,m1::Float64,m2::Float64,m3::Float64,m4::Float64,prob::Float64)
 
     # pre-defining terms for efficiency 
     p1::Float64 = p1v[1]
@@ -336,13 +319,13 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
         error("Sval Inf")  
     end
 
-    if (Sval/prob) >= 1e5
+#=     if (Sval/prob) >= 1e5
         println("")
         println("sSmol = $sSmol")
         println("tSmol = $tSmol")
         println("uSmol = $uSmol")
         println("check = $(sSmol+tSmol+uSmol+sBig+tBig+uBig)")
-    end
+    end =#
 
     return Sval
 
@@ -365,11 +348,11 @@ end
 
 returns the value of the invariant flux with smalled 's' Mandelstram variable (sSmol = s - (m1+m2)^2)
 """
-function InvariantFluxSmall(sSmol::Float64,mu1::Float64,mu2::Float64)
+function InvariantFluxSmall(sSmol::Float64,m1::Float64,m2::Float64)
     # Better accuracy for small s
 
     # sqrt(lambda(s,m1^2,m2^2))/2 = sqrt(s)|p*|
-    return sqrt(sSmol*(sSmol+4*mu1*mu2))/2
+    return sqrt(sSmol*(sSmol+4*m1*m2))/2
 
 end
 
@@ -390,11 +373,11 @@ end
 
 returns the value of the squared invariant flux with smalled 's' Mandelstram variable (sSmol = s - (m1+m2)^2)
 """
-function InvariantFlux2Small(sSmol::Float64,mu1::Float64,mu2::Float64)
+function InvariantFlux2Small(sSmol::Float64,m1::Float64,m2::Float64)
     # Better accuracy for small s
 
     # lambda(s,m1^2,m2^2)/4 = s|p*|^2
-    return (sSmol*(sSmol+4*mu1*mu2))/4
+    return (sSmol*(sSmol+4*m1*m2))/4
 
 end
 

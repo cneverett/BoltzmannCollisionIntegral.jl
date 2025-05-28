@@ -98,11 +98,11 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
 
     # ========= Load/Create Files ========== #
 
-        println("Loading/Creating Files")
+        #println("Loading/Creating Files")
 
-        println("Building Monte Carlo Arrays")
+        #println("Building Monte Carlo Arrays")
 
-        MCArrays = MonteCarloArrays(Parameters)
+        #= MCArrays = MonteCarloArrays(Parameters)
 
         GainTally3 = MCArrays.GainTally3
         GainTotal3 = MCArrays.GainTotal3
@@ -114,7 +114,9 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
         LossTally = MCArrays.LossTally
         LossTotal = MCArrays.LossTotal
         LossMatrix1 = MCArrays.LossMatrix1
-        LossMatrix2 = MCArrays.LossMatrix2
+        LossMatrix2 = MCArrays.LossMatrix2 =#
+
+
 
     # ====================================== #
 
@@ -130,9 +132,27 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
     # ======== Set up Array of Locks ====== #
 
         ArrayOfLocks = [Threads.SpinLock() for _ in 1:p1_num] 
-        #ErrorLock = Threads.ReentrantLock() # lock for error checking
-        ErrorCond = Threads.Atomic{Int}(0) 
-        #println(ErrorCond[])  
+
+    # ===================================== #
+
+    # =========== Load Old and Generate New Arrays ========= #
+
+        println("Loading Old and Allocating New Sampling Arrays")
+                
+        filePath = fileLocation*"\\"*fileName
+
+        #= OldMCArrays = OldMonteCarloArrays(Parameters,filePath)
+        OldGainMatrix3 = OldMCArrays.GainMatrix3
+        OldGainMatrix4 = OldMCArrays.GainMatrix4
+        OldGainTally3 = OldMCArrays.GainTally3
+        OldGainTally4 = OldMCArrays.GainTally4
+        OldLossMatrix1 = OldMCArrays.LossMatrix1
+        OldLossMatrix2 = OldMCArrays.LossMatrix2
+        OldLossTally = OldMCArrays.LossTally =#
+
+        (OldGainTally3,OldGainTally4,OldLossTally,OldGainMatrix3,OldGainMatrix4,OldLossMatrix1,OldLossMatrix2)  = OldMonteCarloArraysBinary(Parameters,filePath)
+
+        (GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,GainMatrix3,GainMatrix4,LossMatrix1,LossMatrix2) = MonteCarloArraysBinary(Parameters)
 
     # ===================================== #
 
@@ -142,43 +162,45 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
 
         prog = Progress(numTiterPerThread)
 
-        scale = range(0.0,1.0,length=nThreads)
+        scale = [range(0.0,1.0,length=10);]
+        #scale = [10.0]
+        #scale = rand(Float64,20)
+
+for (ii,scale_val) in enumerate(scale)
+numT = round(Int,numTiterPerThread/length(scale))
+
+        println("")
+        println("scale = $scale_val, itteration = $ii out of $(length(scale))")
+        println("")
+
+        # reset arrays
+        fill!(GainTotal3,Float64(0))
+        fill!(GainTotal4,Float64(0))
+        fill!(LossTotal,Float64(0))
+        fill!(GainTally3,UInt32(0))
+        fill!(GainTally4,UInt32(0))
+        fill!(LossTally,UInt32(0))
 
         #tasks = Vector{Task}(undef,nThreads)
-        Threads.@threads :static for i in 1:nThreads
-            scale = i / nThreads
-            STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,ErrorCond,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,scale,prog)
-        end
+        #Threads.@threads :static for thread in 1:nThreads
+            
+            #scale = i / nThreads
+            #scale = i>5 ? 1.0 : 0.0
+            #scale = 1e-2
+            #STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,ErrorCond,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,scale,prog)
+        #    STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,sigma,dsigmadt,Parameters,numT,numSiterPerThread,scale_val,prog,thread)
+        #end
         #end
 
-        # Set up workers
-        #=if MinMax
-            workers = [STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,prog;p3Max=p3Max,p4Max=p4Max,u3MinMax=u3MinMax,u4MinMax=u4MinMax) for _ in 1:nThreads]
-        else
-            workers = [STMonteCarlo_MultiThread!(SAtotal3,SAtotal4,TAtotal,SAtally3,SAtally4,TAtally,ArrayOfLocks,sigma,dsigmadt,Parameters,numTiterPerThread,numSiterPerThread,MinMax,prog) for _ in 1:nThreads]
-        end=#
+        workers = [STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,sigma,dsigmadt,Parameters,numT,numSiterPerThread,scale_val,prog,thread) for thread in 1:nThreads]
         
-        #wait.(tasks) # Wait for all tasks to finish
-        #wait.(workers) # Allow all workers to finish
+        wait.(workers) # Allow all workers to finish
 
-        finish!(prog)
+        #finish!(prog)
    
     # ===================================== #
 
     # === Update Gain and Loss Matrices === #
-
-        println("Loading and Updating Gain and Loss Matrices")
-            
-        filePath = fileLocation*"\\"*fileName
-
-        OldMCArrays = OldMonteCarloArrays(Parameters,filePath)
-        OldGainMatrix3 = OldMCArrays.GainMatrix3
-        OldGainMatrix4 = OldMCArrays.GainMatrix4
-        OldGainTally3 = OldMCArrays.GainTally3
-        OldGainTally4 = OldMCArrays.GainTally4
-        OldLossMatrix1 = OldMCArrays.LossMatrix1
-        OldLossMatrix2 = OldMCArrays.LossMatrix2
-        OldLossTally = OldMCArrays.LossTally
 
         # N values are last element of the tally array
         GainTally3_N = @view(GainTally3[end,:,:,:,:,:,:,:,:])
@@ -187,12 +209,13 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
         GainTally3_K = @view(GainTally3[1:end-1,:,:,:,:,:,:,:,:])
         GainTally4_K = @view(GainTally4[1:end-1,:,:,:,:,:,:,:,:])
 
+        println("")
         println("Applying Symmetries")
 
         # Apply Symmetries to the Gain and Loss Totals and Tallies
-        GainLossSymmetry!(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,mu1,mu2,mu3,mu4)
+        GainLossSymmetryBinary!(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,mu1,mu2,mu3,mu4)
 
-        println("Calculating New Gain and Loss Matrices")
+        println("Generating New Sampling Arrays")
 
         # calculate the gain and loss matrices
         if Indistinguishable_34 == true
@@ -204,7 +227,7 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
             if mu3 == mu4 
                 @. GainMatrix4 = GainMatrix3
             else
-                GainMatrix4 = zeros(similar(GainMatrix3))
+                fill!(GainMatrix4,Float64(0))
             end
         else
             for i in axes(GainTotal3,1)
@@ -216,9 +239,8 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
             end
             replace!(GainMatrix4,NaN=>0e0); # remove NaN caused by /0e0
         end
-        LossMatrix1 = LossTotal ./ LossTally;
+        @. LossMatrix1 = LossTotal / LossTally;
         replace!(LossMatrix1,NaN=>0e0);
-        
 
         println("Applying Momentum Space Factors")
 
@@ -228,20 +250,23 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
         h3val = bounds(h_low,h_up,h3_num,h3_grid).*pi
         h4val = bounds(h_low,h_up,h4_num,h4_grid).*pi
 
-        # Momentum space volume elements and symmetries
-        MomentumSpaceFactorsNew!(GainMatrix3,GainMatrix4,u3val,h3val,u4val,h4val,Indistinguishable_12)
+        # Momentum space volume elements
+        MomentumSpaceFactorsNewBinary!(GainMatrix3,GainMatrix4,u3val,h3val,u4val,h4val,Indistinguishable_12)
                                     
-        println("Weighting average of New and Old Gain and Loss Matrices")
+        println("Weighting average of New and Old Sampling Arrays")
 
-        WeightedAverageGain!(GainMatrix3,OldGainMatrix3,GainTally3_K,OldGainTally3,GainMatrix4,OldGainMatrix4,GainTally4_K,OldGainTally4)
-        
-        WeightedAverageLoss!(LossMatrix1,OldLossMatrix1,LossTally,OldLossTally)
+        # old arrays are modified in this process
+        WeightedAverageGainBinary!(GainMatrix3,OldGainMatrix3,GainTally3_K,OldGainTally3,GainMatrix4,OldGainMatrix4,GainTally4_K,OldGainTally4)
+        WeightedAverageLossBinary!(LossMatrix1,OldLossMatrix1,LossTally,OldLossTally)
+
+end # scale loop 
+finish!(prog)
 
         if Indistinguishable_12 == false
             perm = [4,5,6,1,2,3]
-            OldLossMatrix2 = permutedims(OldLossMatrix1,perm)
+            OldLossMatrix2 .= permutedims(OldLossMatrix1,perm)
         else
-            OldLossMatrix2 = zeros(similar(OldLossMatrix1))
+            fill!(OldLossMatrix2,Float64(0))
         end
 
     # ===================================== #

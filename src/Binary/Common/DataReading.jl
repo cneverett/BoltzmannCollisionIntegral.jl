@@ -363,8 +363,8 @@ function DoesConserve2(Output::Tuple{Tuple{String, String, String, String, Float
     GainMatrix4 = Output[3]
     LossMatrix1 = Output[4]
     LossMatrix2 = Output[5]
-    GainSamples3 = dropdims(sum(Output[6],dims=(1,2,3)), dims=(1,2,3))
-    GainSamples4 = dropdims(sum(Output[7],dims=(1,2,3)), dims=(1,2,3))
+    GainSamples3 = Output[6]
+    GainSamples4 = Output[7]
     LossSamples1 = Output[8]
     perm = [4,5,6,1,2,3]
     LossSamples2 = permutedims(Output[8],perm)
