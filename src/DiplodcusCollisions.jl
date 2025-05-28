@@ -1,13 +1,11 @@
-module BoltzmannCollisionIntegral
+module DiplodocusCollisions
 
 export SpectraEvaluateSerial, SpectraEvaluateMultiThread, fload_All, DoesConserve, fload_Matrix, fload_Matrix_ISO
-export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix_Sync, fload_Matrix_SyncISO
+export SyncEvaluateSerial, SpectraEvaluateMultiThreadEmission, fload_All_Sync, fload_Matrix_Sync, fload_Matrix_SyncISO
 
     using JLD2
     using Base.Threads
-    #using StaticArrays
     using BenchmarkTools
-    #using Documenter
     using Bessels
     using ProgressMeter
 
@@ -18,6 +16,8 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
 
     # include Binary files
         include("Binary/Common/Structs.jl")
+        include("Binary/Common/Arrays.jl")
+        include("Binary/Common/Averaging.jl")
         include("Binary/Common/DifferentialCrossSectionFunctions.jl")
         include("Binary/Common/Momentum3Values.jl")
         include("Binary/Common/MandelstramChecks.jl")
@@ -35,8 +35,11 @@ export SyncEvaluateSerial, SyncEvaluateMultiThread, fload_All_Sync, fload_Matrix
         include("Binary/Common/DataReading.jl")
         
     # include Synchrotron functions
+        include("Emission/Common/Arrays.jl")
+        include("Emission/Common/Averaging.jl")
         include("Emission/Common/SynchrotronKernel.jl")
-        include("Emission/Common/SyncPhaseSpaceFactors.jl")
+        include("Emission/Common/MomentumSpaceFactors.jl")
+        include("Emission/Common/Sampling.jl")
         # include serial methods
         include("Emission/Serial/SyncMonteCarlo_Serial.jl")
         include("Emission/Serial/SyncIntegration_Serial.jl")
