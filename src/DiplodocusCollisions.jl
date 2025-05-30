@@ -31,6 +31,7 @@ export SyncEvaluateSerial, SpectraEvaluateMultiThreadEmission, fload_All_Sync, f
         #include parallel methods
         include("Binary/MultiThread/STIntegration_MultiThread.jl")
         include("Binary/MultiThread/STMonteCarlo_MultiThread.jl")       
+        include("Binary/MultiThread/STMonteCarlo_MultiThread_Debug.jl")   
         # include data reading functions for export
         include("Binary/Common/DataReading.jl")
         

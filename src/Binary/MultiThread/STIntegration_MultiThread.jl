@@ -15,7 +15,7 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
     # ========= Load user Parameters ======= #
 
     (Parameters,numTiterPerThread,numSiterPerThread,nThreads,fileLocation,fileName) = userInputMultiThread
-    (name1,name2,name3,name4,mu1,mu2,mu3,mu4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
+    (name1,name2,name3,name4,m1,m2,m3,m4,p1_low,p1_up,p1_grid,p1_num,u1_grid,u1_num,h1_grid,h1_num,p2_low,p2_up,p2_grid,p2_num,u2_grid,u2_num,h2_grid,h2_num,p3_low,p3_up,p3_grid,p3_num,u3_grid,u3_num,h3_grid,h3_num,p4_low,p4_up,p4_grid,p4_num,u4_grid,u4_num,h4_grid,h4_num) = Parameters
 
     #=Parameters = userInput.Parameters
     numTiterPerThread = userInput.numTiter
@@ -29,10 +29,10 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
     name2 = Parameters.name2
     name3 = Parameters.name3
     name4 = Parameters.name4
-    mu1 = Parameters.mu1
-    mu2 = Parameters.mu2
-    mu3 = Parameters.mu3
-    mu4 = Parameters.mu4
+    m1 = Parameters.m1
+    m2 = Parameters.m2
+    m3 = Parameters.m3
+    m4 = Parameters.m4
 
     p1_low = Parameters.p1_low
     p1_up = Parameters.p1_up
@@ -123,9 +123,9 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
     # ======= Define Cross Section Functions Based on Particle Selections ========= #
 
         name_sigma = Symbol("sigma_"*name1*name2*name3*name4)
-        sigma = getfield(BoltzmannCollisionIntegral,name_sigma)
+        sigma = getfield(DiplodocusCollisions,name_sigma)
         name_dsigmadt = Symbol("dsigmadt_"*name1*name2*name3*name4)
-        dsigmadt = getfield(BoltzmannCollisionIntegral,name_dsigmadt)
+        dsigmadt = getfield(DiplodocusCollisions,name_dsigmadt)
 
     # ============================================================================ #
 
@@ -163,7 +163,7 @@ function SpectraEvaluateMultiThread(userInputMultiThread::Tuple{Tuple{String,Str
         prog = Progress(numTiterPerThread)
 
         scale = [range(0.0,1.0,length=10);]
-        #scale = [10.0]
+        #scale = [1.0]
         #scale = rand(Float64,20)
 
 for (ii,scale_val) in enumerate(scale)
@@ -192,12 +192,16 @@ numT = round(Int,numTiterPerThread/length(scale))
         #end
         #end
 
-        workers = [STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,sigma,dsigmadt,Parameters,numT,numSiterPerThread,scale_val,prog,thread) for thread in 1:nThreads]
-        
-        wait.(workers) # Allow all workers to finish
+        if nThreads == 1
+            # Run in serial if only one thread, easier to use for debugging
+            @show @allocations STMonteCarlo_MultiThread_Debug!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,sigma,dsigmadt,Parameters,numT,numSiterPerThread,scale_val,prog,1)
+        else
+            workers = [STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,sigma,dsigmadt,Parameters,numT,numSiterPerThread,scale_val,prog,thread) for thread in 1:nThreads]
+            wait.(workers) # Allow all workers to finish
+        end
 
         #finish!(prog)
-   
+  
     # ===================================== #
 
     # === Update Gain and Loss Matrices === #
@@ -213,7 +217,7 @@ numT = round(Int,numTiterPerThread/length(scale))
         println("Applying Symmetries")
 
         # Apply Symmetries to the Gain and Loss Totals and Tallies
-        GainLossSymmetryBinary!(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,mu1,mu2,mu3,mu4)
+        GainLossSymmetryBinary!(GainTotal3,GainTotal4,GainTally3,GainTally4,LossTotal,LossTally,m1,m2,m3,m4)
 
         println("Generating New Sampling Arrays")
 
@@ -224,7 +228,7 @@ numT = round(Int,numTiterPerThread/length(scale))
                 @. @view(GainMatrix3[i,:,:,:,:,:,:,:,:]) = @view(GainTotal3[i,:,:,:,:,:,:,:,:]) / GainTally3_N
             end
             replace!(GainMatrix3,NaN=>0e0); # remove NaN caused by / 0
-            if mu3 == mu4 
+            if m3 == m4 
                 @. GainMatrix4 = GainMatrix3
             else
                 fill!(GainMatrix4,Float64(0))

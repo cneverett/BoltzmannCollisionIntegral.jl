@@ -39,9 +39,6 @@ const u_up::Float64 = Float64(1);                    # Upper bound for cos(theta
 const h_low::Float64 = Float64(0);                 # Lower bound for phi normalised by pi
 const h_up::Float64 = Float64(2);                  # Upper bound for phi normalised by pi
 
-# Grid data type definitions
-const Grid_to_Type = Dict{String,Any}("u"=>Int8(1),"l"=>Int16(1),"b"=>Int32(1))
-
 abstract type GridType end
 struct UniformGrid <: GridType end
 abstract type LogTenGridType end

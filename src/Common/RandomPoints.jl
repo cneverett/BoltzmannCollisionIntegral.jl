@@ -223,7 +223,7 @@ function WeightedFactors2(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,
         w4Limit = 0e0
         tmp =  pC/(m3*sinh(wC))
         if tmp < 1e0
-            w3Limit = min(atanh(sqrt(1-tmp^2)),10e0) # limit to 10 to avoid inf
+            w3Limit = min(atanh(sqrt(1-tmp^2)),24e0) # limit to 10 to avoid inf
         else
             w3Limit = 0e0
         end
@@ -231,7 +231,7 @@ function WeightedFactors2(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,
         w3Limit = 0e0
         tmp = pC/(m4*sinh(wC))
         if tmp < 1e0
-            w4Limit = min(atanh(sqrt(1-tmp^2)),10e0) # limit to 10 to avoid inf
+            w4Limit = min(atanh(sqrt(1-tmp^2)),24e0) # limit to 10 to avoid inf
         else
             w4Limit = 0e0
         end
@@ -244,8 +244,12 @@ function WeightedFactors2(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,
 
     #w3::Float64 = min(w3Limit+wC+scale*wScale,18e0)
     #w4::Float64 = min(w4Limit+wC+scale*wScale,18e0)
-    w3::Float64 = w3Limit != 0e0 ? w3Limit+scale*(wC+wScale) : scale*(wC + wScale)
-    w4::Float64 = w4Limit != 0e0 ? w4Limit+scale*(wC*wScale) : scale*(wC + wScale)
+    w3::Float64 = w3Limit+scale*(wC+wScale)
+    #if p1v[1] < 2.0e0 && p2v[1] < 2.0e-10
+    #    println("w3 = $w3")
+    #    println("E1/E2 = $(log(E1/E2))")
+    #end
+    w4::Float64 = w4Limit+scale*(wC*wScale) 
 
     return (w3,w4,tC,hC)
     
