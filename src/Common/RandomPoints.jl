@@ -222,8 +222,8 @@ function WeightedFactors2(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,
     if m3 > m4
         w4Limit = 0e0
         tmp =  pC/(m3*sinh(wC))
-        if tmp < 1e0
-            w3Limit = min(atanh(sqrt(1-tmp^2)),24e0) # limit to 10 to avoid inf
+        if tmp < 1e0 
+            w3Limit = min(atanh(sqrt(1-tmp^2)),18.7e0) # for tmp < 1e-8 sqrt=0 due to float precision, 18.7e0 is maximum value of w3 to this precision
         else
             w3Limit = 0e0
         end
@@ -231,7 +231,7 @@ function WeightedFactors2(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,
         w3Limit = 0e0
         tmp = pC/(m4*sinh(wC))
         if tmp < 1e0
-            w4Limit = min(atanh(sqrt(1-tmp^2)),24e0) # limit to 10 to avoid inf
+            w4Limit = min(atanh(sqrt(1-tmp^2)),18.7e0)
         else
             w4Limit = 0e0
         end
