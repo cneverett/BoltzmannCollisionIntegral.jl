@@ -39,8 +39,8 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,m1::Fl
     p1::Float64 = p1v[1]
     p2::Float64 = p2v[1]
 
-    (st1::Float64,ct1::Float64) = sincospi(p1v[4])
-    (st2::Float64,ct2::Float64) = sincospi(p2v[4])
+    st1::Float64,ct1::Float64 = sincospi(p1v[4])
+    st2::Float64,ct2::Float64 = sincospi(p2v[4])
 
     #ct1::Float64 = p1v[2] #cospi(p1v[2])
     #ct2::Float64 = p2v[2] #cospi(p2v[2]) 
@@ -52,8 +52,10 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,m1::Fl
 
     ctheta12::Float64 = ct1*ct2+ch1h2*st1*st2
 
-    m12 = m1^2
-    m22 = m2^2
+    m12::Float64 = m1^2
+    m22::Float64 = m2^2
+
+    Tval::Float64 = 0e0
     
     #= This method leads to errors when p/m < 10^-6 due to Floating point precision, causing s<(m+m)^2 and InvFlux to return a complex number error 
     E1 = sqrt(p1^2+m12)
@@ -79,7 +81,7 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,m1::Fl
         E2::Float64 = Es2 + m2
         
         Tval = (1/E1)*(1/E2)*(InvariantFluxSmall(sSmol,m1,m2))*sigma(sSmol,sBig)
-        if (Tval==Inf||Tval < 0e0)
+        if Tval==Inf || Tval < 0e0
             println("")
             println("p1v = $p1v")
             println("p2v = $p2v")
@@ -92,9 +94,10 @@ function TValue(p1v::Vector{Float64},p2v::Vector{Float64},sigma::Function,m1::Fl
         Tval = 0e0
     end
 
-    return (Tval,sBig,sSmol)
+    return Tval, sBig, sSmol
 
 end
+
 
 """
     SValue3(p3v,p1v,p2v,dsigmadt,mu1,mu2,mu3)
@@ -110,8 +113,8 @@ function SValue3(p3v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     # pre-defining terms for efficiency 
     p1::Float64 = p1v[1]
     p2::Float64 = p2v[1]
-    (st1::Float64,ct1::Float64) = sincospi(p1v[4])
-    (st2::Float64,ct2::Float64) = sincospi(p2v[4])
+    st1::Float64,ct1::Float64 = sincospi(p1v[4])
+    st2::Float64,ct2::Float64 = sincospi(p2v[4])
 
     #ct1::Float64 = p1v[2] #cospi(p1v[2])
     #ct2::Float64 = p2v[2] #cospi(p2v[2]) 
@@ -229,8 +232,8 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     # pre-defining terms for efficiency 
     p1::Float64 = p1v[1]
     p2::Float64 = p2v[1]
-    (st1::Float64,ct1::Float64) = sincospi(p1v[4])
-    (st2::Float64,ct2::Float64) = sincospi(p2v[4])
+    st1::Float64,ct1::Float64 = sincospi(p1v[4])
+    st2::Float64,ct2::Float64 = sincospi(p2v[4])
 
     #ct1::Float64 = p1v[2] #cospi(p1v[2])
     #ct2::Float64 = p2v[2] #cospi(p2v[2]) 
@@ -241,7 +244,7 @@ function SValue4(p4v::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},
     ch1h2::Float64 = cospi(p1v[3]-p2v[3])
 
     p4::Float64 = p4v[1]
-    (st4::Float64,ct4::Float64) = sincospi(p4v[4])
+    st4::Float64,ct4::Float64 = sincospi(p4v[4])
     ch4h1::Float64 = cospi(p4v[3]-p1v[3])
     ch4h2::Float64 = cospi(p4v[3]-p2v[3])
 

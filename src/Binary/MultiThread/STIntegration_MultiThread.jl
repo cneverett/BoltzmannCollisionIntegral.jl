@@ -194,7 +194,7 @@ numT = round(Int,numTiterPerThread/length(scale))
 
         if nThreads == 1
             # Run in serial if only one thread, easier to use for debugging
-            @show @allocations STMonteCarlo_MultiThread_Debug!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,sigma,dsigmadt,Parameters,numT,numSiterPerThread,scale_val,prog,1)
+            STMonteCarlo_MultiThread_Debug!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,sigma,dsigmadt,Parameters,numT,numSiterPerThread,scale_val,prog,1)
         else
             workers = [STMonteCarlo_MultiThread!(GainTotal3,GainTotal4,LossTotal,GainTally3,GainTally4,LossTally,ArrayOfLocks,sigma,dsigmadt,Parameters,numT,numSiterPerThread,scale_val,prog,thread) for thread in 1:nThreads]
             wait.(workers) # Allow all workers to finish

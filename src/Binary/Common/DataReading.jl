@@ -213,31 +213,35 @@ function DoesConserve2(Output::Tuple{Tuple,Array{Float64,9},Array{Float64,9},Arr
 
     p1_r = bounds(p1_low,p1_up,p1_num,p1_grid);
     p1_d = deltaVector(p1_r);
-    p1_d_full = [p1_d; deltaVector([p1_r[end]; 2*p1_r[end]])];
+    #p1_d_full = [p1_d; deltaVector([p1_r[end]; 2*p1_r[end]])];
     E1_Δ = deltaEVector(p1_r,mu1);
-    E1_Δ_full = [E1_Δ; deltaEVector([p1_r[end], 2*p1_r[end]],mu1)];
-    E1_d_full = E1_Δ_full ./ p1_d_full;
+    #E1_Δ_full = [E1_Δ; deltaEVector([p1_r[end], 2*p1_r[end]],mu1)];
+    #E1_d_full = E1_Δ_full ./ p1_d_full;
+    E1_d = E1_Δ ./ p1_d
 
     p2_r = bounds(p2_low,p2_up,p2_num,p2_grid);
     p2_d = deltaVector(p2_r);
-    p2_d_full = [p2_d; deltaVector([p2_r[end]; 2*p2_r[end]])];
+    #p2_d_full = [p2_d; deltaVector([p2_r[end]; 2*p2_r[end]])];
     E2_Δ = deltaEVector(p2_r,mu2);
-    E2_Δ_full = [E2_Δ; deltaEVector([p2_r[end], 2*p2_r[end]],mu2)];
-    E2_d_full = E2_Δ_full ./ p2_d_full;
+    #E2_Δ_full = [E2_Δ; deltaEVector([p2_r[end], 2*p2_r[end]],mu2)];
+    #E2_d_full = E2_Δ_full ./ p2_d_full;
+    E2_d = E2_Δ ./ p2_d
 
     p3_r = bounds(p3_low,p3_up,p3_num,p3_grid);
     p3_d = deltaVector(p3_r);
-    p3_d_full = [p3_d; deltaVector([p3_r[end]; 2*p3_r[end]])];
+    #p3_d_full = [p3_d; deltaVector([p3_r[end]; 2*p3_r[end]])];
     E3_Δ = deltaEVector(p3_r,mu3);
-    E3_Δ_full = [E3_Δ; deltaEVector([p3_r[end], 2*p3_r[end]],mu3)];
-    E3_d_full = E3_Δ_full ./ p3_d_full
+    #E3_Δ_full = [E3_Δ; deltaEVector([p3_r[end], 2*p3_r[end]],mu3)];
+    #E3_d_full = E3_Δ_full ./ p3_d_full
+    E3_d = E3_Δ ./ p3_d
 
     p4_r = bounds(p4_low,p4_up,p4_num,p4_grid);
     p4_d = deltaVector(p4_r);
-    p4_d_full = [p4_d; deltaVector([p4_r[end]; 2*p4_r[end]])];
+    #p4_d_full = [p4_d; deltaVector([p4_r[end]; 2*p4_r[end]])];
     E4_Δ = deltaEVector(p4_r,mu4);
-    E4_Δ_full = [E4_Δ; deltaEVector([p4_r[end], 2*p4_r[end]],mu4)];
-    E4_d_full = E4_Δ_full ./ p4_d_full
+    #E4_Δ_full = [E4_Δ; deltaEVector([p4_r[end], 2*p4_r[end]],mu4)];
+    #E4_d_full = E4_Δ_full ./ p4_d_full
+    E4_d = E4_Δ ./ p4_d
 
     SsumN3 = 0
     TsumN1 = 0
@@ -262,30 +266,30 @@ function DoesConserve2(Output::Tuple{Tuple,Array{Float64,9},Array{Float64,9},Arr
     for p1 in axes(GainMatrix3, 4), u1 in axes(GainMatrix3,5), h1 in axes(GainMatrix3,6), p2 in axes(GainMatrix3,7), u2 in axes(GainMatrix3,8), h2 in axes(GainMatrix3,9)
         for p3 in axes(GainMatrix3,1), u3 in axes(GainMatrix3,2), h3 in axes(GainMatrix3,3) 
         SsumN3 += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]
-        SsumE3 += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_d_full[p3]
+        SsumE3 += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_d[p3]
         NGainMatrix3[p1,u1,h1,p2,u2,h2] += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]
-        EGainMatrix3[p1,u1,h1,p2,u2,h2] += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_d_full[p3]
+        EGainMatrix3[p1,u1,h1,p2,u2,h2] += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_d[p3]
         end
     end
 
     for p1 in axes(GainMatrix4, 4), u1 in axes(GainMatrix4,5), h1 in axes(GainMatrix4,6), p2 in axes(GainMatrix4,7), u2 in axes(GainMatrix4,8), h2 in axes(GainMatrix4,9)
         for p4 in axes(GainMatrix4,1), u4 in axes(GainMatrix4,2), h4 in axes(GainMatrix4,3) 
         SsumN4 += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]
-        SsumE4 += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_d_full[p4]
+        SsumE4 += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_d[p4]
         NGainMatrix4[p1,u1,h1,p2,u2,h2] += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]
-        EGainMatrix4[p1,u1,h1,p2,u2,h2] += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_d_full[p4]
+        EGainMatrix4[p1,u1,h1,p2,u2,h2] += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_d[p4]
         end
     end
 
     for p1 in axes(LossMatrix1,1), u1 in axes(LossMatrix1, 2), h1 in axes(LossMatrix1,3), p2 in axes(LossMatrix1,4), u2 in axes(LossMatrix1,5), h2 in axes(LossMatrix1,6)
         TsumN1 += LossMatrix1[p1,u1,h1,p2,u2,h2]
-        TsumE1 += LossMatrix1[p1,u1,h1,p2,u2,h2]*E1_d_full[p1]
+        TsumE1 += LossMatrix1[p1,u1,h1,p2,u2,h2]*E1_d[p1]
         TsumN2 += LossMatrix2[p2,u2,h2,p1,u1,h1]
-        TsumE2 += LossMatrix2[p2,u2,h2,p1,u1,h1]*E2_d_full[p2]
+        TsumE2 += LossMatrix2[p2,u2,h2,p1,u1,h1]*E2_d[p2]
         NLossMatrix1[p1,u1,h1,p2,u2,h2] += LossMatrix1[p1,u1,h1,p2,u2,h2]
         NLossMatrix2[p1,u1,h1,p2,u2,h2] += LossMatrix2[p2,u2,h2,p1,u1,h1]
-        ELossMatrix1[p1,u1,h1,p2,u2,h2] += LossMatrix1[p1,u1,h1,p2,u2,h2]*E1_d_full[p1]
-        ELossMatrix2[p1,u1,h1,p2,u2,h2] += LossMatrix2[p2,u2,h2,p1,u1,h1]*E2_d_full[p2]
+        ELossMatrix1[p1,u1,h1,p2,u2,h2] += LossMatrix1[p1,u1,h1,p2,u2,h2]*E1_d[p1]
+        ELossMatrix2[p1,u1,h1,p2,u2,h2] += LossMatrix2[p2,u2,h2,p1,u1,h1]*E2_d[p2]
     end
 
     NErrMatrix1 = (NGainMatrix3 .- NLossMatrix1) ./ NLossMatrix1
@@ -376,31 +380,36 @@ function DoesConserve2(Output::Tuple{Tuple{String, String, String, String, Float
 
     p1_r = bounds(p1_low,p1_up,p1_num,p1_grid);
     p1_d = deltaVector(p1_r);
-    p1_d_full = [p1_d; deltaVector([p1_r[end]; 2*p1_r[end]])];
+    #p1_d_full = [p1_d; deltaVector([p1_r[end]; 2*p1_r[end]])];
     E1_Δ = deltaEVector(p1_r,mu1);
-    E1_Δ_full = [E1_Δ; deltaEVector([p1_r[end], 2*p1_r[end]],mu1)];
-    E1_d_full = E1_Δ_full ./ p1_d_full;
+    #E1_Δ_full = [E1_Δ; deltaEVector([p1_r[end], 2*p1_r[end]],mu1)];
+    #E1_d_full = E1_Δ_full ./ p1_d_full;
+    E1_d = E1_Δ ./ p1_d
 
     p2_r = bounds(p2_low,p2_up,p2_num,p2_grid);
     p2_d = deltaVector(p2_r);
-    p2_d_full = [p2_d; deltaVector([p2_r[end]; 2*p2_r[end]])];
+    #p2_d_full = [p2_d; deltaVector([p2_r[end]; 2*p2_r[end]])];
     E2_Δ = deltaEVector(p2_r,mu2);
-    E2_Δ_full = [E2_Δ; deltaEVector([p2_r[end], 2*p2_r[end]],mu2)];
-    E2_d_full = E2_Δ_full ./ p2_d_full;
+    #E2_Δ_full = [E2_Δ; deltaEVector([p2_r[end], 2*p2_r[end]],mu2)];
+    #E2_d_full = E2_Δ_full ./ p2_d_full;
+    E2_d = E2_Δ ./ p2_d
+
 
     p3_r = bounds(p3_low,p3_up,p3_num,p3_grid);
     p3_d = deltaVector(p3_r);
-    p3_d_full = [p3_d; deltaVector([p3_r[end]; 2*p3_r[end]])];
+    #p3_d_full = [p3_d; deltaVector([p3_r[end]; 2*p3_r[end]])];
     E3_Δ = deltaEVector(p3_r,mu3);
-    E3_Δ_full = [E3_Δ; deltaEVector([p3_r[end], 2*p3_r[end]],mu3)];
-    E3_d_full = E3_Δ_full ./ p3_d_full
+    #E3_Δ_full = [E3_Δ; deltaEVector([p3_r[end], 2*p3_r[end]],mu3)];
+    #E3_d_full = E3_Δ_full ./ p3_d_full
+    E3_d = E3_Δ ./ p3_d
 
     p4_r = bounds(p4_low,p4_up,p4_num,p4_grid);
     p4_d = deltaVector(p4_r);
-    p4_d_full = [p4_d; deltaVector([p4_r[end]; 2*p4_r[end]])];
+    #p4_d_full = [p4_d; deltaVector([p4_r[end]; 2*p4_r[end]])];
     E4_Δ = deltaEVector(p4_r,mu4);
-    E4_Δ_full = [E4_Δ; deltaEVector([p4_r[end], 2*p4_r[end]],mu4)];
-    E4_d_full = E4_Δ_full ./ p4_d_full
+    #E4_Δ_full = [E4_Δ; deltaEVector([p4_r[end], 2*p4_r[end]],mu4)];
+    #E4_d_full = E4_Δ_full ./ p4_d_full
+    E4_d = E4_Δ ./ p4_d
 
     SsumN3 = 0
     TsumN1 = 0
@@ -425,30 +434,30 @@ function DoesConserve2(Output::Tuple{Tuple{String, String, String, String, Float
     for p1 in axes(GainMatrix3, 4), u1 in axes(GainMatrix3,5), h1 in axes(GainMatrix3,6), p2 in axes(GainMatrix3,7), u2 in axes(GainMatrix3,8), h2 in axes(GainMatrix3,9)
         for p3 in axes(GainMatrix3,1), u3 in axes(GainMatrix3,2), h3 in axes(GainMatrix3,3) 
         SsumN3 += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]
-        SsumE3 += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_d_full[p3]
+        SsumE3 += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_d[p3]
         NGainMatrix3[p1,u1,h1,p2,u2,h2] += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]
-        EGainMatrix3[p1,u1,h1,p2,u2,h2] += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_d_full[p3]
+        EGainMatrix3[p1,u1,h1,p2,u2,h2] += GainMatrix3[p3,u3,h3,p1,u1,h1,p2,u2,h2]*E3_d[p3]
         end
     end
 
     for p1 in axes(GainMatrix4, 4), u1 in axes(GainMatrix4,5), h1 in axes(GainMatrix4,6), p2 in axes(GainMatrix4,7), u2 in axes(GainMatrix4,8), h2 in axes(GainMatrix4,9)
         for p4 in axes(GainMatrix4,1), u4 in axes(GainMatrix4,2), h4 in axes(GainMatrix4,3) 
         SsumN4 += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]
-        SsumE4 += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_d_full[p4]
+        SsumE4 += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_d[p4]
         NGainMatrix4[p1,u1,h1,p2,u2,h2] += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]
-        EGainMatrix4[p1,u1,h1,p2,u2,h2] += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_d_full[p4]
+        EGainMatrix4[p1,u1,h1,p2,u2,h2] += GainMatrix4[p4,u4,h4,p1,u1,h1,p2,u2,h2]*E4_d[p4]
         end
     end
 
     for p1 in axes(LossMatrix1,1), u1 in axes(LossMatrix1, 2), h1 in axes(LossMatrix1,3), p2 in axes(LossMatrix1,4), u2 in axes(LossMatrix1,5), h2 in axes(LossMatrix1,6)
         TsumN1 += LossMatrix1[p1,u1,h1,p2,u2,h2]
-        TsumE1 += LossMatrix1[p1,u1,h1,p2,u2,h2]*E1_d_full[p1]
+        TsumE1 += LossMatrix1[p1,u1,h1,p2,u2,h2]*E1_d[p1]
         TsumN2 += LossMatrix2[p2,u2,h2,p1,u1,h1]
-        TsumE2 += LossMatrix2[p2,u2,h2,p1,u1,h1]*E2_d_full[p2]
+        TsumE2 += LossMatrix2[p2,u2,h2,p1,u1,h1]*E2_d[p2]
         NLossMatrix1[p1,u1,h1,p2,u2,h2] += LossMatrix1[p1,u1,h1,p2,u2,h2]
         NLossMatrix2[p1,u1,h1,p2,u2,h2] += LossMatrix2[p2,u2,h2,p1,u1,h1]
-        ELossMatrix1[p1,u1,h1,p2,u2,h2] += LossMatrix1[p1,u1,h1,p2,u2,h2]*E1_d_full[p1]
-        ELossMatrix2[p1,u1,h1,p2,u2,h2] += LossMatrix2[p2,u2,h2,p1,u1,h1]*E2_d_full[p2]
+        ELossMatrix1[p1,u1,h1,p2,u2,h2] += LossMatrix1[p1,u1,h1,p2,u2,h2]*E1_d[p1]
+        ELossMatrix2[p1,u1,h1,p2,u2,h2] += LossMatrix2[p2,u2,h2,p1,u1,h1]*E2_d[p2]
     end
 
     NErrMatrix1 = (NGainMatrix3 .- NLossMatrix1) ./ NLossMatrix1

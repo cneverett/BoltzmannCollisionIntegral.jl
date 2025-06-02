@@ -111,14 +111,15 @@ Importance MC sampling of outgoing momentum states weighted towards the directio
 """
 function ImportanceSampling4!(p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vector{Float64},p4v::Vector{Float64},p3pv::Vector{Float64},p4pv::Vector{Float64},sBig::Float64,sSmol::Float64,dsigmadt::Function,LocalGainTotal3::Array{Float64,3},LocalGainTotal4::Array{Float64,3},LocalGainTally3::Array{UInt32,3},LocalGainTally4::Array{UInt32,3},SmallParameters::Tuple{Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Int64,GridType,Int64,GridType,Int64,GridType, Float64,Float64,Float64,Float64},WeightFactors::Tuple{Float64,Float64,Float64,Float64})
 
+
     # Unpack parameters
     (p3_low,p3_up,p3_num,p3_grid,u3_num,u3_grid,h3_num,h3_grid,p4_low,p4_up,p4_num,p4_grid,u4_num,u4_grid,h4_num,h4_grid,m1,m2,m3,m4) = SmallParameters
 
     # weighting parameters
-    (w3,w4,t,h) = WeightFactors
+    (w3::Float64,w4::Float64,t::Float64,h::Float64) = WeightFactors
    
-    prob3 = RPointSphereWeighted!(p3v,w3)    
-    prob4 = RPointSphereWeighted!(p4v,w4)
+    prob3::Float64 = RPointSphereWeighted!(p3v,w3)    
+    prob4::Float64 = RPointSphereWeighted!(p4v,w4)
     RotateToLab!(p3v,p4v,t,h)
     @. p3pv = p3v
     @. p4pv = p4v
@@ -127,7 +128,7 @@ function ImportanceSampling4!(p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vec
     # === p3 === #
 
     # Calculate p3 value
-    (p3_physical,p3p_physical,NumStates) = Momentum3Value2!(p3v,p3pv,p1v,p2v,m1,m2,m3,m4)
+    (p_physical,pp_physical,NumStates) = Momentum3Value2!(p3v,p3pv,p1v,p2v,m1,m2,m3,m4)
 
 
     # S Array Tallies
@@ -140,7 +141,7 @@ function ImportanceSampling4!(p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vec
 
     # Calculate S Array totals
     if NumStates == 1
-        if p3_physical
+        if p_physical
             p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
             Sval = SValue3(p3v,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob3)
             LocalGainTotal3[p3loc,u3loc,h3loc] += Sval/prob3
@@ -149,13 +150,13 @@ function ImportanceSampling4!(p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vec
     end
 
     if NumStates == 2
-        if p3_physical
+        if p_physical
             p3loc = location(p3_low,p3_up,p3_num,p3v[1],p3_grid)
             Sval = SValue3(p3v,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob3)
             LocalGainTotal3[p3loc,u3loc,h3loc] += Sval/prob3
             LocalGainTally3[p3loc,u3loc,h3loc] += UInt32(1)
         end
-        if p3p_physical
+        if pp_physical
             u3ploc = location(u_low,u_up,u3_num,p3pv[2],u3_grid)
             h3ploc = location(h_low,h_up,h3_num,p3pv[3],h3_grid)
             p3ploc = location(p3_low,p3_up,p3_num,p3pv[1],p3_grid)
@@ -168,7 +169,7 @@ function ImportanceSampling4!(p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vec
     # === p4 === #
 
     # Calculate p4 value
-    (p4_physical,p4p_physical,NumStates) = Momentum3Value2!(p4v,p4pv,p2v,p1v,m2,m1,m4,m3)
+    (p_physical,pp_physical,NumStates) = Momentum3Value2!(p4v,p4pv,p2v,p1v,m2,m1,m4,m3)
 
     # S Array Tallies
     # For each u3,h4 sampled, p4 will be + or -ve, corresponding to a change in sign of u3 and a shift in h4 by pi i.e. Mod(h4+1,2). Therefore by sampling one u3 we are actually sampling u3/h4 and -u3/mod(h4+1,2) with one or both having valid p4 states.
@@ -181,7 +182,7 @@ function ImportanceSampling4!(p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vec
 
     # Calculate S Array totals
     if NumStates == 1
-        if p4_physical
+        if p_physical
             p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
             Sval = SValue4(p4v,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob4)
             LocalGainTotal4[p4loc,u4loc,h4loc] += Sval/prob4
@@ -190,13 +191,13 @@ function ImportanceSampling4!(p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vec
     end
 
     if NumStates == 2
-        if p4_physical
+        if p_physical
             p4loc = location(p4_low,p4_up,p4_num,p4v[1],p4_grid)
             Sval = SValue4(p4v,p1v,p2v,sBig,sSmol,dsigmadt,m1,m2,m3,m4,prob4)
             LocalGainTotal4[p4loc,u4loc,h4loc] += Sval/prob4
             LocalGainTally4[p4loc,u4loc,h4loc] += UInt32(1)
         end
-        if p4p_physical
+        if pp_physical
             u4ploc = location(u_low,u_up,u4_num,p4pv[2],u4_grid)
             h4ploc = location(h_low,h_up,h4_num,p4pv[3],h4_grid)
             p4ploc = location(p4_low,p4_up,p4_num,p4pv[1],p4_grid)
@@ -206,7 +207,9 @@ function ImportanceSampling4!(p1v::Vector{Float64},p2v::Vector{Float64},p3v::Vec
         end
     end
 
-     return nothing
+
+
+    return nothing
 end
 
 """
@@ -1561,3 +1564,4 @@ function RotateToLab!(p3v::Vector{Float64},p4v::Vector{Float64},t::Float64,h::Fl
     return nothing
 
 end
+

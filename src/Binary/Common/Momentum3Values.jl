@@ -203,10 +203,12 @@ function Momentum3Value!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{
 
 end
 
-function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,m2::Float64,m3::Float64,m4::Float64)
+function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,m2::Float64,m3::Float64,m4::Float64,p3_low::Float64,p3_up::Float64)
 
-    # define identical states
-    #identicalStates::Bool = false
+    # define output types
+    NumStates::Int64 = 2
+    p3_physical::Bool = false
+    p3p_physical::Bool = false
 
     # pv should be [p,t,h]
     p1::Float64 = p1v[1]
@@ -237,8 +239,8 @@ function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector
 
     # E1 = A1 + m1
     # E2 = A2 + m2
-    A1::Float64 = p12/(E1+m1)
-    A2::Float64 = p22/(E2+m2)
+    #A1::Float64 = p12/(E1+m1)
+    #A2::Float64 = p22/(E2+m2)
 
     #E1E2 = E1*E2
 
@@ -279,15 +281,14 @@ function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector
 
     else=#if C3sqr > 0
 
-        NumStates = 2
-
-        p3_physical = false
-        p3p_physical = false
+        #NumStates = 2 # defined at top of function
+        #p3_physical = false
+        #p3p_physical = false
 
         C3 = 4*sqrt(C3sqr)
         p3 = (C2-C3)/C4
 
-        if p3 <= 0e0
+        if (p3 <= 0e0 || p3 < 10.0^p3_low || p3 > 10.0^p3_up) # no negative or under or overflow
             NumStates = 1
             p3_physical = false
         else
@@ -299,7 +300,7 @@ function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector
 
         if NumStates == 2
             p3p = (C2+C3)/C4
-            if p3p <= 0e0
+            if (p3p <= 0e0 || p3p < 10.0^p3_low || p3p > 10.0^p3_up) # no negative or under or overflow
                 NumStates = 1
                 p3p_physical = false
             else
@@ -310,7 +311,7 @@ function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector
             end
         else # NumStates == 1
             p3 = (C2+C3)/C4
-            if p3 <= 0e0
+            if (p3 <= 0e0 || p3 < 10.0^p3_low || p3 > 10.0^p3_up) # no negative or under or overflow
                 NumStates = 0
                 p3_physical = false
             else
@@ -323,9 +324,9 @@ function Momentum3Value2!(p3v::Vector{Float64},p3pv::Vector{Float64},p1v::Vector
 
     else # imaginary C3sqr < 0e0
 
-        NumStates = 2 # two states but both in same bin
-        p3p_physical = false
-        p3_physical = false
+        #NumStates = 2 # two states but both in same bin # defined at top of function
+        #p3p_physical = false
+        #p3_physical = false
 
         p3Real = C2/C4
         if p3Real <= 0e0
