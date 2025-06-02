@@ -192,14 +192,14 @@ end
 
 function WeightedFactors2(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,m2::Float64,m3::Float64,m4::Float64,sBig::Float64,sSmol::Float64,scale::Float64) 
 
-    p1 = p1v[1]
-    p2 = p2v[1]
+    p1::Float64 = p1v[1]
+    p2::Float64 = p2v[1]
 
-    (st1,ct1) = sincospi(p1v[4])
-    (st2,ct2) = sincospi(p2v[4])
-    (sh1,ch1) = sincospi(p1v[3])
-    (sh2,ch2) = sincospi(p2v[3])
-    ch1h2 = cospi(p1v[3]-p2v[3])
+    (st1::Float64,ct1::Float64) = sincospi(p1v[4])
+    (st2::Float64,ct2::Float64) = sincospi(p2v[4])
+    (sh1::Float64,ch1::Float64) = sincospi(p1v[3])
+    (sh2::Float64,ch2::Float64) = sincospi(p2v[3])
+    ch1h2::Float64 = cospi(p1v[3]-p2v[3])
 
     s::Float64 = sBig + sSmol
     E1::Float64 = sqrt(p1v[1]^2+m1^2)
@@ -215,7 +215,11 @@ function WeightedFactors2(p1v::Vector{Float64},p2v::Vector{Float64},m1::Float64,
     hC::Float64 = mod(atan(y,x)/pi,2)
 
     # outgoing COM frame momentum
-    pC = InvariantFluxSmall(sSmol,m3,m4)/sqrt(s)
+    pC::Float64 = InvariantFluxSmall(sSmol,m3,m4)/sqrt(s)
+
+    # pre allocate types
+    w3Limit::Float64 = 0e0
+    w4Limit::Float64 = 0e0
 
     # Lab Frame Angle limits
     # Due to conservation laws there is a limit on the lab frame scattering angle with respect to the COM frame direction. This angle is then mapped to a rapidity that "boosts" the lab frame angle samples such that 50% of samples lie within this angle limit.
